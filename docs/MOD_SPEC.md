@@ -2,7 +2,7 @@
 
 **Status:** Phase 0 完了 / Phase 1 準備  
 **Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  
-**Version:** 0.7  
+**Version:** 0.8  
 **Date:** 2026-10-04
 
 ## 1. 目的
@@ -92,6 +92,20 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 - Recruitment BeaconとCrew Commandは併用を前提とした候補として扱う。
 - Civil NPCs、AISS等が同じNPCの生成・AI行動・Actor/AI Packageを制御する場合は、実機および競合監査で干渉を確認する。
 - 初期Stableには入れず、追加する場合は専用テストプロファイルで検証してからStableへの採用可否を判断する。
+
+### QoL / UI
+
+| MOD | 役割 | 方針 |
+|---|---|---|
+| AstralUI | インベントリ・コンテナ・売買・Quick Loot等のUI改善 | **第一候補。Phase 0監査後に採否を決定** |
+| StarUI Inventory | PC向けインベントリUI改善 | **比較候補。AstralUIとは同時導入しない** |
+| PraxisUI | バニラ寄りのインベントリUI改善 | **比較候補。AstralUI/StarUIとは同時導入しない** |
+
+方針:
+- 重量制限解除MODは採用しない。
+- インベントリUIオーバーホールは**1系統だけ**有効にする。AstralUI / StarUI Inventory / PraxisUIを重ねない。
+- FHD・PC操作環境で、カテゴリ分け、ソート、Quick Loot、列表示、文字サイズ、コントローラー対応等を実機確認する。
+- AISSその他のUI/SWF変更との競合をPhase 0で確認し、CRITICAL/HIGHが解消できない候補はStableに入れない。
 
 ### Experimental
 
