@@ -1,0 +1,31 @@
+# 実際の設定ファイル（APIキー・個人パスを含む可能性があるもの）はコミットしない
+# テンプレートは *.example.* として管理する
+configs/**/*.local.*
+configs/**/config.json
+!configs/**/*.example.*
+
+# MOD本体・アーカイブ・音声モデルは含めない
+*.7z
+*.zip
+*.rar
+*.ba2
+*.esm
+*.esp
+*.esl
+*.dll
+*.exe
+*.onnx
+*.pth
+*.safetensors
+*.aivmx
+*.gguf
+
+# 生成音声・ログ
+*.wav
+*.mp3
+logs/
+*.log
+
+# Python
+__pycache__/
+.venv/

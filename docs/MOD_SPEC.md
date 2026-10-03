@@ -2,7 +2,7 @@
 
 **Status:** READ-ONLY / Implementation Specification Draft  
 **Target:** Windows / Starfield / RX 9070 16GB / X52 HOTAS / LM Studio local LLM  
-**Version:** 0.3  
+**Version:** 0.4  
 **Date:** 2026-10-03
 
 ## 1. 目的
@@ -32,6 +32,8 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 - LLM生成会話は日本語出力を要件とする。
 - AISS + LM StudioをAI基盤候補とする。
 - 各フェーズで起動・セーブ・ロード・会話・移動を検証する。
+- Starfield本体のバージョンを固定する。SFSEプラグイン（DLL）は本体更新で動かなくなるため、本体更新はSFSE・Address Library・各SFSEプラグインの対応を確認してから行う。
+- 各フェーズの開始前にセーブデータをバックアップする。スクリプト系MOD（AISS等）は途中で外すとセーブが壊れる可能性があるため、検証は専用のテスト用セーブで行う。
 
 ## 3. 採用候補
 
@@ -122,12 +124,17 @@ AISS側では以下を監査する:
 - 既知の不具合
 
 テスト条件:
-- 日本語質問
-- 日本語回答
+- 日本語質問（ゲーム内のAISS入力欄で日本語IMEが使えるか。使えない場合の代替手段: ボーダーレスウィンドウでの入力、貼り付け等）
+- 日本語回答（AISSのUIで日本語の文字が表示されるか。文字化け・豆腐（□）がないか）
 - NPC人格維持
 - 過去会話の記憶
 - クエスト/場所/船/装備等のコンテキスト認識
 - 複数NPC会話時の日本語維持
+- 日本語版ゲームのNPC名・地名・アイテム名がAISSのコンテキストに日本語で渡るか、英語の内部名が混ざるか
+
+AISSの人格・ワールドプロファイル・システムプロンプトが英語の場合、日本語で返答させる指示を追加する。追加する設定値は `configs/AISS/` に記録する。
+
+LLMモデルは日本語性能を重視して選ぶ。モデル名・量子化・コンテキスト長・使用VRAMを `configs/LMStudio/` に記録する。
 
 TTSは初期Phase（Phase 1）では導入しない。Phase 1でAISS + LM Studioの日本語テキスト会話が安定した後、5.1の無料TTS構成を「Phase 1.5 — AI Voice」として段階導入する。
 
@@ -205,6 +212,7 @@ Starfield
 - APIキーをダミー値で通せること（本物のキー・アカウントは使わない）
 - ブリッジがAISSの期待する音声形式（コーデック、サンプルレート、レスポンス形式）を返せること
 - 口パクが返却音声の長さと同期すること
+- AISSがNPCごとに送るボイスID（922件のNPC音声ルート）を、ブリッジ側でローカルの話者（voice_map）に変換できること
 
 fish-speech（OSS版）がAISSのFish Audio経路と直接互換であれば、ブリッジなしで接続できる可能性がある。Phase 0で確認する。
 
@@ -240,11 +248,16 @@ Starfield
 - 長文は文単位で分割し、先頭文から順次再生して体感遅延を減らす
 - 読み上げ前に、英字固有名詞・数字の読み替え辞書を適用できるようにする（`configs/TTS/` で管理）
 - 読み上げツールやTTSエンジンが停止しても、ゲームとAISSのテキスト会話には影響しない
+- レスポンス内のセリフ以外（ト書き `*微笑む*` 等、アクション/感情タグ、JSON、メタ情報）は読み上げ前に除去する。除去ルールは実ファイル確認後に `configs/TTS/` で定義する
+- MO2環境でのファイルの実際の場所を確認する（7.1参照）。読み上げツールは、MO2の仮想ファイルシステム経由のパスではなく、実際にファイルが書き出される場所（MO2のoverwriteフォルダ等）を監視する。パスは設定ファイルで指定できるようにする
+- 再生音量・出力デバイスを設定できるようにする
+- 読み上げツールのログを残す（検出時刻、NPC、本文の先頭、生成時間、再生時間、エラー）
 
 制約:
 - 口パクとは同期しない
 - AISSの会話表示と音声にタイムラグが出る
 - 音声はゲーム内の3D音響ではなくPC側の再生になる
+- `latest_response.ini` は最新の1件だけを保持するため、短時間に複数のレスポンスが来ると、読み取る前に上書きされて取りこぼす可能性がある。取りこぼしはログに記録し、頻度を検証する
 
 ### 実行配置
 
@@ -269,6 +282,19 @@ Starfield
 - TTSエンジン停止時にAISS会話（テキスト）が継続し、CTDしない
 - 方式Dの場合: 重複再生がない、書き込み途中の読み取りがない、AISSのTTSが無効で二重再生しない
 - 10回以上の連続会話とセーブ/ロード
+
+## 5.2 VRAM・性能予算
+
+RX 9070 16GBを、Starfield・LM Studio（LLM）・TTSで共有するため、VRAM不足が最大の性能リスクになる。
+
+- Phase 1でStarfield単体のVRAM使用量を計測し、LLMに使える残量を決める
+- LLMは残量に収まるサイズ・量子化を選ぶ。収まらない場合は以下のどれかを採用する
+  - より小さいモデル／低い量子化にする
+  - GPUへのオフロード層を減らし、一部をCPUで動かす（応答は遅くなる）
+  - LM StudioをLAN内の別PC（Radeon RX 7600搭載のリビングPC等）で動かし、AISSのLM Studio接続先URLをそのPCに向ける
+- TTSは原則CPUで動かす（5.1 実行配置）
+- 計測項目: VRAM使用量、フレームレート（平均と最低）、LLMの応答時間、TTSの生成時間
+- 結果は `docs/TEST_RESULTS.md` に記録する
 
 ## 6. 日本語化方針
 
@@ -299,18 +325,34 @@ SFSE/Address Library等の基盤MODや、新規プレイヤー向けテキスト
 
 ### Stable
 
-```
-SFSE
-Address Library
-AISS + dependencies
-LM Studio
-Absolute HOTAS
-Civil NPCs
-Ship Crew Assignments
-Real Fuel
-```
+Stableはフェーズの検証合格ごとに段階的に増やす。各MODを導入するフェーズは次のとおり。
+
+| MOD | 導入フェーズ |
+|---|---|
+| SFSE | Phase 1 |
+| Address Library for SFSE Plugins | Phase 1 |
+| Cassiopeia Papyrus Extender | Phase 1 |
+| Longer Names v2 | Phase 1 |
+| AISS | Phase 1 |
+| Absolute HOTAS | Phase 1 |
+| Civil NPCs | Phase 2 |
+| Ship Crew Assignments | Phase 2 |
+| Real Fuel | Phase 2 |
 
 TTS（Phase 1.5）はStableに含めず、Phase 1.5の検証合格後にStableへ追加するかをユーザーが判断する。検証中はStableプロファイル + TTS有効設定で試験する。
+
+### 外部プロセス（MO2のMODではない）
+
+以下はMO2のプロファイルに入れるMODではなく、ゲームと並行して起動する外部プログラムとして管理する。起動順と設定は `docs/CONFIG_GUIDE.md` に記録する。
+
+```
+LM Studio（Local Server）
+AISS_Backend.exe
+TTSエンジン（Phase 1.5以降）
+読み上げツール または TTSブリッジ（Phase 1.5以降）
+```
+
+起動順の原則: LM Studio → TTSエンジン → 読み上げツール/ブリッジ → AISS_Backend.exe → SFSE経由でStarfield。
 
 ### Immersion-Test
 
@@ -333,6 +375,15 @@ Seamless Planet Takeoffs
 ```
 
 その他の大型航行MODは個別検証用プロファイルで扱う。
+
+## 7.1 MO2運用上の注意
+
+- MO2は仮想ファイルシステム（VFS）でMODをゲームフォルダに見せている。MO2の外から起動したプログラムには、MOD内のファイル（`Data\AISS\config.json` 等）が見えない
+- `AISS_Backend.exe` は、MO2の実行ファイル登録から起動するか、作者の推奨手順に従う。どちらで動くかをPhase 0/1で確認する
+- SFSEプラグインやAISSが書き出すファイル（ログ、`Data\SFSE\AISS\` 以下）は、MO2ではoverwriteフォルダに出力されることがある。実際の出力先を確認し、`docs/CONFIG_GUIDE.md` に記録する
+- プロファイルごとにセーブを分ける（MO2のプロファイル別セーブ機能を使う）。Stable・Immersion-Test・Experimentalのセーブを混在させない
+- プラグインの読み込み順はMO2で管理し、変更したら記録する
+- Bethesda公式のCreations経由で導入したMODとNexus/MO2経由のMODを混在させる場合は、どちらで管理しているかを記録する。同じMODを両方から入れない
 
 ## 8. 競合監査
 
@@ -374,7 +425,9 @@ AGYは変更を行わず、以下を調査する:
 9. AISS + LM Studio対応
 10. 既知の問題
 11. AISSのTTS接続先（base URL）変更可否、xtts枠の有無と動作可否、ダミーキーで通るか、期待される音声形式、`latest_response.ini` の形式（5.1 方式A/B/C/Dの判定。ユーザー環境の `Data\AISS\config.json` と `config_presets` を確認。APIキー欄は記録しない）
-12. 無料TTS候補（AivisSpeech Engine / VOICEVOX Engine / Style-Bert-VITS2 / fish-speech / XTTS v2 / Irodori-TTS）の最新版、Windows + AMD GPU対応、CPU実行時の速度、日本語品質、音声モデル/キャラクターの利用規約
+12. AISSの入力欄で日本語IMEが使えるか、AISSのUIで日本語が表示できるか（情報がなければPhase 1の実機テストで確認）
+13. MO2環境での `AISS_Backend.exe` の起動方法と、AISSのログ・音声キャッシュの実際の出力先
+14. 無料TTS候補（AivisSpeech Engine / VOICEVOX Engine / Style-Bert-VITS2 / fish-speech / XTTS v2 / Irodori-TTS）の最新版、Windows + AMD GPU対応、CPU実行時の速度、日本語品質、音声モデル/キャラクターの利用規約
 
 成果物:
 - `docs/MOD_AUDIT.md`
@@ -386,7 +439,16 @@ AGYは変更を行わず、以下を調査する:
 
 ## 10. Phase 1 — Core
 
-Stableプロファイルのみ構築。
+Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで構築する（7章の表）。
+
+導入:
+- SFSE
+- Address Library for SFSE Plugins
+- Cassiopeia Papyrus Extender
+- Longer Names v2
+- AISS
+- Absolute HOTAS
+- 外部プロセス: LM Studio、AISS_Backend.exe
 
 テスト:
 - Starfield起動
@@ -396,8 +458,9 @@ Stableプロファイルのみ構築。
 - NPC会話
 - AISS起動
 - LM Studio接続
-- 日本語AI会話
+- 日本語AI会話（5章のテスト条件。日本語IME入力・日本語表示を含む）
 - HOTAS入力
+- VRAM・性能の計測（5.2）
 
 成果物: `docs/TEST_PHASE1.md`
 
@@ -420,10 +483,12 @@ Stableプロファイルのみ構築。
 ## 11. Phase 2 — Ship Life
 
 追加:
+- Civil NPCs
 - Ship Crew Assignments
 - Real Fuel
 
 テスト:
+- NPCの挙動（Civil NPCs）とAISS会話が両立するか
 - クルー配置
 - クルー行動
 - 船内移動
@@ -517,6 +582,8 @@ MOD本体・音声モデル本体はリポジトリに含めない。
 - テスト結果をコミットする。
 - 無関係な変更を行わない。
 - MOD構成変更時は仕様書も更新する。
+- APIキー・トークン・個人のフォルダパス・ユーザー名をコミットしない。設定ファイルはプレースホルダー入りのテンプレート（例: `config.example.json`）として管理し、実際の設定ファイルは `.gitignore` で除外する。
+- AISSの `config.json` を丸ごとコミットしない（MOD作者の配布物の再配布になるため）。変更した項目と値だけを記録する。
 
 ## 17. Phase 0の必須回答表
 
@@ -524,8 +591,13 @@ AGYは実装前に以下を埋める。
 
 | MOD | 採用判定 | 最新版 | 必須依存 | 競合 | 日本語化 | 安定性 | 備考 |
 |---|---|---|---|---|---|---|---|
+| SFSE | 必須 | 調査 | 調査 | 調査 | 対象外 | 調査 | 本体バージョンとの対応 |
+| Address Library for SFSE Plugins | 必須 | 調査 | 調査 | 調査 | 対象外 | 調査 | SFSE依存 |
+| Cassiopeia Papyrus Extender | 必須候補 | 調査 | 調査 | 調査 | 対象外 | 調査 | AISS依存 |
+| Longer Names v2 | 必須候補 | 調査 | 調査 | 調査 | 調査 | 調査 | AISS依存 |
 | AISS | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 中核 |
 | Absolute HOTAS | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | X52 |
+| Civil NPCs | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | NPC挙動。AISSとの干渉確認 |
 | Ship Crew Assignments | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | クルー |
 | Real Fuel | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | Ships Need Gasとの比較 |
 | Grav Lanes | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 実験 |
