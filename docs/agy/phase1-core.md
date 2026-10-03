@@ -179,3 +179,52 @@ Starfield 未起動で VRAM 使用量が約11.8GB と報告されている。FHD
 
 - AISS_Backend.exe の起動方法（MO2 経由かどうか）は、ヘルスチェックで Install mode: mo2 が検出されたことを踏まえ、MO2 の実行ファイルから起動する
 - メインメニュー表示後に終了したら、sfse.log と AISS のログ・出力フォルダの実際の場所（ゲームフォルダ / MO2 の overwrite）を記録する
+
+---
+
+## phase1-core-03 へのレビュー（Claude、2026-10-03）
+
+完了報告を確認した。TTS の `tts.local` の確認、AISS のアドオン機能の発見、VRAM の実測はどれも重要な成果。以下の作業1〜6を行い、`phase1-core-04.md` を push して止まること。作業1〜6はすべて「止まらずに進めてよい」範囲とする（作業2のファイル復元を含む）。
+
+### 作業1: 日本語指示をアドオン方式に移す（承認）
+
+- 提案どおり、MO2 の別MOD「AISS - Japanese Language Addon」を作り、`AISS\addons\<pack_name>\profiles\vanilla_starfield\system_preface_append.txt` に日本語指示を入れる。MO2 の左ペインで AISS より下（優先度が高い側）に置く
+- AISS 本体の `system_preface.txt` は、バックアップ（`AISS_original_system_preface.txt`）から元に戻す。元に戻した後、バックアップと内容が一致することを確認する
+- AISS_Backend.exe を再起動し、アドオンが読み込まれたことをログまたはヘルスチェックで確認する
+- configs/AISS/settings.md を、アドオン方式に合わせて書き直す（アドオンの構成と全文を記録。本体ファイルの直接編集はやめた旨も記録）
+
+### 作業2: KV キャッシュ量子化を標準設定にする
+
+- 16K・f16 でモデル本体＋コンテキストが 9.84GB、メインメニューの時点で VRAM が 15.34GiB（96%）。実際のプレイではこれより増えるため、余裕がない
+- LM Studio で gemma-4-12b-it-qat の読み込み設定を、**K キャッシュ Q8_0・V キャッシュ Q8_0・Flash Attention オン・コンテキスト長 16384** にする。CLI で指定できなければ、LM Studio のモデル別の既定読み込み設定（GUI で保存される設定ファイル）で指定する
+- その設定で読み込み直し、VRAM の内訳（モデル本体・コンテキスト）を記録する
+- 読み込み後に簡単な日本語のテストプロンプトを送り、正常に応答することを確認する
+- configs/LMStudio/gemma-4-12b.md を更新する（標準設定: Q8_0 KV キャッシュ＋Flash Attention、16K。32K は使わない）
+
+### 作業3: デスクトップ常駐の VRAM（5.54GiB）の確認
+
+- LM Studio 終了時点で 5.54GiB は多い。GPU メモリを使っているプロセス名と使用量の上位を一覧にする（プロセス名と数値のみ。ウィンドウタイトルや開いている内容は記録しない）
+- ゲームプレイ時に閉じておくべきアプリがあれば、CONFIG_GUIDE.md の起動手順に「プレイ前に閉じるもの」として記録する
+
+### 作業4: ModOrganizer.ini の steamAppID を空にした理由
+
+- 報告に「1\steamAppID 空化」とあるが、指示にない変更。空にした理由を報告する
+- 必要がない変更なら元の値に戻す。必要なら理由を CONFIG_GUIDE.md に記録する
+
+### 作業5: SFSE のファイルサイズの食い違い
+
+- `sfse_loader.exe` と `sfse_1_16_244.dll` のサイズが、報告02（68,600 / 116,216 bytes）と報告03（190,464 / 496,128 bytes）で違う
+- 現在ゲームフォルダにあるファイルと、`D:\StarfieldMODs\Phase1` の SFSE アーカイブ内のファイルのハッシュ（SHA-256）を比較し、一致するか報告する。どちらかの報告の数値が誤記ならその旨を書く
+
+### 作業6: ドキュメントの commit・push（承認）
+
+- 作業1〜5を反映したうえで、以下を **phase1-core ブランチ**に commit・push する（main へのマージはしない。Claude が確認してマージする）
+  - docs/INSTALL_GUIDE.md、docs/CONFIG_GUIDE.md、docs/TEST_PHASE1.md、docs/TTS_AUDIT.md
+  - configs/LMStudio/gemma-4-12b.md、configs/AISS/settings.md
+  - docs/agy/reports/phase1-core-04.md
+- commit 前に、実際のユーザー名を含むパス・APIキーらしき文字列が含まれていないことを確認する
+- CONFIG_GUIDE.md と TEST_PHASE1.md には、**ゲームは必ず MO2 の GUI から「SFSE」を実行して起動する**こと（sfse_loader.exe を直接起動すると MO2 の MOD が読み込まれない）を目立つ形で書く
+
+### 次の段階（参考）
+
+作業1〜6の後、ユーザーが docs/TEST_PHASE1.md に沿って実機テストを行う。MO2 の GUI から起動して、SFSE プラグインと AISS が実際に読み込まれるか、日本語会話ができるかを確認するのはその段階。
