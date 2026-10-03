@@ -27,6 +27,7 @@
 | **A** | **Seamless Loading Screens** | なし（ReShade/INIのみ） | 対象外 | なし | - | [Nexus ID: 18239](https://www.nexusmods.com/starfield/mods/18239) |
 | **A** | **Seamless Neon** | ほぼなし（街区統合・配置変更） | 不要 | バニラの日本語看板・NPC名がそのまま維持される | - | [Nexus ID: 17340](https://www.nexusmods.com/starfield/mods/17340) |
 | **A** | **Seamless Planet Takeoffs** | なし（演出・INIのみ） | 対象外 | なし | - | [Nexus ID: 17719](https://www.nexusmods.com/starfield/mods/17719) |
+| **A** | **Roleplayers' Alternate Start** | **あり**（スタート地点選択メニュー、装備ターミナル、ナラティブ調整ダイアログ等） | なし（現段階は英語のまま運用） | ・スタート地点・ナラティブ選択肢（46 MESG, 39 TERM）<br>・改変ロッジ会話テキスト（400+ DIAL/INFO）<br>※日本語音声 BA2 同梱のためバニラ部音声は日本語再生。現フェーズでは翻訳せず英語運用。 | 翻訳パッチ公開可（元MODの再配布は不可） | [Nexus ID: 15094](https://www.nexusmods.com/starfield/mods/15094) |
 | **B / 対象外** | **Longer Names v2** | なし (INI設定のみ) | 対象外 | なし | - | [Nexus ID: 5046](https://www.nexusmods.com/starfield/mods/5046) |
 | **B / 対象外** | **SFSE** | なし (基盤ツール) | 対象外 | なし | - | [sfse.silverlock.org](https://sfse.silverlock.org/) |
 | **B / 対象外** | **Address Library for SFSE Plugins** | なし (バイナリDB) | 対象外 | なし | - | [Nexus ID: 3256](https://www.nexusmods.com/starfield/mods/3256) |

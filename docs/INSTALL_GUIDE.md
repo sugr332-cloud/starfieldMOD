@@ -31,6 +31,7 @@
 | 4 | **AISS - AI Settled Systems** | v3.75 | `AISS - AI Settled Systems-15636-3-75-1772401777.zip` | MO2 経由導入 | AI会話基盤（ESM+DLL+Backend） |
 | 5 | **AISS - Japanese Language Addon** | v1.0.0 | （新規構築） | MO2 経由導入（別MOD） | AISS 公式アドオン構造による日本語プロンプト |
 | 6 | **Absolute HOTAS** | V5.1.0 | `Absolute HOTAS - Flight and System Control-11756-V5-1-0-1740925232.zip` | MO2 経由導入 | 操縦・HOTAS入力基盤（DLL+ルーズスクリプト） |
+| 7 | **Roleplayers' Alternate Start** | 1.2.4 | `Roleplayers' Alternate Start 15094 1.2.4 2026-09-24T14-20Z qd5Tg9F6T.zip` | MO2 経由導入 | ニューゲーム導入スキップ（ESM+BA2） |
 
 ※競合確認結果: 全ファイルで上書き衝突 0 件（完全独立）。
 ※日本語アドオンは MO2 別 MOD「AISS - Japanese Language Addon」の1か所のみで独立管理し、AISS 本体のフォルダは一切改変しません。
@@ -93,11 +94,20 @@ SFSE は作者の仕様に基づき、ゲームフォルダ直下（`<Starfield>
 │               └── profiles\
 │                   └── vanilla_starfield\
 │                       └── system_preface_append.txt
-└── Absolute HOTAS\
-    ├── Scripts\
-    └── SFSE\
-        └── Plugins\
-            └── AbsoluteHOTAS.dll
+├── Absolute HOTAS\
+│   ├── Scripts\
+│   └── SFSE\
+│       └── Plugins\
+│           └── AbsoluteHOTAS.dll
+└── Roleplayers' Alternate Start\
+    ├── RoleplayersAlternateStart.esm
+    ├── RoleplayersAlternateStart - Main.ba2
+    ├── RoleplayersAlternateStart - Voices_ja.ba2
+    ├── RoleplayersAlternateStart - Voices_en.ba2
+    ├── RoleplayersAlternateStart - Voices_de.ba2
+    ├── RoleplayersAlternateStart - Voices_es.ba2
+    ├── RoleplayersAlternateStart - Voices_fr.ba2
+    └── readme.md
 ```
 
 ---
@@ -111,6 +121,7 @@ SFSE は作者の仕様に基づき、ゲームフォルダ直下（`<Starfield>
 4. AISS - AI Settled Systems
 5. **AISS - Japanese Language Addon**（AISS の直下、優先度高）
 6. Absolute HOTAS
+7. **Roleplayers' Alternate Start**
 
 ### 5.2 MO2 右ペイン / plugins.txt（プラグイン読み込み順）
 Starfield の公式マスターに続き、以下のロード順で有効化しています。
@@ -122,4 +133,5 @@ Starfield の公式マスターに続き、以下のロード順で有効化し�
 *BlueprintShips-Starfield.esm
 *sfxfirefly.esm
 *x2357aiss.esm
+*RoleplayersAlternateStart.esm
 ```

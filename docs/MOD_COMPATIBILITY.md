@@ -20,6 +20,7 @@
 | **Seamless Neon（ワールドスペース改変）** | **HIGH** | ネオン内部セルを外部ワールドスペースへ統合。作者は途中導入で一部のクエストが壊れると警告。 | [Nexus ID: 17340 (作者説明)](https://www.nexusmods.com/starfield/mods/17340) | **New Game または NG+ (Unity jump) が前提**。作者が非互換と明記する大型Neon改変MOD（Seamless City Interiors、Neon Core Disguised Seamless Project、Neon Core Apartment、Kansha - Neon Apartment、The Dark Side of Neon 等）と排他。SFBGS00D.esm（2026年4月以降のゲームバージョン）必須。 |
 | **Grav Lanes の非互換MOD** | **HIGH** | Grav Lanes は Immersive Grav Jumps と非互換（競合）。 | [Nexus ID: 16438 (作者説明)](https://www.nexusmods.com/starfield/mods/16438) | Immersive Grav Jumps は導入しない。 |
 | **Civil NPCs × AISS** | **LOW** | Civil NPCs は GMST（ゲーム設定値8項目）の調整のみでスクリプトなし。AISS の会話開始に干渉せず共存。 | [Nexus ID: 17292](https://www.nexusmods.com/starfield/mods/17292), [Nexus ID: 17392](https://www.nexusmods.com/starfield/mods/17392) | 競合なし。共存可能。 |
+| **Roleplayers' Alternate Start × 他の Alternate Start 系** | **CRITICAL** | 同一のニューゲーム開始処理・Unity 開始処理をフックするため完全排他。 | [Nexus ID: 15094 (作者説明)](https://www.nexusmods.com/starfield/mods/15094) | 他の Alternate Start 系 MOD（有料/無料問わず）は一切導入しない。IgnusT 作「Starborn Trait」とも非互換のため除外。 |
 
 ---
 
@@ -70,6 +71,13 @@
   - AISS のカスタムSWFが日本語フォントグリフを正しく描画できるか、DirectX 12排他フルスクリーン下で日本語IMEが直接入力できるかについて。
   - 公開ドキュメントに確証がなく、**未確認の推測**である。
 - **検証計画**: Phase 1 の実機テストで検証し、表示不良時はフォント設定、入力不能時はボーダーレスウィンドウや貼り付け等の代替手段を検証する。
+
+### 3.6 Roleplayers' Alternate Start × AISS（AI 会話）の相互作用
+- **推測される懸念**:
+  - Roleplayers' Alternate Start はバニラの初期クエスト「One Small Step」をスキップし、アーティファクト取得やロッジ導入クエストを独自のフックに置き換える。
+  - AISS の NPC 会話フックや会話要求（`latest_request.ini`）が、代替スタート後の NPC（バレット、サラ等）で正常に機能するかについて。
+  - 相互干渉に関する作者の明記はなく、互いに独立したスクリプト／フック構造を持つが、クエスト進行フラグの差異が AISS 会話のトリガーに影響しないか確認が必要。
+- **検証計画**: **AISS との相性は Phase 1 の実機テストで確認**する（代替スタート後にロッジ等でコンパニオンと会話可能か実機検証）。
 
 ---
 

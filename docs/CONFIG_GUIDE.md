@@ -59,13 +59,20 @@
 ## 2. INI 設定
 
 ### 2.1 StarfieldCustom.ini
-MO2 のプロファイル別 INI（`<MO2>\Starfield\profiles\Stable\StarfieldCustom.ini`）に以下を配置し、ルーズファイルの読み込みを有効化しています。
+MO2 のプロファイル別 INI（`<MO2>\Starfield\profiles\Stable\StarfieldCustom.ini`）に以下を配置し、ルーズファイルの読み込みおよび起動時オープニング映像・ロゴのスキップを有効化しています。
 
 ```ini
 [Archive]
 bInvalidateOlderFiles=1
 sResourceDataDirsFinal=
+
+[General]
+sIntroSequence=
+uMainMenuDelayBeforeAllowSkip=0
 ```
+
+> [!NOTE]
+> `sIntroSequence=` および `uMainMenuDelayBeforeAllowSkip=0` は Nexus mods/586「Skip Intro Videos」と同等の INI 設定です。メインメニュー等の SWF を置き換える MOD（Undelayed Launching 等）は日本語フォント・UI 破損のリスクがあるため使用せず、純粋な INI 設定のみで安全にスキップしています。
 
 ### 2.2 StarfieldPrefs.ini
 `<MO2>\Starfield\profiles\Stable\StarfieldPrefs.ini` にゲーム解像度・グラフィック設定・コントロール設定が保持されます。

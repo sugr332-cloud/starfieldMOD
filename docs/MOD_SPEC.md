@@ -65,6 +65,7 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 | LM Studio | ローカルLLM（標準モデル: Gemma 4 12B QAT） | 中核 |
 | AivisSpeech Engine（他TTS候補は5.1） | 無料ローカルTTS | 採用候補（Phase 1.5） |
 | Absolute HOTAS | HOTAS操作 | 採用候補 |
+| Roleplayers' Alternate Start | ニューゲーム導入のスキップ | 採用候補（Phase 1） |
 | Civil NPCs | NPC挙動改善 | 採用候補 |
 | Ship Crew Assignments | クルー生活 | 採用候補 |
 | Real Fuel | 燃料 | 採用候補 |
@@ -408,6 +409,7 @@ Stableはフェーズの検証合格ごとに段階的に増やす。各MODを�
 | Longer Names v2 | Phase 1 |
 | AISS | Phase 1 |
 | Absolute HOTAS | Phase 1 |
+| Roleplayers' Alternate Start | Phase 1 |
 | Civil NPCs | Phase 2 |
 | Ship Crew Assignments | Phase 2 |
 | Real Fuel | Phase 2 |
@@ -716,6 +718,7 @@ AGYは実装前に以下を埋める。
 | Seamless Loading Screens | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 視覚的シームレス |
 | Seamless Neon | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 大規模変更 |
 | Spaceships Plus | Phase 2.5 | 監査済み | 監査済み | 監査済み | 要翻訳 | 監査済み | 結果は MOD_AUDIT.md |
+| Roleplayers' Alternate Start | Phase 1 | 1.2.4 | なし | 競合なし | 英語運用 (音声jaあり) | 安定 | ニューゲーム導入スキップ |
 | Seamless Planet Takeoffs | Experimental | 調査 | 調査 | 調査 | 調査 | 調査 | 最後に導入 |
 | AISS TTS接続先変更 | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 方式A/B/C/D判定。xtts枠確認 |
 | 方式D 読み上げツール | 方式A不可時に採用 | 調査 | 調査 | 調査 | 調査 | 調査 | latest_response.ini形式確認 |
