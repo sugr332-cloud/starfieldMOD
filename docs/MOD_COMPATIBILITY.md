@@ -17,7 +17,7 @@
 |---|---|---|---|---|
 | **Real Fuel × Ships Need Gas** | **CRITICAL** | 同一機能（He-3燃料消費によるGrav Jump制限、ステーション補給機能）の重複による完全破綻。 | 仕様書4章、[Nexus ID: 13306](https://www.nexusmods.com/starfield/mods/13306), [Nexus ID: 7197](https://www.nexusmods.com/starfield/mods/7197) | **完全排他（同時導入不可）**。Real Fuel を単独採用し、Ships Need Gas は除外。 |
 | **全SFSEプラグイン × ゲーム本体バージョン** | **HIGH** | ゲーム本体（`Starfield.exe`）の更新によりメモリアドレスが変化し、未対応DLLが起動時CTDを引き起こす。 | [SFSE公式](https://sfse.silverlock.org/) | ゲームバージョン `1.16.244` に対応したSFSE 0.2.21および各プラグインのみを使用。本体更新時は起動停止。 |
-| **Seamless Neon（ワールドスペース改変）** | **HIGH** | ネオン内部セルを外部ワールドスペースへ統合。既存セーブに導入すると旧セルにクエストオブジェクトが残留しクエスト進行不能となる。 | [Nexus ID: 17340 (作者説明)](https://www.nexusmods.com/starfield/mods/17340) | **New Game または NG+ (Unity jump) が必須**。他のネオン改変MOD（Neon Expanded等）とは完全排他。 |
+| **Seamless Neon（ワールドスペース改変）** | **HIGH** | ネオン内部セルを外部ワールドスペースへ統合。作者は途中導入で一部のクエストが壊れると警告。 | [Nexus ID: 17340 (作者説明)](https://www.nexusmods.com/starfield/mods/17340) | **New Game または NG+ (Unity jump) が前提**。作者が非互換と明記する大型Neon改変MOD（Seamless City Interiors、Neon Core Disguised Seamless Project、Neon Core Apartment、Kansha - Neon Apartment、The Dark Side of Neon 等）と排他。SFBGS00D.esm（2026年4月以降のゲームバージョン）必須。 |
 | **Grav Lanes の非互換MOD** | **HIGH** | Grav Lanes は Immersive Grav Jumps と非互換（競合）。 | [Nexus ID: 16438 (作者説明)](https://www.nexusmods.com/starfield/mods/16438) | Immersive Grav Jumps は導入しない。 |
 | **Civil NPCs × AISS** | **LOW** | Civil NPCs は GMST（ゲーム設定値8項目）の調整のみでスクリプトなし。AISS の会話開始に干渉せず共存。 | [Nexus ID: 17292](https://www.nexusmods.com/starfield/mods/17292), [Nexus ID: 17392](https://www.nexusmods.com/starfield/mods/17392) | 競合なし。共存可能。 |
 
@@ -57,7 +57,15 @@
   - 公式の不具合報告は確認されておらず、**未確認の推測**である。
 - **検証計画**: Phase 3 / 4 において、自動シーケンス中のスティック入力挙動を実機で検証する。
 
-### 3.4 AISS UI の日本語表示・IME入力
+### 3.4 Seamless Loading Screens × Seamless Planet Takeoffs（離陸時の画面遷移）
+- **懸念**:
+  - Seamless Loading Screens は、作者説明によればドア・エレベーター・搭乗・船外移動に加えて**離陸時の遷移**にも作用する（出典: [Nexus ID: 18239](https://www.nexusmods.com/starfield/mods/18239)）。
+  - Seamless Planet Takeoffs も離陸のロードを排除するMODであり、同じ遷移に両方が作用する可能性がある。
+  - 両MOD間の相互作用に関する作者の明記は未確認。
+- **検証計画**: Phase 4 で Seamless Planet Takeoffs を追加する際、離陸遷移を重点的に検証する。必要なら Seamless Loading Screens 側で離陸遷移を無効化できる設定があるかを確認する。
+- 〔2026-10-03 Claudeレビューで追加〕
+
+### 3.5 AISS UI の日本語表示・IME入力
 - **推測される懸念**:
   - AISS のカスタムSWFが日本語フォントグリフを正しく描画できるか、DirectX 12排他フルスクリーン下で日本語IMEが直接入力できるかについて。
   - 公開ドキュメントに確証がなく、**未確認の推測**である。
@@ -106,7 +114,7 @@ SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
 1. SFSE経由（`sfse_loader.exe`）でゲームを一度起動し、メインメニュー表示後に終了する。
 2. 生成されたログファイルを確認する。
    - パス: `<Starfield>\Data\SFSE\sfse.log`（MO2環境下では MO2の `overwrite\SFSE\sfse.log` または各MODフォルダに出力される）。
-3. ログ内の以下の記述を検索・点検する:
+3. ログ内の以下のような記述を検索・点検する（下記は記述のイメージであり、実際の書式は実ログで確認すること）:
    ```text
    checking plugin: <PluginName>.dll
    plugin version: x.x.x

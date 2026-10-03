@@ -20,7 +20,7 @@
 | **GPUドライバ** | バージョン 32.0.31041.1004 (AMD Software) | |
 | **Starfield本体** | **ダウンロード中（未完了 / 暫定値: 1.16.244.0）**<br>ストア: Steam (AppID: 1716740) | `<Steam>\steamapps\common\Starfield` は現在空フォルダ。<br>`<Steam>\steamapps\downloading\1716740\Starfield.exe` のファイルバージョンが `1.16.244.0` (TargetBuildID: 23518663) であることを確認。<br>**※本バージョンはダウンロード中の一時ファイルから取得した暫定値であり、インストール完了後に再確認が必要です。** |
 | **SFSE** | **なし** | 未導入（未ダウンロード） |
-| **Mod Organizer 2** | **あり** (バージョン 2.5.2) | 実行ファイル: `C:\Modding\MO2\ModOrganizer.exe`<br>Starfield用インスタンスは未作成（Mount & Blade II のみ構成済み） |
+| **Mod Organizer 2** | **あり** (バージョン 2.5.2) | 実行ファイル: `<MO2>\ModOrganizer.exe`<br>Starfield用インスタンスは未作成（Mount & Blade II のみ構成済み） |
 | **LM Studio** | **あり** (バージョン 0.4.25.0) | 実行ファイル: `<Programs>\LM Studio\LM Studio.exe` |
 | **ダウンロード済み LM モデル一覧** | 1. `gemma-4-E4B-it-Q4_K_M.gguf`<br>   - 量子化: Q4_K_M<br>   - サイズ: 約 5.34 GB (5,335,291,936 bytes)<br>2. `mmproj-gemma-4-E4B-it-BF16.gguf`<br>   - 量子化: BF16 (マルチモーダルプロジェクタ)<br>   - サイズ: 約 991 MB (991,551,840 bytes)<br>3. `gpt-oss-20b-MXFP4.gguf`<br>   - 量子化: MXFP4<br>   - サイズ: 約 12.1 GB (12,109,565,632 bytes) | **Gemma 4 12B は未ダウンロード（なし）**。<br>現在保持されているのは Gemma 4 の 4B クラス（E4B-it）および GPT-OSS 20B のみであることを確認。 |
 | **AISS手元配置状況** | **AISS未入手のため未確認** | ローカルストレージ上に AISS のアーカイブ、設定ファイル（`<Starfield>\Data\AISS\config.json` 等）、レスポンスログ（`latest_response.ini`）は存在せず。<br>READ-ONLY 制約に従い、ダウンロードは行わず「AISS未入手のため未確認」と記録。**Phase 1 導入時に実ファイルを確認**します。 |
@@ -43,7 +43,7 @@
 | **Grav Lanes** | 実機検証後 | 最新版 (Nexus ID: 16438) | なし (単一スクリプト) | Immersive Grav Jumps (作者明記の非互換) | 翻訳対象（設定メニュー） | Stable | ジャンプ到着地点を恒星に変更、ジャンプ中船内歩行可能化。単一スクリプト。<br>※True Seamless Grav Jumps は作者併用推奨。実機での動作は Phase 3 で検証。<br>出典: [Nexus Mods ID: 16438](https://www.nexusmods.com/starfield/mods/16438) |
 | **True Seamless Grav Jumps** | 実機検証後 | 最新版 (Nexus ID: 17159) | SFSE, Address Library | 未確認 | 対象外 (演出のみ) | Stable (SFSEフック) | Grav Jumpのロード画面を排除し、コックピットからシームレスジャンプ。<br>※Grav Lanes との併用動作は Phase 3 で検証。<br>出典: [Nexus Mods ID: 17159](https://www.nexusmods.com/starfield/mods/17159) |
 | **Seamless Loading Screens** | 採用候補 | 最新版 (Nexus ID: 18239) | SFSE, Address Library, **ReShade 6.8.0+** | 他のロード画面書き換えMOD | 対象外 (視覚演出) | Stable (ReShade依存) | ドア・エレベーター等のロード暗転を最終フレーム維持で視覚的隠蔽。<br>※ReShade 6.8.0以上（Addon有効）必須。<br>出典: [Nexus Mods ID: 18239](https://www.nexusmods.com/starfield/mods/18239) |
-| **Seamless Neon** | 実機検証後 | 最新版 (Nexus ID: 17340) | なし | ネオン改変MOD（Neon Expanded等） | 翻訳不要（配置変更） | Caution (要NG+/新規セーブ) | ネオン全区画を外部ワールドスペースに統合。<br>※作者明記: **New Game または NG+ が必須**。<br>出典: [Nexus Mods ID: 17340](https://www.nexusmods.com/starfield/mods/17340) |
+| **Seamless Neon** | 実機検証後 | 最新版 (Nexus ID: 17340) | Starfield Free Lanes update plugin（SFBGS00D.esm、2026年4月以降のゲームバージョン） | 大型のNeon改変MOD（Seamless City Interiors、Neon Core Disguised Seamless Project、Neon Core Apartment、Kansha - Neon Apartment、The Dark Side of Neon 等） | 翻訳不要（配置変更） | Caution (要NG+/新規セーブ) | ネオン全区画を外部ワールドスペースに統合。<br>※作者明記: **New Game または NG+ が必須**。<br>出典: [Nexus Mods ID: 17340](https://www.nexusmods.com/starfield/mods/17340) |
 | **Spaceships Plus** | 実機検証後 | 最新版 (Nexus ID: 17034) | なし (単体動作) | 未確認（Real Fuel連携機能あり） | 翻訳対象（船警告・設定） | Stable (多機能) | 船システム・燃料スクープ・EVA修理・減圧。Phase 2 (Ship Life) での検証推奨。<br>出典: [Nexus Mods ID: 17034](https://www.nexusmods.com/starfield/mods/17034) |
 | **Seamless Planet Takeoffs** | Experimental | 最新版 (Nexus ID: 17719) | SFSE, Address Library | 離陸アニメーション変更MOD | 対象外 (演出のみ) | Beta (慎重検証) | 離陸ロードを排除し大気圏突破を演出。仕様書通り最後に導入。<br>出典: [Nexus Mods ID: 17719](https://www.nexusmods.com/starfield/mods/17719) |
 | **AISS TTS接続先変更** | 未確定 (保留) | AISS 最新版 | AISS Backend | クラウドTTS (ElevenLabs/Fish Audio) | 対象外 | 未確認 (公開情報なし) | 公開設定項目にbase URL指定なし。実ファイル未入手のため方式Aは保留。 |
@@ -156,7 +156,11 @@
 - **SFSE DLL**: なし (マスターESM / Worldspace改変)
 - **出典**: [Nexus Mods ID: 17340](https://www.nexusmods.com/starfield/mods/17340)
 - **要件（作者明記）**: **New Game または NG+ (Unity jump) が必須**。
-  - 理由: オブジェクトやNPCを内部セルから外部ワールドスペースへ移動させるため、既存セーブデータでは旧セルにオブジェクトが取り残され、クエスト破損等を招くため。他のネオン変更MOD（Neon Expanded等）とは非互換。
+  - 作者は、途中導入も技術的には可能だが一部のクエストが壊れると警告し、セーブのバックアップを推奨している。
+- **必須依存（作者明記）**: Starfield Free Lanes update plugin（SFBGS00D.esm）。2026年4月以降のゲームバージョンが必要。
+- **非互換（作者明記）**: Seamless City Interiors、Neon Core Disguised Seamless Project、Neon Core Apartment、Kansha - Neon Apartment、The Dark Side of Neon - An Ebbside Overhaul、その他大型のNeon改変MOD。
+- **互換パッチ（作者提供）**: Terran Armada DLC、Trackers Alliance ほか。
+- 〔2026-10-03 Claudeレビューで修正: 旧記載の「Neon Expanded等」は作者の非互換リストに見当たらないため削除〕
 
 ### 3.14 Spaceships Plus
 - **最新版**: Nexus ID: 17034 (作者: Flashy(JoeR), 確認日: 2026-10-03)
@@ -191,13 +195,15 @@
   - LM Studio (v0.4.25) の Vulkan / ROCm バックエンドによる 100% GPU オフロードを想定。
 
 ### 4.2 日本語特化系12B級モデルの現状
-- **Sarashina2-13B / 14B (SB Intuitions)**:
+- **Sarashina2-13B (SB Intuitions)**:
   - ライセンス: MIT
   - 出典: [Hugging Face: sbintuitions/sarashina2-13b](https://huggingface.co/sbintuitions/sarashina2-13b)
-  - 特徴: 日本語の語彙・文脈理解に優れ、ロールプレイ適性あり。Q4 GGUFで約8GB。
+  - **ベース（事前学習）モデルであり、指示追従の調整はされていない**（モデルカードに明記）。そのままではチャット・ロールプレイに使えない。比較対象にする場合は、指示調整済みの派生モデル（ファインチューン版）を別途調査する。
+  - 〔2026-10-03 Claudeレビューで修正: 旧記載の「ロールプレイ適性あり」は誤り〕
 - **LLM-jp-3-13B-instruct (国立情報学研究所)**:
   - ライセンス: Apache-2.0
   - 出典: [Hugging Face: llm-jp/llm-jp-3-13b-instruct](https://huggingface.co/llm-jp/llm-jp-3-13b-instruct)
   - 特徴: 指示追従性に優れる。
 - **Swallow (東工大等)** / **ELYZA**: 12B級の密な現行モデルは提供されていない（8Bまたは70Bクラスが中心）。
-- **結論**: 標準モデルとして決定されている **Gemma 4 12B (QAT版)** を第1選択とし、比較テスト対象としては **Sarashina2-13B** を候補とする。
+- **結論**: 標準モデルとして決定されている **Gemma 4 12B (QAT版)** を第1選択とし、比較テスト対象としては指示調整済みの **LLM-jp-3-13B-instruct** を第一候補とする。Sarashina2系は指示調整版が見つかった場合のみ比較する。
+- **注意**: Gemma 4 12B はローカル未ダウンロードのため、Phase 1 で入手が必要。
