@@ -10,6 +10,7 @@ Windows版Starfield向けMOD環境の仕様・監査・設定・検証を管理�
 - Stable / Immersion-Test / Experimentalを分離する
 - 日本語プレイを前提に追加MODの日本語化状況を管理する
 - AISS + LM StudioによるローカルLLM NPC会話を中核候補とする
+- AI会話には無料（ローカル優先）の日本語AI音声（TTS）を段階導入する
 - X52 HOTAS対応を構成要件とする
 
 ## 現在のフェーズ
@@ -26,6 +27,7 @@ AGYはまず `docs/MOD_AUDIT.md` を作成し、候補MODの最新版、依存�
 - `docs/MOD_AUDIT.md` — Phase 0監査結果
 - `docs/MOD_COMPATIBILITY.md` — MOD間競合
 - `docs/MOD_JAPANESE.md` — 日本語化状況
+- `docs/TTS_AUDIT.md` — 無料AI音声（TTS）の監査結果
 - `docs/INSTALL_GUIDE.md` — インストール手順
 - `docs/CONFIG_GUIDE.md` — 設定手順
 - `docs/TEST_PLAN.md` — テスト計画
@@ -38,6 +40,7 @@ AGYはまず `docs/MOD_AUDIT.md` を作成し、候補MODの最新版、依存�
 - Radeon RX 9070 16GB
 - X52 HOTAS
 - LM Studio / local LLM
+- 無料ローカルTTS（AivisSpeech Engine 等）
 
 ## 注意
 

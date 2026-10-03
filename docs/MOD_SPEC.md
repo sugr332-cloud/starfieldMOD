@@ -2,7 +2,7 @@
 
 **Status:** READ-ONLY / Implementation Specification Draft  
 **Target:** Windows / Starfield / RX 9070 16GB / X52 HOTAS / LM Studio local LLM  
-**Version:** 0.1  
+**Version:** 0.2  
 **Date:** 2026-10-03
 
 ## 1. 目的
@@ -18,6 +18,7 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 6. 日本語プレイを維持し、追加MODのプレイヤー向けテキストを可能な限り日本語化する。
 7. MOD同士の機能重複・競合を避ける。
 8. MOD本体を無断再配布せず、構成・設定・日本語化・検証情報を管理する。
+9. AI会話に無料（ローカル優先）の日本語AI音声（TTS）を付ける。
 
 ## 2. 基本原則
 
@@ -44,6 +45,7 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 | Longer Names v2 | AISS依存 | 必須候補 |
 | AISS - AI Settled Systems | AI NPC | 中核候補 |
 | LM Studio | ローカルLLM | 中核 |
+| AivisSpeech Engine（他TTS候補は5.1） | 無料ローカルTTS | 採用候補（Phase 1.5） |
 | Absolute HOTAS | HOTAS操作 | 採用候補 |
 | Civil NPCs | NPC挙動改善 | 採用候補 |
 | Ship Crew Assignments | クルー生活 | 採用候補 |
@@ -90,6 +92,11 @@ Astrogate等は別プロファイルで検証する。
 AISSの旧版、旧backend、旧config、旧パッチを混在させない。
 同時に複数backend/configを有効化しない。
 
+### TTS
+
+TTSエンジン/ブリッジは同時に1系統のみ有効化する。
+AISSのTTS設定（ElevenLabs / Fish Audio / ローカルブリッジ）は1つだけを有効にする。
+
 ## 5. AISS + LM Studio
 
 想定経路:
@@ -122,7 +129,95 @@ AISS側では以下を監査する:
 - クエスト/場所/船/装備等のコンテキスト認識
 - 複数NPC会話時の日本語維持
 
-TTSは初期Phaseでは導入しない。
+TTSは初期Phase（Phase 1）では導入しない。Phase 1でAISS + LM Studioの日本語テキスト会話が安定した後、5.1の無料TTS構成を「Phase 1.5 — AI Voice」として段階導入する。
+
+## 5.1 AI音声（TTS）— 無料構成
+
+### 前提（2026-10-03時点の確認事項）
+
+- AISSが公式に対応しているTTSは **ElevenLabs** と **Fish Audio**（いずれもクラウド・APIキー・従量課金/クレジット制）。
+- AISSのLLM側はLM Studio（ローカル・無料）に対応しているが、TTS側にローカル/無料エンジンの公式対応は確認できていない。
+- AISSはTTS音声の長さに合わせた口パク（dialogue/lip system）を持つ。
+
+したがって「無料のAI音声」は、AISSの既存TTS経路にローカルTTSを接続できるかどうかが成否を決める。Phase 0で必ず確認する。
+
+### 要件
+
+- 費用: 無料（サブスク・従量課金なし）
+- 実行場所: ローカル優先（オフライン動作）
+- 言語: 日本語音声（NPCのLLM回答が日本語のため）
+- OS: Windows
+- GPU: Radeon RX 9070 16GB（AMD）。CUDA専用エンジンは不可またはCPU実行扱い
+- VRAM: Starfield + LM Studio（LLM）+ TTS の合計で16GBを超えないこと
+- 権利: 音声モデル/キャラクターの利用規約（クレジット表記、商用/非商用、改変可否）を守る。音声モデル本体はリポジトリに含めない
+
+### TTSエンジン候補
+
+| エンジン | 種別 | 日本語 | AMD/Windows | 備考 |
+|---|---|---|---|---|
+| AivisSpeech Engine | ローカル・無料 | ◎ | 要確認（DirectML/CPU） | VOICEVOX互換API。Style-Bert-VITS2系。モデルごとのライセンス確認必須 |
+| VOICEVOX Engine | ローカル・無料 | ◎ | 要確認（DirectML/CPU） | キャラクターごとの利用規約・クレジット表記（例: 「VOICEVOX:キャラ名」）が必要 |
+| Style-Bert-VITS2 | ローカル・無料 | ◎ | 要確認（CUDA中心、CPU可） | 学習済みモデルのライセンス確認必須 |
+| fish-speech / OpenAudio（OSS版） | ローカル・無料 | ○ | 要確認（CUDA中心） | Fish AudioのOSS版。AISSのFish Audio経路との互換性を確認する価値あり。重みのライセンス（非商用条件等）を確認 |
+| Edge-TTS | オンライン・無料 | ○ | ○ | Microsoftの非公式利用。規約・継続性リスクがあるためフォールバック扱い、Stableには入れない |
+
+初期第一候補: **AivisSpeech Engine**（日本語品質・Windows対応・VOICEVOX互換APIで扱いやすい）。比較対象: VOICEVOX Engine、fish-speech。
+
+### 接続方式
+
+AISS本体（DLL/Papyrus/ESP）は改変しない。以下の順に可否を判定する。
+
+**方式A: AISSのTTS接続先をローカルに向ける（第一候補）**
+
+```
+Starfield
+  -> AISS
+  -> AISS backend（TTS: Fish Audio または ElevenLabs 設定）
+  -> ローカルTTSブリッジ（http://127.0.0.1:<port>、Fish Audio/ElevenLabs互換APIを模倣）
+  -> AivisSpeech Engine / VOICEVOX Engine / fish-speech
+```
+
+成立条件:
+- AISSの設定ファイル/UIでTTSのbase URL（エンドポイント）を変更できること
+- APIキーをダミー値で通せること
+- ブリッジがAISSの期待する音声形式（コーデック、サンプルレート、レスポンス形式）を返せること
+- 口パクが返却音声の長さと同期すること
+
+fish-speech（OSS版）がAISSのFish Audio経路と直接互換であれば、ブリッジなしで接続できる可能性がある。Phase 0で確認する。
+
+**方式B: AISS作者が無料/ローカルTTSの公式対応を提供している、または予定している場合**
+
+公式対応を優先し、方式Aのブリッジは作らない。
+
+**方式C: 接続先を変更できない場合**
+
+AISS本体の改変・逆解析によるTTS差し替えは行わない（14章の禁止事項）。この場合は以下のいずれかをユーザー判断とする。
+- TTSを無効のまま運用する
+- AISS作者へ機能要望を出す
+- 有料TTS（ElevenLabs / Fish Audio）の無料枠のみで運用する（「無料」要件を満たすかはユーザー判断）
+
+### 実行配置
+
+- 標準: TTSエンジンをメインPC上でCPU実行し、VRAMをStarfieldとLLMに残す
+- 代替: LAN内の別PC（Radeon RX 7600搭載のリビングPC等）でTTSエンジンを動かし、ブリッジから接続する。遅延とネットワーク到達性を検証する
+- GPU実行はVRAM計測で余裕が確認できた場合のみ
+
+### NPCと声の割り当て
+
+- 少数の声（男声/女声/ロボット・ナレーション系など）をNPCの性別・種族・役割に割り当てる
+- 割り当て表は `configs/TTS/voice_map` として管理する（音声モデル本体は含めない）
+- 主要クルー/コンパニオンは固定の声にする
+
+### 音声テスト条件
+
+- 日本語の読み上げが破綻しない（漢字の読み、英字固有名詞、数字）
+- LLM回答から音声再生開始までの遅延を計測する（目標: 体感で会話が途切れない範囲。実測値を記録）
+- 口パクと音声長の同期
+- 長文回答時の分割・途切れ
+- 複数NPC会話時に声が混線しない
+- VRAM/CPU使用率、フレームレート低下の計測
+- TTSエンジン停止時にAISS会話（テキスト）が継続し、CTDしない
+- 10回以上の連続会話とセーブ/ロード
 
 ## 6. 日本語化方針
 
@@ -163,6 +258,8 @@ Civil NPCs
 Ship Crew Assignments
 Real Fuel
 ```
+
+TTS（Phase 1.5）はStableに含めず、Phase 1.5の検証合格後にStableへ追加するかをユーザーが判断する。検証中はStableプロファイル + TTS有効設定で試験する。
 
 ### Immersion-Test
 
@@ -225,11 +322,14 @@ AGYは変更を行わず、以下を調査する:
 8. Windows対応
 9. AISS + LM Studio対応
 10. 既知の問題
+11. AISSのTTS接続先（base URL）変更可否、APIキー要否、期待される音声形式（5.1 方式A/B/Cの判定）
+12. 無料TTS候補（AivisSpeech Engine / VOICEVOX Engine / Style-Bert-VITS2 / fish-speech）の最新版、Windows + AMD GPU対応、CPU実行時の速度、日本語品質、音声モデル/キャラクターの利用規約
 
 成果物:
 - `docs/MOD_AUDIT.md`
 - `docs/MOD_COMPATIBILITY.md`
 - `docs/MOD_JAPANESE.md`
+- `docs/TTS_AUDIT.md`
 
 **この監査が完了するまで実装を開始してはいけない。**
 
@@ -249,6 +349,21 @@ Stableプロファイルのみ構築。
 - HOTAS入力
 
 成果物: `docs/TEST_PHASE1.md`
+
+## 10.5 Phase 1.5 — AI Voice（無料TTS）
+
+前提:
+- Phase 1の日本語AI会話テストに合格していること
+- Phase 0の `docs/TTS_AUDIT.md` で方式A/Bのいずれかが成立と判定されていること（方式Cの場合はユーザー判断まで実装しない）
+
+追加:
+- 無料TTSエンジン（初期第一候補: AivisSpeech Engine）
+- 必要な場合のみローカルTTSブリッジ（自作の場合は本リポジトリの `tools/tts-bridge/` で管理。AISS本体は改変しない）
+- `configs/TTS/`（エンジン設定、voice_map、AISSのTTS設定値の記録）
+
+テスト: 5.1「音声テスト条件」の全項目
+
+成果物: `docs/TEST_PHASE1_5.md`
 
 ## 11. Phase 2 — Ship Life
 
@@ -305,6 +420,9 @@ AGYはユーザー承認なしに以下を行わない:
 - ゲーム本体の自動更新
 - セーブデータの上書き
 - ロードオーダーの大幅変更
+- AISS本体（DLL/Papyrus/ESP）の改変・逆解析によるTTS差し替え
+- 有料TTS（ElevenLabs / Fish Audio等）の契約・APIキー登録・課金の発生する設定
+- 音声モデル・音声データの再配布、リポジトリへの同梱
 
 ## 15. 成果物
 
@@ -314,6 +432,7 @@ docs/
 ├─ MOD_AUDIT.md
 ├─ MOD_COMPATIBILITY.md
 ├─ MOD_JAPANESE.md
+├─ TTS_AUDIT.md
 ├─ INSTALL_GUIDE.md
 ├─ CONFIG_GUIDE.md
 ├─ TEST_PLAN.md
@@ -327,10 +446,14 @@ profiles/
 configs/
 ├─ AISS/
 ├─ LMStudio/
+├─ TTS/
 └─ HOTAS/
+
+tools/
+└─ tts-bridge/（方式Aでブリッジが必要な場合のみ）
 ```
 
-MOD本体はリポジトリに含めない。
+MOD本体・音声モデル本体はリポジトリに含めない。
 
 ## 16. Git運用
 
@@ -358,5 +481,9 @@ AGYは実装前に以下を埋める。
 | Seamless Neon | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 大規模変更 |
 | Spaceships Plus | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 大規模変更 |
 | Seamless Planet Takeoffs | Experimental | 調査 | 調査 | 調査 | 調査 | 調査 | 最後に導入 |
+| AISS TTS接続先変更 | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 方式A/B/C判定 |
+| AivisSpeech Engine | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 無料TTS第一候補 |
+| VOICEVOX Engine | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 比較対象 |
+| fish-speech（OSS） | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | Fish Audio経路互換の確認 |
 
 **AGYはこの表を完成させるまで実装を開始してはいけない。**
