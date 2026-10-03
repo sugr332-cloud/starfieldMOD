@@ -15,8 +15,8 @@
 - **ゲーム本体**: Starfield 1.16.244.0 (Steam)
 - **Mod Manager**: Mod Organizer 2 (MO2) v2.5.2 (プロファイル: `Stable`)
 - **ハードウェア**: AMD Ryzen 7 7800X3D / Radeon RX 9070 16GB / RAM 32GB
-- **LLM**: LM Studio 0.4.25 / `unsloth/gemma-4-12B-it-qat-GGUF` (UD-Q4_K_XL, 16K, Q8_0 KV Cache, Flash Attention, 100% GPU)
-- **AISS**: v3.75 (TTS無効化、LM Studioローカル接続、公式アドオン方式による日本語プロンプト適用)
+- **LLM**: LM Studio 0.4.25 / `unsloth/gemma-4-12B-it-qat-GGUF` (UD-Q4_K_XL, 16K, Q8_0 KV Cache, Flash Attention, 思考OFF, 100% GPU)
+- **AISS**: v3.75 (TTS無効化、LM Studioローカル接続、公式アドオン方式による日本語プロンプト適用、思考抑制設定済み)
 
 ---
 
@@ -27,14 +27,15 @@
 | **SFSE 適合性** | SFSE 0.2.21 と Starfield 1.16.244.0 の整合性 | **PASS (適合)** | `sfse_loader.txt` および `sfse.txt` で正常フック・DLL一致確認済み |
 | **Address Library** | `version-1-16-244-0.bin` の配置 | **PASS (確認済み)** | `<MO2>\Starfield\mods\Address Library for SFSE Plugins\` に配置 |
 | **MOD 競合** | Phase 1 全 MOD のファイル競合確認 | **PASS (競合0件)** | 全ファイルで上書き衝突なし（完全独立） |
-| **日本語アドオン** | `AISS - Japanese Language Addon` 構築 | **PASS (正常)** | MO2 別 MOD として配置、AISS 本体ファイルは初期状態へ完全復元 |
+| **日本語アドオン** | `AISS - Japanese Language Addon` 構築 | **PASS (正常)** | MO2 別 MOD として一元管理、AISS 本体ファイルは初期状態へ完全復元 |
 | **LM Studio サーバー** | ローカル API (http://127.0.0.1:1234/v1) 応答 | **PASS (正常稼働)** | `gemma-4-12b-it-qat` ロード完了 |
-| **LLM 日本語応答** | 日本語テストプロンプト送出 | **PASS (正常応答)** | 自然な日本語での自己紹介・役割の応答を確認済み |
+| **思考（Reasoning）抑制** | `reasoning_effort: "none"` による思考オフ | **PASS (思考0文字)** | 短文 TTFT **117 ms**、全文生成 **594 ms** を実測確認 |
+| **長文 Prefill 実測** | 約1万トークン（2.8万文字）文脈入力 | **PASS (正常完了)** | TTFT **7,687 ms**、思考0文字で即座にロールプレイ応答生成 |
+| **Q8_0 KV キャッシュ** | Q8_0 KV Cache + Flash Attention 実測 | **PASS (約1.18GB削減)** | Dedicated VRAM: **7,537.2 MB**（f16比で 1.18 GiB 削減） |
+| **環境変数のクリーン化** | `LLAMA_ARG_...` ユーザー環境変数削除 | **PASS (削除完了)** | 副作用防止のため削除、LM Studio プリセットのみで設定 |
 | **AISS Backend** | `AISS_Backend.exe --health-check` | **PASS (HEALTHY)** | 全 11 項目 PASS、常駐稼働・ロック生成確認 |
 | **ベースライン VRAM** | LM Studio 終了時のデスクトップ・常駐 VRAM | **約 5.54 GiB** | Windows 11 デスクトップ環境 |
-| **常駐プロセス内訳** | GPU メモリ上位プロセスの特定 | **特定完了** | `WardogsClient` (2.3GB), `dwm` (4.3GB), `msedge` (0.6GB) 等 |
-| **LLM ロード時 VRAM** | `gemma-4-12b-it-qat` 16K ロード時 VRAM | **約 14.10 GiB** | モデル 7.13 GB + コンテキスト 2.70 GB（計 9.84 GB） |
-| **メインメニュー VRAM** | LM Studio 稼働 + Starfield メインメニュー表示 | **約 15.34 GiB** | 実測値: 16,469,893,120 bytes（安全域上限） |
+| **常駐プロセス特定** | GPU メモリ上位プロセスの特定 | **特定完了** | `WardogsClient` (2.3GB), `dwm` (4.3GB), `msedge` (0.6GB) 等 |
 
 ---
 
@@ -44,16 +45,24 @@
 
 ### 3.1 起動準備
 1. [ ] **バックグラウンドアプリの終了**: VRAM を約 3GB 解放するため、`WardogsClient`（別ゲームクライアント）、ブラウザ（Edge 等）、Discord 等を終了する。
-2. [ ] **LM Studio 起動確認**: ローカルサーバーがポート `1234` で起動しており、`gemma-4-12b-it-qat`（16K, Q8_0 KV Cache, Flash Attention）がロードされていること。
-3. [ ] **AISS Backend 起動**: MO2 の実行ファイルドロップダウンから「AISS Backend」を実行（または AISS フォルダ内の `AISS_Backend.exe` を直接起動）。コンソールが開き、常駐待機状態になること。
-4. [ ] **MO2 から SFSE 起動**: MO2 でプロファイル「Stable」を選択し、右上ドロップダウンから「SFSE」を選択して「実行」をクリック。
+2. [ ] **LM Studio 起動確認**:
+   - ローカルサーバーがポート `1234` で起動していること。
+   - `gemma-4-12b-it-qat` をプリセット「**AISS-Standard-Q8_0**」でロードしていること。
+   - **思考（Reasoning / Thinking）が OFF** になっていること（即答テンポの確保）。
+3. [ ] **既存セーブデータの準備（「既存セーブロード」テストを行う場合）**:
+   - MO2 の Stable プロファイルはプロファイル別セーブが有効なため、バニラのセーブ（Steam Cloud 復元分）はそのままでは認識されません。
+   - テストに使用したい既存セーブファイル（例: `D:\StarfieldMODs\Backup\2026-10-03\Saves\` または `%USERPROFILE%\Documents\My Games\Starfield\Saves\` 内の `.sfs` ファイル1件）を、**コピー（移動はしないこと）** して以下に配置してください：
+     `<MO2>\Starfield\profiles\Stable\saves\`
+   - ※プロファイル別セーブが有効なため、MO2 上でのプレイデータは Steam Cloud のバニラセーブに直接影響・上書きしません。安全にテスト可能です。
+4. [ ] **AISS Backend 起動**: MO2 の実行ファイルドロップダウンから「AISS Backend」を実行（または AISS フォルダ内の `AISS_Backend.exe` を直接起動）。コンソールが開き、常駐待機状態（HEALTHY）になること。
+5. [ ] **MO2 から SFSE 起動**: MO2 でプロファイル「Stable」を選択し、右上ドロップダウンから「SFSE」を選択して「実行」をクリック。
 
 ### 3.2 基本動作テスト
 | テスト項目 | 確認手順・観点 | 判定 (PASS/FAIL) | 備考・メモ |
 |---|---|---|---|
 | **メインメニュー表示** | 画面左下にバージョン `1.16.244.0` が表示され、CTD（強制終了）なく起動するか | [ ] PASS / [ ] FAIL | |
 | **新規ゲーム** | 「NEW」からゲームを開始し、鉱山シーン〜キャラメイク〜初期戦闘まで進行可能か | [ ] PASS / [ ] FAIL | |
-| **既存セーブロード** | 「LOAD」から退避済みの既存セーブデータを読み込み、正常にゲーム内へ復帰できるか | [ ] PASS / [ ] FAIL | |
+| **既存セーブロード** | 「LOAD」から Stable プロファイルに配置した既存セーブを読み込み、正常に復帰できるか | [ ] PASS / [ ] FAIL | コピーしたセーブが認識されるか確認 |
 | **バニラ NPC 会話** | 任意の NPC（例: バレット、リン、乗組員等）に話しかけ、通常ダイアログが機能するか | [ ] PASS / [ ] FAIL | |
 
 ### 3.3 AISS 日本語 AI 会話テスト
@@ -64,8 +73,9 @@
 | **日本語フォント表示** | NPC の返答テキストが文字化け（□や文字化け記号）せず、正常に日本語表示されるか | [ ] PASS / [ ] FAIL | |
 | **日本語応答品質** | 指示書通りの日本語のみで返答するか（英語混じり・AIアシスタント口調の有無） | [ ] PASS / [ ] FAIL | |
 | **会話の長さ** | 返答が 1〜3 文（40〜120 文字程度）の簡潔なテンポで返ってくるか | [ ] PASS / [ ] FAIL | |
-| **応答時間（TTFT）** | 送信から返答が表示され始めるまでの秒数 | 実測値: ______ 秒 | 目安: 2〜5 秒以内 |
+| **応答時間（TTFT）** | 送信から返答が表示され始めるまでの秒数 | 実測値: ______ 秒 | 目安: 2〜5 秒以内（思考オフで高速化） |
 | **生成完了時間** | 全文が表示完了するまでの総秒数 | 実測値: ______ 秒 | |
+| **latest_response.ini 確認** | 会話後、テキストエディタで `<MO2>\Starfield\mods\AISS - AI Settled Systems\SFSE\AISS\responses\latest_response.ini` を開き、構造（セクション名・キー名・NPC名・本文の書式）をメモする | [ ] メモ完了 | 後述の記録欄へ記入 |
 
 ### 3.4 HOTAS 入力テスト
 | テスト項目 | 確認手順・観点 | 判定 (PASS/FAIL) | 備考・メモ |

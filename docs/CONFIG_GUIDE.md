@@ -21,6 +21,7 @@
 ### 1.2 プロファイル
 - **プロファイル名**: `Stable`
 - **プロファイル別セーブ（Use profile-specific Save Games）**: 有効（`true`）
+  - ※既存セーブデータ（Steam Cloud 復元分）をテストする場合は、既存セーブを1件 `<MO2>\Starfield\profiles\Stable\saves\` へ手動コピーして使用します（移動はせずコピー）。
 - **プロファイル別 INI（Use profile-specific Game INI Files）**: 有効（`true`）
 - **Archive Invalidation**: 有効（`profile_archive_invalidation=true`）
 
@@ -80,13 +81,14 @@ sResourceDataDirsFinal=
 - **モデル識別子（API Identifier）**: `gemma-4-12b-it-qat`
 - **コンテキスト長**: `16384`（16K、AISS の推奨最低値に準拠。32K は VRAM 超過のため不採用）
 - **GPU オフロード**: 100%（全レイヤー max）
-- **KV キャッシュ量子化**: **Q8_0（K キャッシュ / V キャッシュ）**
+- **KV キャッシュ量子化**: **Q8_0（K キャッシュ / V キャッシュ）**（専用 VRAM を約 1.18 GiB 削減）
 - **Flash Attention**: **オン（有効）**
+- **思考（Reasoning）**: **完全無効化（OFF）**（会話の即答テンポを確保）
 - **マルチモーダル（mmproj）**:
   自動取得された `mmproj-F32.gguf`（約 837 MB）が同梱されていますが、AISS はテキスト会話のみを使用するため Vision 推論は行われません（削除せず保持）。
 
-### 3.2 プリセットファイル構成
-LM Studio のプリセットディレクトリに以下を配置済みです：
+### 3.2 プリセットファイル構成とロード手順
+LM Studio に以下のプリセットを配備済みです：
 - パス: `<UserDir>\.lmstudio\config-presets\AISS-Standard.preset.json`
 - 設定内容:
   ```json
@@ -99,9 +101,23 @@ LM Studio のプリセットディレクトリに以下を配置済みです：
         { "key": "llm.load.llama.kCacheQuantizationType", "value": { "checked": true, "value": "q8_0" } },
         { "key": "llm.load.llama.vCacheQuantizationType", "value": { "checked": true, "value": "q8_0" } }
       ]
+    },
+    "prediction": {
+      "fields": [
+        { "key": "llm.prediction.reasoning.enableThinking", "value": false },
+        { "key": "llm.prediction.temperature", "value": 0.85 },
+        { "key": "llm.prediction.maxTokens", "value": 1800 }
+      ]
     }
   }
   ```
+
+> [!TIP]
+> **LM Studio GUI でのモデル読み込み手順**
+> 1. LM Studio を開き、上部またはサイドバーのモデル選択画面を表示します。
+> 2. `gemma-4-12b-it-qat` を選択し、ロード設定画面上部の **Preset ドロップダウンから「AISS-Standard-Q8_0」を選択** します。
+> 3. Context Length: 16384、GPU: MAX、K/V Cache: Q8_0、Flash Attention: ON、Thinking: OFF が反映されていることを確認してロードします。
+> 4. Developer / Local Server 画面でサーバーが稼働（ポート `1234`）していることを確認します。
 
 ### 3.3 サーバー設定
 - **ローカルサーバー**: 有効（ポート `1234`）
@@ -120,6 +136,8 @@ LM Studio のプリセットディレクトリに以下を配置済みです：
 | `llm.provider` | `"lmstudio"` | `"openrouter"` | ローカル LM Studio への接続 |
 | `llm.providers.lmstudio.base_url` | `"http://127.0.0.1:1234/v1"` | （未設定または既定値） | ローカル API エンドポイント指定 |
 | `llm.providers.lmstudio.model` | `"gemma-4-12b-it-qat"` | `"openai/gpt-4o-mini"` | ロード済みモデル識別子指定 |
+| `llm.providers.lmstudio.reasoning_effort` | `"none"` | （未設定） | Gemma 4 の思考（CoT）を抑制し即答させる設定 |
+| `llm.providers.lmstudio.reasoning.enabled` | `false` | （未設定） | 思考プロセスの無効化フラグ |
 | `tts.enabled` | `false` | `true` | Phase 1 はテキスト会話のみ（TTS無効） |
 
 ※APIキーは一切入力しておらず、完全ローカル・無料環境として構成しています。
@@ -139,6 +157,7 @@ LM Studio のプリセットディレクトリに以下を配置済みです：
   - Never behave like an AI assistant or chatbot (AIアシスタントやチャットボットのように振る舞わないこと).
   - Never discuss anything outside the game world or 24th century Starfield reality (ゲーム世界の外の話を一切しないこと).
   - Keep replies concise, conversational, and natural for dialogue, typically 1 to 3 sentences (conversational length, around 40 to 120 Japanese characters) (会話のテンポを保つため、返答は簡潔に1〜3文程度を目安とすること).
+  - Do not output internal monologue, thought process, or reasoning tags; reply immediately with in-character spoken dialogue only (思考過程や推論タグを出力せず、キャラクターとしての発話セリフのみを直ちに出力すること).
   ```
 
 ---
@@ -163,7 +182,7 @@ AISS および SFSE が実行時にアクセスする出力先は以下の通り
 ## 6. 外部プロセスの起動順序（運用手順）
 
 ### 6.1 プレイ前に閉じるべきアプリ（VRAM 確保）
-本環境（AMD Radeon RX 9070 16GB）では、LM Studio（約 8.5〜9.8 GB）と Starfield（FHD 推奨 7〜9 GB）が同時に VRAM を消費するため、**バックグラウンド常駐アプリを閉じて VRAM 余力を確保することが強く推奨されます**。
+本環境（AMD Radeon RX 9070 16GB）では、LM Studio（約 7.4〜8.5 GB）と Starfield（FHD 推奨 7〜9 GB）が同時に VRAM を消費するため、**バックグラウンド常駐アプリを閉じて VRAM 余力を確保することが強く推奨されます**。
 
 GPU メモリ使用量調査（実測上位プロセス）:
 | プロセス名 | VRAM使用量 | プレイ前の推奨アクション | 期待される解放量 |
@@ -183,12 +202,12 @@ GPU メモリ使用量調査（実測上位プロセス）:
    └─ WardogsClient、Edge ブラウザ、Discord 等を終了して VRAM を解放
 
 [2. LM Studio 起動]
-   └─ gemma-4-12b-it-qat を「AISS-Standard-Q8_0」プリセット（16K, Q8_0 KV, Flash Attention）でロード
+   └─ gemma-4-12b-it-qat を「AISS-Standard-Q8_0」プリセットでロード
+   └─ Thinking が OFF、Context が 16384、K/V Cache が Q8_0 であることを確認
    └─ Local Server が ON (ポート 1234) であることを確認
 
 [3. AISS_Backend.exe 起動]
    └─ MO2 のドロップダウンから「AISS Backend」を選択して実行
-      （または AISS フォルダ内の AISS_Backend.exe を直接実行）
    └─ aiss_backend.lock が生成され、常駐待機状態（HEALTHY）になることを確認
 
 [4. MO2 GUI からゲーム起動（必須）]

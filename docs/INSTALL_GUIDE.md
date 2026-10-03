@@ -33,6 +33,7 @@
 | 6 | **Absolute HOTAS** | V5.1.0 | `Absolute HOTAS - Flight and System Control-11756-V5-1-0-1740925232.zip` | MO2 経由導入 | 操縦・HOTAS入力基盤（DLL+ルーズスクリプト） |
 
 ※競合確認結果: 全ファイルで上書き衝突 0 件（完全独立）。
+※日本語アドオンは MO2 別 MOD「AISS - Japanese Language Addon」の1か所のみで独立管理し、AISS 本体のフォルダは一切改変しません。
 
 ---
 
