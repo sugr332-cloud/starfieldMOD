@@ -1,8 +1,8 @@
 # Starfield Space Life JP — MODパッケージ実装仕様書
 
 **Status:** READ-ONLY / Implementation Specification Draft  
-**Target:** Windows / Starfield / RX 9070 16GB / X52 HOTAS / LM Studio local LLM  
-**Version:** 0.4  
+**Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  
+**Version:** 0.5  
 **Date:** 2026-10-03
 
 ## 1. 目的
@@ -46,7 +46,7 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 | Cassiopeia Papyrus Extender | AISS依存 | 必須候補 |
 | Longer Names v2 | AISS依存 | 必須候補 |
 | AISS - AI Settled Systems | AI NPC | 中核候補 |
-| LM Studio | ローカルLLM | 中核 |
+| LM Studio | ローカルLLM（標準モデル: Gemma 4 12B QAT） | 中核 |
 | AivisSpeech Engine（他TTS候補は5.1） | 無料ローカルTTS | 採用候補（Phase 1.5） |
 | Absolute HOTAS | HOTAS操作 | 採用候補 |
 | Civil NPCs | NPC挙動改善 | 採用候補 |
@@ -134,7 +134,35 @@ AISS側では以下を監査する:
 
 AISSの人格・ワールドプロファイル・システムプロンプトが英語の場合、日本語で返答させる指示を追加する。追加する設定値は `configs/AISS/` に記録する。
 
-LLMモデルは日本語性能を重視して選ぶ。モデル名・量子化・コンテキスト長・使用VRAMを `configs/LMStudio/` に記録する。
+### LLMモデル方針（決定事項）
+
+- 会話の質を落とさないことを優先する。**密な（Dense）12B級を標準とし、それより小さいモデルは採用しない**
+- 標準モデル: **Gemma 4 12B（QAT版、Q4量子化、約8GB）**
+- MoEモデルは採用しない。理由: モデル全体をRAMに載せるためRAM消費が大きい、CPU側の入力処理で返答開始が遅れる、推論負荷がCPUにかかりFHDでCPU律速になりやすいStarfieldと競合する
+- 密な27B級以上をCPUへオフロードする構成も採用しない（応答が極端に遅くなるため）
+- 比較対象: 日本語特化系の12B級前後のモデル（Swallow、ELYZA、LLM-jp、Sarashina等）をPhase 0で調査し、Gemma 4 12Bを上回るものがあれば比較テストする
+- モデルはVRAMに全て載せる（GPUオフロード100%）
+- モデル名・量子化・コンテキスト長・使用VRAM・生成速度を `configs/LMStudio/` に記録する
+
+### 会話品質を上げるプロンプト調整
+
+モデルと同等に会話の質を左右するため、AISSの人格・プロファイル設定で以下を行い、設定値を `configs/AISS/` に記録する。
+
+- NPCの口調・性格を具体的に書く（一人称、語尾、話し方の癖）
+- 「日本語のみで返答する」「AIアシスタントのように振る舞わない」「ゲーム世界の外の話をしない」を明記する
+- 理想的な返答例を1〜2個入れる
+- 返答の長さの目安を指定する（長すぎるとTTSの遅延も増える）
+- 調整前後で同じNPC・同じ質問の返答を比較し、`docs/TEST_RESULTS.md` に記録する
+
+### モデル比較の評価項目
+
+同じNPC・同じ質問・同じ設定で比較する。
+- 口調・人格の一貫性（複数往復）
+- 状況（場所、船、燃料、クエスト等）の読み取り
+- 日本語の崩れ（英語の混入、急な敬語化、不自然な表現）
+- 存在しない設定の捏造
+- 返答開始までの時間と生成速度
+- ゲーム中のフレームレートへの影響
 
 TTSは初期Phase（Phase 1）では導入しない。Phase 1でAISS + LM Studioの日本語テキスト会話が安定した後、5.1の無料TTS構成を「Phase 1.5 — AI Voice」として段階導入する。
 
@@ -287,11 +315,13 @@ Starfield
 
 RX 9070 16GBを、Starfield・LM Studio（LLM）・TTSで共有するため、VRAM不足が最大の性能リスクになる。
 
-- Phase 1でStarfield単体のVRAM使用量を計測し、LLMに使える残量を決める
-- LLMは残量に収まるサイズ・量子化を選ぶ。収まらない場合は以下のどれかを採用する
-  - より小さいモデル／低い量子化にする
-  - GPUへのオフロード層を減らし、一部をCPUで動かす（応答は遅くなる）
-  - LM StudioをLAN内の別PC（Radeon RX 7600搭載のリビングPC等）で動かし、AISSのLM Studio接続先URLをそのPCに向ける
+- 想定解像度はFHD。FHDのStarfieldは目安で7〜9GBのVRAMを使い、残りに12B級（約8GB）を載せる
+- フレームレートに上限をかける（例: 60fps）。GPUに余力を残し、LLM生成中の落ち込みを抑える
+- Phase 1でStarfield単体のVRAM使用量を計測し、12B級が載るかを確認する
+- 載らない、またはフレームレートの落ち込みが許容できない場合は、以下の順で対処する（モデルを12B級未満に下げる対処は行わない）
+  1. グラフィック設定（テクスチャ品質等）を下げてVRAMを空ける
+  2. コンテキスト長を見直す
+  3. LM StudioをLAN内の別PC（Radeon RX 7600搭載のリビングPC等）で動かし、AISSのLM Studio接続先URLをそのPCに向ける（RX 7600は8GBのため12B級Q4が収まるかを検証する。通信はテキストのみで、LANによる遅延は無視できる）
 - TTSは原則CPUで動かす（5.1 実行配置）
 - 計測項目: VRAM使用量、フレームレート（平均と最低）、LLMの応答時間、TTSの生成時間
 - 結果は `docs/TEST_RESULTS.md` に記録する
@@ -461,6 +491,7 @@ Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで�
 - 日本語AI会話（5章のテスト条件。日本語IME入力・日本語表示を含む）
 - HOTAS入力
 - VRAM・性能の計測（5.2）
+- LLMモデル比較（5章の評価項目）
 
 成果物: `docs/TEST_PHASE1.md`
 
