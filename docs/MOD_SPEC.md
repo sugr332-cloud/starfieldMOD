@@ -1,8 +1,8 @@
 # Starfield Space Life JP — MODパッケージ実装仕様書
 
-**Status:** READ-ONLY / Implementation Specification Draft  
+**Status:** Phase 0 完了 / Phase 1 準備  
 **Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  
-**Version:** 0.5  
+**Version:** 0.6  
 **Date:** 2026-10-03
 
 ## 1. 目的
@@ -20,6 +20,22 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 8. MOD本体を無断再配布せず、構成・設定・日本語化・検証情報を管理する。
 9. AI会話に無料（ローカル優先）の日本語AI音声（TTS）を付ける。
 
+## 1.1 確認済みの実行環境（Phase 0監査、2026-10-03）
+
+詳細は `docs/MOD_AUDIT.md` 1章。
+
+| 項目 | 値 |
+|---|---|
+| OS | Windows 11 (64-bit) |
+| CPU | Ryzen 7 7800X3D |
+| RAM | 32GB |
+| GPU | Radeon RX 9070 16GB |
+| Starfield | Steam版。**1.16.244.0（ダウンロード中の一時ファイルから取得した暫定値。インストール完了後に再確認）** |
+| SFSE | 未導入 |
+| Mod Organizer 2 | 2.5.2 導入済み。Starfield用インスタンスは未作成 |
+| LM Studio | 0.4.25 導入済み。**Gemma 4 12Bは未ダウンロード** |
+| AISS | 未入手 |
+
 ## 2. 基本原則
 
 - 最初にREAD-ONLY調査を行う。
@@ -32,7 +48,7 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 - LLM生成会話は日本語出力を要件とする。
 - AISS + LM StudioをAI基盤候補とする。
 - 各フェーズで起動・セーブ・ロード・会話・移動を検証する。
-- Starfield本体のバージョンを固定する。SFSEプラグイン（DLL）は本体更新で動かなくなるため、本体更新はSFSE・Address Library・各SFSEプラグインの対応を確認してから行う。
+- Starfield本体のバージョンを固定する（基準: インストール完了後に確認したバージョン。暫定1.16.244）。SFSEプラグイン（DLL）は本体更新で動かなくなるため、本体更新はSFSE・Address Library・各SFSEプラグインの対応を確認してから行う。
 - 各フェーズの開始前にセーブデータをバックアップする。スクリプト系MOD（AISS等）は途中で外すとセーブが壊れる可能性があるため、検証は専用のテスト用セーブで行う。
 
 ## 3. 採用候補
@@ -59,9 +75,9 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 |---|---|---|
 | Grav Lanes | 星系内航行時間 | 実機検証後 |
 | True Seamless Grav Jumps SFSE | Grav Jumpロード削減 | 実機検証後 |
-| Seamless Loading Screens | 残存ロードの視覚的シームレス化 | 採用候補 |
-| Seamless Neon | Neonロード削減 | 実機検証後 |
-| Spaceships Plus | 船システム拡張 | 実機検証後 |
+| Seamless Loading Screens | 残存ロードの視覚的シームレス化 | 採用候補（ReShade 6.8.0以上・アドオン対応版が必須） |
+| Seamless Neon | Neonロード削減 | 実機検証後（新規ゲーム/NG+前提） |
+| Spaceships Plus | 船システム拡張 | 実機検証後（Phase 2.5） |
 
 ### Experimental
 
@@ -87,7 +103,18 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 初期検証候補:
 `Grav Lanes + True Seamless Grav Jumps`
 
+- Grav Lanesの作者はTrue Seamless Grav Jumpsを併用推奨としており、True Seamless Grav Jumps側もv1.26でGrav Lanes等を自動検出して対応すると明記している。実機での動作はPhase 3で検証する
+- **Immersive Grav Jumps はGrav Lanesの作者が非互換と明記しているため導入しない**
+
 Astrogate等は別プロファイルで検証する。
+
+### Neon
+
+Seamless Neonは、作者が非互換と明記する大型のNeon改変MOD（Seamless City Interiors、Neon Core Disguised Seamless Project、Neon Core Apartment、Kansha - Neon Apartment、The Dark Side of Neon 等）と同時導入しない。
+
+### 離陸時の画面遷移
+
+Seamless Loading Screensは離陸時の遷移にも作用し、Seamless Planet Takeoffsと同じ遷移に作用する可能性がある。Phase 4で重点的に検証する。
 
 ### AISS
 
@@ -140,7 +167,8 @@ AISSの人格・ワールドプロファイル・システムプロンプトが�
 - 標準モデル: **Gemma 4 12B（QAT版、Q4量子化、約8GB）**
 - MoEモデルは採用しない。理由: モデル全体をRAMに載せるためRAM消費が大きい、CPU側の入力処理で返答開始が遅れる、推論負荷がCPUにかかりFHDでCPU律速になりやすいStarfieldと競合する
 - 密な27B級以上をCPUへオフロードする構成も採用しない（応答が極端に遅くなるため）
-- 比較対象: 日本語特化系の12B級前後のモデル（Swallow、ELYZA、LLM-jp、Sarashina等）をPhase 0で調査し、Gemma 4 12Bを上回るものがあれば比較テストする
+- 比較対象: **LLM-jp-3-13B-instruct**（指示調整済み、Apache-2.0）。Sarashina2-13Bはベースモデル（指示追従の調整なし）のため、指示調整版が見つかった場合のみ比較する。Swallow・ELYZAは12B級の現行モデルがないため対象外（Phase 0監査）
+- Gemma 4 12Bは未ダウンロードのため、Phase 1の準備で入手する
 - モデルはVRAMに全て載せる（GPUオフロード100%）
 - モデル名・量子化・コンテキスト長・使用VRAM・生成速度を `configs/LMStudio/` に記録する
 
@@ -194,7 +222,7 @@ TTSは初期Phase（Phase 1）では導入しない。Phase 1でAISS + LM Studio
 - 方式A/B: AISSの既存TTS経路にローカルTTSを接続する（口パク同期あり。可否はユーザー環境のconfig.jsonで判定）
 - 方式D: AISSのレスポンスログを外部ツールが読み、ローカルTTSで読み上げる（口パク同期なし。公開情報の範囲で実現可能と判断）
 
-Phase 0で方式Aの可否を判定し、不可なら方式Dを採用する。
+**Phase 0の判定（2026-10-03）: 方式Dを暫定採用。** 方式AはAISS未入手のため保留とし、Phase 1でAISSを導入した際に `config.json` を確認して最終判定する。方式Bは現時点で公式未提供。詳細は `docs/TTS_AUDIT.md`。
 
 ### 要件
 
@@ -219,7 +247,9 @@ Phase 0で方式Aの可否を判定し、不可なら方式Dを採用する。
 | Windows標準音声（SAPI/OneCore: Haruka等） | ローカル・無料 | △ | ○ | キー・追加インストール不要。音質は機械的。方式Dの最終フォールバック |
 | Edge-TTS | オンライン・無料 | ○ | ○ | Microsoftの非公式利用。規約・継続性リスクがあるため採用しない（比較記録のみ） |
 
-初期第一候補: **AivisSpeech Engine**（日本語品質・Windows対応・VOICEVOX互換APIで扱いやすい）。比較対象: VOICEVOX Engine、XTTS v2（方式Aのxtts枠が使える場合）、fish-speech。
+初期第一候補: **AivisSpeech Engine**（日本語品質・Windows対応・VOICEVOX互換APIで扱いやすい）。比較対象: VOICEVOX Engine。
+
+Phase 0の評価により、Style-Bert-VITS2（AMD GPU非対応でCPU負荷大）、fish-speech（Windowsネイティブ非推奨・低速）、XTTS v2（低速・日本語品質に難）、Irodori-TTS（推論コスト大）は見送る。ただし方式AでAISSのxtts枠が実際に使えると判明した場合のみ、XTTS v2を再評価する。
 
 ### 接続方式
 
@@ -389,11 +419,11 @@ TTSエンジン（Phase 1.5以降）
 Stable +
 
 ```
+Spaceships Plus（Phase 2.5）
 Grav Lanes
 True Seamless Grav Jumps
 Seamless Loading Screens
 Seamless Neon
-Spaceships Plus
 ```
 
 ### Experimental
@@ -413,6 +443,8 @@ Seamless Planet Takeoffs
 - SFSEプラグインやAISSが書き出すファイル（ログ、`Data\SFSE\AISS\` 以下）は、MO2ではoverwriteフォルダに出力されることがある。実際の出力先を確認し、`docs/CONFIG_GUIDE.md` に記録する
 - プロファイルごとにセーブを分ける（MO2のプロファイル別セーブ機能を使う）。Stable・Immersion-Test・Experimentalのセーブを混在させない
 - プラグインの読み込み順はMO2で管理し、変更したら記録する
+- Starfield用のMO2インスタンスはPhase 1で新規作成する（既存のMount & Blade II用インスタンスとは分ける）
+- ReShade（Seamless Loading Screensの前提）はゲームフォルダに直接導入するもので、MO2では管理できない。導入・削除の手順とバージョンを `docs/INSTALL_GUIDE.md` に記録する
 - Bethesda公式のCreations経由で導入したMODとNexus/MO2経由のMODを混在させる場合は、どちらで管理しているかを記録する。同じMODを両方から入れない
 
 ## 8. 競合監査
@@ -441,6 +473,19 @@ Seamless Planet Takeoffs
 
 CRITICAL/HIGHが解消できないMODはStableから除外する。
 
+### チェック手順（詳細は `docs/MOD_COMPATIBILITY.md` 4章）
+
+各フェーズでMODを追加したら、以下を行う。
+1. MO2の競合表示で、ファイルの上書き（特に `.pex`、`.swf`）を確認する
+2. SF1Edit（xEditのStarfield版）をMO2経由で起動し、レコード競合を確認する
+3. SFSE経由で一度起動し、`sfse.log` で全SFSEプラグインがゲームバージョンに対応しているか確認する
+4. 結果を `docs/MOD_COMPATIBILITY.md` に追記する
+
+### 日本語化パッチのロード順
+
+- 文字列のみを差し替える形式（Stringsファイル、xTranslatorの翻訳）を優先する。レコードを丸ごと上書きしないため、他MODの変更を元に戻す問題が起きにくい
+- ESP/ESM形式の翻訳パッチは元MODの直後に置き、SF1Editで元MODの数値（燃料消費量など）が保たれているか確認する
+
 ## 9. Phase 0 — READ-ONLY監査
 
 AGYは変更を行わず、以下を調査する:
@@ -466,6 +511,13 @@ AGYは変更を行わず、以下を調査する:
 - `docs/TTS_AUDIT.md`
 
 **この監査が完了するまで実装を開始してはいけない。**
+
+## 9.5 Phase 1 の準備（ユーザー作業）
+
+Phase 1の前に、ユーザーが以下を行う（agyはダウンロード・インストールを代行しない）。
+- Starfieldのインストール完了と、バージョンの再確認
+- LM StudioでGemma 4 12B（QAT版、Q4）をダウンロード
+- 必要なMODのダウンロード（Nexus Modsへのログインが必要）
 
 ## 10. Phase 1 — Core
 
@@ -527,13 +579,28 @@ Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで�
 - 補給
 - セーブ/ロード
 
+## 11.5 Phase 2.5 — Ship Systems（Immersion-Test）
+
+追加:
+- Spaceships Plus
+
+テスト:
+- 燃料スクープ、EVA修理、減圧、サブシステム修理
+- Real Fuelとの併用時の燃料消費（二重に消費しないか。Spaceships Plusは作者説明で「Real Fuelの有無にかかわらず動作」とある）
+- 減圧イベント時のクルー挙動（Ship Crew Assignmentsとの干渉）
+- 追加テキストの日本語化範囲の確認
+
 ## 12. Phase 3 — Seamless Travel
 
 追加:
 - Grav Lanes
 - True Seamless Grav Jumps
-- Seamless Loading Screens
+- Seamless Loading Screens（ReShade 6.8.0以上・アドオン対応版を先に導入）
 - Seamless Neon
+
+前提:
+- Seamless Neonは新規ゲームまたはNG+（Unity Jump）で検証する。作者は途中導入で一部のクエストが壊れると警告している
+- Seamless NeonはSFBGS00D.esm（2026年4月以降のゲームバージョン）が必須
 
 テスト:
 - Grav Jump
@@ -635,7 +702,7 @@ AGYは実装前に以下を埋める。
 | True Seamless Grav Jumps | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 実験 |
 | Seamless Loading Screens | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 視覚的シームレス |
 | Seamless Neon | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 大規模変更 |
-| Spaceships Plus | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 大規模変更 |
+| Spaceships Plus | Phase 2.5 | 監査済み | 監査済み | 監査済み | 要翻訳 | 監査済み | 結果は MOD_AUDIT.md |
 | Seamless Planet Takeoffs | Experimental | 調査 | 調査 | 調査 | 調査 | 調査 | 最後に導入 |
 | AISS TTS接続先変更 | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 方式A/B/C/D判定。xtts枠確認 |
 | 方式D 読み上げツール | 方式A不可時に採用 | 調査 | 調査 | 調査 | 調査 | 調査 | latest_response.ini形式確認 |
@@ -644,4 +711,4 @@ AGYは実装前に以下を埋める。
 | VOICEVOX Engine | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 比較対象 |
 | fish-speech（OSS） | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | Fish Audio経路互換の確認 |
 
-**AGYはこの表を完成させるまで実装を開始してはいけない。**
+**Phase 0の監査結果は `docs/MOD_AUDIT.md` 2章の表を正とする（2026-10-03完了）。** この表は監査開始時点の項目一覧として残す。
