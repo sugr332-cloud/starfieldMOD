@@ -2,7 +2,7 @@
 
 **Status:** READ-ONLY / Implementation Specification Draft  
 **Target:** Windows / Starfield / RX 9070 16GB / X52 HOTAS / LM Studio local LLM  
-**Version:** 0.2  
+**Version:** 0.3  
 **Date:** 2026-10-03
 
 ## 1. 目的
@@ -139,7 +139,27 @@ TTSは初期Phase（Phase 1）では導入しない。Phase 1でAISS + LM Studio
 - AISSのLLM側はLM Studio（ローカル・無料）に対応しているが、TTS側にローカル/無料エンジンの公式対応は確認できていない。
 - AISSはTTS音声の長さに合わせた口パク（dialogue/lip system）を持つ。
 
-したがって「無料のAI音声」は、AISSの既存TTS経路にローカルTTSを接続できるかどうかが成否を決める。Phase 0で必ず確認する。
+### AISS側の確認済み事項（2026-10-03、Nexus説明文・ポスト欄より）
+
+- 設定ファイル: `Data\AISS\config.json`。TTS有効化用のプリセットは `Data\AISS\config_presets` にあり、config.jsonへコピーして使う
+- TTS設定として公開されている項目: プロバイダごとのAPIキー、NPCごとのボイスID（922件のNPC音声ルートが明示設定済み）、プロバイダの有効/無効
+- TTSの送り先URL（base URL）を変更する項目は公開ドキュメントに記載なし → **方式Aは未確定**
+- 設定ファイルに「xtts」用の枠があるとの報告あり（実装済みかは不明）。動作すればXTTS v2（ローカル）を直接接続できる可能性がある
+- `AISS_Backend.exe`（ローカル常駐プロセス）がAI/TTSとの通信、音声キュー、再生、口パクのタイミングを担当する
+- 生成音声のキャッシュ: `Data\SFSE\AISS\audio`（MP3）
+- リクエスト/レスポンスのログ: `Data\SFSE\AISS\requests\latest_request.ini`、`Data\SFSE\AISS\responses\latest_response.ini` → **方式Dの入力として利用可能**
+- LM Studioの接続はAPIキー不要（`provider: lmstudio`、`http://127.0.0.1:1234/v1`）
+
+### 方針（ユーザー要件）
+
+- **APIキー・アカウント登録を使わない。** 有料TTSの無料枠も使わない
+- LLMはLM Studio（キー不要）を使う
+
+したがって「無料のAI音声」は、次の2系統で実現する。
+- 方式A/B: AISSの既存TTS経路にローカルTTSを接続する（口パク同期あり。可否はユーザー環境のconfig.jsonで判定）
+- 方式D: AISSのレスポンスログを外部ツールが読み、ローカルTTSで読み上げる（口パク同期なし。公開情報の範囲で実現可能と判断）
+
+Phase 0で方式Aの可否を判定し、不可なら方式Dを採用する。
 
 ### 要件
 
@@ -159,9 +179,12 @@ TTSは初期Phase（Phase 1）では導入しない。Phase 1でAISS + LM Studio
 | VOICEVOX Engine | ローカル・無料 | ◎ | 要確認（DirectML/CPU） | キャラクターごとの利用規約・クレジット表記（例: 「VOICEVOX:キャラ名」）が必要 |
 | Style-Bert-VITS2 | ローカル・無料 | ◎ | 要確認（CUDA中心、CPU可） | 学習済みモデルのライセンス確認必須 |
 | fish-speech / OpenAudio（OSS版） | ローカル・無料 | ○ | 要確認（CUDA中心） | Fish AudioのOSS版。AISSのFish Audio経路との互換性を確認する価値あり。重みのライセンス（非商用条件等）を確認 |
-| Edge-TTS | オンライン・無料 | ○ | ○ | Microsoftの非公式利用。規約・継続性リスクがあるためフォールバック扱い、Stableには入れない |
+| XTTS v2（Coqui） | ローカル・無料 | ○ | 要確認（CUDA中心、CPU可だが低速） | AISSのconfigに「xtts」枠があるとの報告あり。方式Aで直接接続できる可能性。モデルライセンス（非商用条件）を確認 |
+| Irodori-TTS | ローカル・無料 | ○ | 要確認 | MITライセンス、ボイスクローン・感情指定可。漢字の読みが弱いとの報告があり、かな変換の前処理が必要になる可能性。Experimental扱い |
+| Windows標準音声（SAPI/OneCore: Haruka等） | ローカル・無料 | △ | ○ | キー・追加インストール不要。音質は機械的。方式Dの最終フォールバック |
+| Edge-TTS | オンライン・無料 | ○ | ○ | Microsoftの非公式利用。規約・継続性リスクがあるため採用しない（比較記録のみ） |
 
-初期第一候補: **AivisSpeech Engine**（日本語品質・Windows対応・VOICEVOX互換APIで扱いやすい）。比較対象: VOICEVOX Engine、fish-speech。
+初期第一候補: **AivisSpeech Engine**（日本語品質・Windows対応・VOICEVOX互換APIで扱いやすい）。比較対象: VOICEVOX Engine、XTTS v2（方式Aのxtts枠が使える場合）、fish-speech。
 
 ### 接続方式
 
@@ -179,7 +202,7 @@ Starfield
 
 成立条件:
 - AISSの設定ファイル/UIでTTSのbase URL（エンドポイント）を変更できること
-- APIキーをダミー値で通せること
+- APIキーをダミー値で通せること（本物のキー・アカウントは使わない）
 - ブリッジがAISSの期待する音声形式（コーデック、サンプルレート、レスポンス形式）を返せること
 - 口パクが返却音声の長さと同期すること
 
@@ -191,10 +214,37 @@ fish-speech（OSS版）がAISSのFish Audio経路と直接互換であれば、�
 
 **方式C: 接続先を変更できない場合**
 
-AISS本体の改変・逆解析によるTTS差し替えは行わない（14章の禁止事項）。この場合は以下のいずれかをユーザー判断とする。
-- TTSを無効のまま運用する
-- AISS作者へ機能要望を出す
-- 有料TTS（ElevenLabs / Fish Audio）の無料枠のみで運用する（「無料」要件を満たすかはユーザー判断）
+AISS本体の改変・逆解析によるTTS差し替えは行わない（14章の禁止事項）。有料TTS（無料枠を含む）は使わない（APIキー不使用の要件）。この場合は方式Dへ移行する。並行してAISS作者へローカルTTS対応の要望を出すかはユーザー判断とする。
+
+**方式D: レスポンスログの外部読み上げ（方式Aが不可の場合の採用方式）**
+
+```
+Starfield
+  -> AISS
+  -> AISS_Backend.exe（TTS無効、LLMはLM Studio）
+  -> Data\SFSE\AISS\responses\latest_response.ini を書き出し
+  -> 読み上げツール（本リポジトリ tools/tts-reader/ で管理）
+       - ファイル変更を監視
+       - NPC名・セリフを抽出（重複再生防止）
+       - voice_mapでNPC→声を決定
+  -> AivisSpeech Engine / VOICEVOX Engine（ローカルHTTP API）
+  -> 再生
+```
+
+仕様:
+- AISS本体・AISSのファイルには書き込まない（読み取り専用）
+- AISSのTTSは無効のままにする（二重再生防止）
+- latest_response.ini の形式（NPC識別子、本文、エンコーディング、書き込みタイミング）はPhase 0で実ファイルから確認する
+- 書き込み途中の読み取りを避ける（更新後に短い待機、または内容が安定してから読む）
+- 同一レスポンスを二度読まない（ハッシュ等で判定）
+- 長文は文単位で分割し、先頭文から順次再生して体感遅延を減らす
+- 読み上げ前に、英字固有名詞・数字の読み替え辞書を適用できるようにする（`configs/TTS/` で管理）
+- 読み上げツールやTTSエンジンが停止しても、ゲームとAISSのテキスト会話には影響しない
+
+制約:
+- 口パクとは同期しない
+- AISSの会話表示と音声にタイムラグが出る
+- 音声はゲーム内の3D音響ではなくPC側の再生になる
 
 ### 実行配置
 
@@ -217,6 +267,7 @@ AISS本体の改変・逆解析によるTTS差し替えは行わない（14章�
 - 複数NPC会話時に声が混線しない
 - VRAM/CPU使用率、フレームレート低下の計測
 - TTSエンジン停止時にAISS会話（テキスト）が継続し、CTDしない
+- 方式Dの場合: 重複再生がない、書き込み途中の読み取りがない、AISSのTTSが無効で二重再生しない
 - 10回以上の連続会話とセーブ/ロード
 
 ## 6. 日本語化方針
@@ -322,8 +373,8 @@ AGYは変更を行わず、以下を調査する:
 8. Windows対応
 9. AISS + LM Studio対応
 10. 既知の問題
-11. AISSのTTS接続先（base URL）変更可否、APIキー要否、期待される音声形式（5.1 方式A/B/Cの判定）
-12. 無料TTS候補（AivisSpeech Engine / VOICEVOX Engine / Style-Bert-VITS2 / fish-speech）の最新版、Windows + AMD GPU対応、CPU実行時の速度、日本語品質、音声モデル/キャラクターの利用規約
+11. AISSのTTS接続先（base URL）変更可否、xtts枠の有無と動作可否、ダミーキーで通るか、期待される音声形式、`latest_response.ini` の形式（5.1 方式A/B/C/Dの判定。ユーザー環境の `Data\AISS\config.json` と `config_presets` を確認。APIキー欄は記録しない）
+12. 無料TTS候補（AivisSpeech Engine / VOICEVOX Engine / Style-Bert-VITS2 / fish-speech / XTTS v2 / Irodori-TTS）の最新版、Windows + AMD GPU対応、CPU実行時の速度、日本語品質、音声モデル/キャラクターの利用規約
 
 成果物:
 - `docs/MOD_AUDIT.md`
@@ -354,11 +405,12 @@ Stableプロファイルのみ構築。
 
 前提:
 - Phase 1の日本語AI会話テストに合格していること
-- Phase 0の `docs/TTS_AUDIT.md` で方式A/Bのいずれかが成立と判定されていること（方式Cの場合はユーザー判断まで実装しない）
+- Phase 0の `docs/TTS_AUDIT.md` で方式A/B/Dのどれを採用するか判定されていること
 
 追加:
 - 無料TTSエンジン（初期第一候補: AivisSpeech Engine）
-- 必要な場合のみローカルTTSブリッジ（自作の場合は本リポジトリの `tools/tts-bridge/` で管理。AISS本体は改変しない）
+- 方式Aの場合: 必要な場合のみローカルTTSブリッジ（自作の場合は本リポジトリの `tools/tts-bridge/` で管理。AISS本体は改変しない）
+- 方式Dの場合: 読み上げツール（本リポジトリの `tools/tts-reader/` で管理）
 - `configs/TTS/`（エンジン設定、voice_map、AISSのTTS設定値の記録）
 
 テスト: 5.1「音声テスト条件」の全項目
@@ -421,7 +473,7 @@ AGYはユーザー承認なしに以下を行わない:
 - セーブデータの上書き
 - ロードオーダーの大幅変更
 - AISS本体（DLL/Papyrus/ESP）の改変・逆解析によるTTS差し替え
-- 有料TTS（ElevenLabs / Fish Audio等）の契約・APIキー登録・課金の発生する設定
+- 有料TTS（ElevenLabs / Fish Audio等）の契約・アカウント作成・APIキー登録・課金の発生する設定（無料枠を含む）
 - 音声モデル・音声データの再配布、リポジトリへの同梱
 
 ## 15. 成果物
@@ -450,7 +502,8 @@ configs/
 └─ HOTAS/
 
 tools/
-└─ tts-bridge/（方式Aでブリッジが必要な場合のみ）
+├─ tts-bridge/（方式Aでブリッジが必要な場合のみ）
+└─ tts-reader/（方式Dの場合のみ）
 ```
 
 MOD本体・音声モデル本体はリポジトリに含めない。
@@ -481,7 +534,9 @@ AGYは実装前に以下を埋める。
 | Seamless Neon | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 大規模変更 |
 | Spaceships Plus | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 大規模変更 |
 | Seamless Planet Takeoffs | Experimental | 調査 | 調査 | 調査 | 調査 | 調査 | 最後に導入 |
-| AISS TTS接続先変更 | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 方式A/B/C判定 |
+| AISS TTS接続先変更 | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 方式A/B/C/D判定。xtts枠確認 |
+| 方式D 読み上げツール | 方式A不可時に採用 | 調査 | 調査 | 調査 | 調査 | 調査 | latest_response.ini形式確認 |
+| XTTS v2 | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | xtts枠が使える場合 |
 | AivisSpeech Engine | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 無料TTS第一候補 |
 | VOICEVOX Engine | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | 比較対象 |
 | fish-speech（OSS） | 未確定→監査 | 調査 | 調査 | 調査 | 調査 | 調査 | Fish Audio経路互換の確認 |
