@@ -3,6 +3,8 @@
 configs/**/*.local.*
 configs/**/config.json
 !configs/**/*.example.*
+tools/launcher/launcher.config.json
+!tools/launcher/launcher.config.example.json
 
 # MOD本体・アーカイブ・音声モデルは含めない
 *.7z

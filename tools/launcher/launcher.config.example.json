@@ -1,0 +1,17 @@
+{
+  "mo2ExecutablePath": "<MO2_INSTALL_DIR>\\ModOrganizer.exe",
+  "mo2InstanceName": "Starfield",
+  "aissExecutableTitle": "AISS Backend",
+  "sfseExecutableTitle": "SFSE",
+  "openMo2Only": false,
+  "vramHeavyProcesses": [
+    "WardogsClient-Win64-Shipping",
+    "msedge",
+    "Discord"
+  ],
+  "lmStudio": {
+    "serverUrl": "http://127.0.0.1:1234",
+    "modelIdentifier": "gemma-4-12b-it-qat",
+    "testTimeoutSeconds": 15
+  }
+}

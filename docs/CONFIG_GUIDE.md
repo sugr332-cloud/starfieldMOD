@@ -113,11 +113,9 @@ LM Studio に以下のプリセットを配備済みです：
   ```
 
 > [!TIP]
-> **LM Studio GUI でのモデル読み込み手順**
-> 1. LM Studio を開き、上部またはサイドバーのモデル選択画面を表示します。
-> 2. `gemma-4-12b-it-qat` を選択し、ロード設定画面上部の **Preset ドロップダウンから「AISS-Standard-Q8_0」を選択** します。
-> 3. Context Length: 16384、GPU: MAX、K/V Cache: Q8_0、Flash Attention: ON、Thinking: OFF が反映されていることを確認してロードします。
-> 4. Developer / Local Server 画面でサーバーが稼働（ポート `1234`）していることを確認します。
+> **LM Studio のロード設定について**
+> - `<UserDir>\.lmstudio\settings.json` の `defaultContextLength: 16384` および JIT 設定により、通常はリクエスト時に自動的に適正な設定でロードされます。
+> - LM Studio GUI から手動でロードする場合は、ロード画面上部の **Preset ドロップダウンから「AISS-Standard-Q8_0」を選択** してロードしてください。Context: 16384、GPU: MAX、K/V Cache: Q8_0、Flash Attention: ON、Thinking: OFF が一括適用されます。
 
 ### 3.3 サーバー設定
 - **ローカルサーバー**: 有効（ポート `1234`）
@@ -193,22 +191,58 @@ GPU メモリ使用量調査（実測上位プロセス）:
 | `steamwebhelper` | 約 809 MB (0.79 GiB) | 必要に応じて Steam ミニモードまたは GPU 加速無効化 | 数百 MB 解放 |
 
 > [!TIP]
-> 上記のゲームクライアントおよびブラウザを終了することで、**合計 約 3.0 GiB 以上の VRAM が即座に解放**され、ゲームプレイ中のクラッシュやテクスチャ破綻を未然に防止できます。
+> 上記のゲームクライアントおよびブラウザを終了することで、**合計 約 3.0 GiB 以上の VRAM が即座に解放**され、ゲームプレイ中のクラッシュやテクスチャ破綻を未然に防止できます。後述の統合ランチャーを使用する場合、起動時に終了確認プロンプトが表示され、ワンタッチで通常終了できます。
 
-### 6.2 起動ステップ
+---
+
+### 6.2 推奨手順: ワンクリック統合ランチャー（デスクトップショートカット）
+
+デスクトップに配置されたショートカット **「Starfield（MOD）」** をダブルクリックするだけで、全プロセスが正しい順序で自動起動します。
+
+```
+[デスクトップの「Starfield（MOD）」をダブルクリック]
+  │
+  ├─ 1. 常駐アプリの VRAM 解放確認
+  │     └─ WardogsClient, msedge, Discord 等の起動を検知した場合、「閉じますか？ (Y/N)」を確認
+  │     └─ Y の場合はプロセスを通常終了して VRAM を即座に解放
+  │
+  ├─ 2. LM Studio サーバー確認＆起動
+  │     └─ ポート 1234 の稼働を確認（未起動なら `lms server start` を実行）
+  │
+  ├─ 3. モデル読み込み＆疎通テスト
+  │     └─ `gemma-4-12b-it-qat` をロード（既定設定: 16K, Q8_0, Flash Attention, 思考OFF）
+  │     └─ ローカル API へ短いテストリクエストを送信して正常応答を確認
+  │
+  ├─ 4. AISS Backend 起動
+  │     └─ MO2 経由で「AISS Backend」を起動（moshortcut://Starfield:AISS Backend）
+  │     └─ プロセス待機＆ロックファイル生成確認（約3秒）
+  │
+  └─ 5. SFSE（MOD 入り Starfield）起動
+        └─ MO2 経由で「SFSE」を自動実行（moshortcut://Starfield:SFSE）
+```
+
+- **ランチャー本体**: `tools/launcher/Start-StarfieldAI.bat`（PowerShell 実行ポリシーを自動バイパス）
+- **設定ファイル**: `tools/launcher/launcher.config.json`（環境ごとの MO2 パスや監視プロセスを管理）
+- **詳細ドキュメント**: [`tools/launcher/README.md`](file:///tools/launcher/README.md)
+
+---
+
+### 6.3 代替手順: 手動起動（ランチャーが動かない場合）
+
+ランチャーを使用しない場合、またはトラブル発生時は以下の手順で手動起動します。
 
 ```
 [1. 常駐アプリの終了]
-   └─ WardogsClient、Edge ブラウザ、Discord 等を終了して VRAM を解放
+   └─ WardogsClient、Edge ブラウザ、Discord 等を手動で終了して VRAM を解放
 
 [2. LM Studio 起動]
-   └─ gemma-4-12b-it-qat を「AISS-Standard-Q8_0」プリセットでロード
-   └─ Thinking が OFF、Context が 16384、K/V Cache が Q8_0 であることを確認
-   └─ Local Server が ON (ポート 1234) であることを確認
+   └─ LM Studio を起動し、Local Server を ON（ポート 1234）にする
+   └─ モデル `gemma-4-12b-it-qat` はモデル既定設定（16384, Q8_0, Flash Attention, 思考OFF）が
+      自動適用されるため、プリセットの手動選択は不要（JIT によるオンデマンド読み込みも可能）
 
 [3. AISS_Backend.exe 起動]
-   └─ MO2 のドロップダウンから「AISS Backend」を選択して実行
-   └─ aiss_backend.lock が生成され、常駐待機状態（HEALTHY）になることを確認
+   └─ MO2 を開き、右上ドロップダウンから「AISS Backend」を選択して「実行」をクリック
+   └─ コンソールが開き、常駐待機状態（HEALTHY）になることを確認
 
 [4. MO2 GUI からゲーム起動（必須）]
    └─ MO2 でプロファイル「Stable」が選択されていることを確認
@@ -216,3 +250,4 @@ GPU メモリ使用量調査（実測上位プロセス）:
 ```
 
 ※ゲーム終了後は、AISS_Backend.exe および LM Studio を必要に応じて終了してください。
+

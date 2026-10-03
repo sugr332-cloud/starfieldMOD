@@ -59,7 +59,15 @@ LM Studio に以下のプリセットを配備済みです。
   }
   ```
 
-### 2.2 環境変数の扱いについて
+### 2.2 モデル既定設定および JIT（Just-in-Time）読み込みの検証結果
+- **モデル既定値の設定（settings.json）**:
+  `<UserDir>\.lmstudio\settings.json` の `defaultContextLength.value` を `16384` に設定しました。これにより、オプションを指定せず `lms load gemma-4-12b-it-qat` を実行した場合でも、常にコンテキスト長 16384 で自動ロードされます（実証確認済み）。
+- **JIT（Just-in-Time）モデル読み込み**:
+  `<UserDir>\.lmstudio\.internal\http-server-config.json` において `justInTimeModelLoading: true` および `autoStartOnLaunch: true` が有効化されています。
+  - **実証テスト**: モデルがアンロードされている状態で API（`POST /v1/chat/completions`）へリクエストを送信したところ、リクエスト受信を契機に `gemma-4-12b-it-qat` が自動的にロードされ、8.2 秒で初回復答が返ることを確認しました。
+  - **効果**: ユーザーが事前にモデルを手動ロードしていなくても、ランチャーや AISS から最初のリクエストが到達した時点で自動起動・ロードが行われます。
+
+### 2.3 環境変数の扱いについて
 以前の切り分け時に設定したユーザー環境変数（`LLAMA_ARG_CACHE_TYPE_K`, `LLAMA_ARG_CACHE_TYPE_V`, `LLAMA_ARG_FLASH_ATTN`）は、他アプリへの予期せぬ副作用を排除するため**完全に削除**しました。設定は LM Studio のプリセットおよび AISS 側の設定のみで管理します。
 
 ---
