@@ -81,3 +81,41 @@
   - ONNX Runtime 版の AivisSpeech Engine は CPU 最適化が施されており高速に動作するため、8コア/16スレッドの CPU を活用することで、GPUの VRAM（16GB）を Starfield と LM Studio（Gemma 4 12B QAT）に全量割り当てることが可能。
 - **音声モデルのライセンス遵守**:
   - AivisSpeech で使用する音声モデル（`.aivm` ファイル）は、**モデルごとに個別の利用規約（商用利用の可否、クレジット表記の要否、改変条件等）が定められているため、採用するモデルごとに必ず利用規約を確認し遵守する**。
+
+---
+
+## 5. AISS v3.75 実ファイル・付属ドキュメント調査結果（事実記録、2026-10-03）
+
+Phase 1 における AISS v3.75（実ファイル）および付属ドキュメントの調査により確認された客観的事実を記録します（※判定は含みません）。
+
+### 5.1 config.json における `tts.local` ブロックの構造
+AISS の `config.json` 内には、ローカル TTS サーバーと直接通信するための `tts.local` ブロックが標準実装されています。
+（※APIキー欄・値は記録除外）
+
+- **項目一覧と取りうる値**:
+  - `tts.local.enabled`: boolean（ローカルTTSの有効/無効）
+  - `tts.local.tts_url`: string（TTSリクエストの送信先 URL エンドポイント。ポート・パスを含めて任意指定可能）
+  - `tts.local.body_style`: string（リクエストボディの形式。取りうる値: `"openai"` または `"fish"`）
+  - `tts.local.model`: string（モデル名）
+  - `tts.local.format`: string（音声フォーマット。`"mp3"`, `"wav"` 等）
+  - `tts.local.default_voice_id`: string（デフォルトの話者・ボイスID）
+  - `tts.local.use_for_all`: boolean（全1,350名のキャラクターを一括でローカルTTSに割り当てるか否か）
+  - `tts.local.keep_hosted`: array of string（`use_for_all: true` 時にクラウドTTSに残す特定NPCのIDリスト）
+  - `tts.local.extra_body`: object（特殊なTTSサーバー向けに追加マージする任意のJSONパラメータ）
+
+※`provider: "xtts"` という独立した専用項目は存在せず、後述の通り OpenAI 互換ラッパー経由（`body_style: "openai"`）で扱う設計となっています。
+
+### 5.2 付属ドキュメント（LOCAL_TTS_SETUP_GUIDE.txt）の該当記述
+付属ドキュメント `AISS/docs/LOCAL_TTS_SETUP_GUIDE.txt` より、以下の仕様および記述が確認されました。
+
+1. **ローカルTTSの標準サポート**:
+   > "AISS can send its voice lines to a text-to-speech server running on your own PC instead of a paid cloud service. It is free, private, and needs no account or API key."
+2. **2つのリクエスト形式（body_style）**:
+   - `"fish"`: `{ text, reference_id, format }` を送信（fish-speech の `POST /v1/tts` ネイティブ形式）。
+   - `"openai"`: `{ model, input, voice, response_format }` を送信（OpenAI の `POST /v1/audio/speech` 互換形式）。
+3. **XTTS-v2 に関する記述**:
+   > "Through the standard OpenAI-compatible wrapper (body_style "openai"). None of these ship an HTTP server themselves... so you run one of the common wrappers (Kokoro-FastAPI, openedai-speech and similar) that exposes /v1/audio/speech: Kokoro, Piper, XTTS-v2, Chatterbox, F5-TTS"
+4. **VRAM と LM Studio 併用時の記述**:
+   > "If you run LM Studio, run your TTS on the CPU. Kokoro and Piper both do this well, and speech is a far smaller job than either the game or the language model, so the CPU handles it comfortably while the GPU stays dedicated to the two things that actually need it."
+   > "The cloning models in OPTION B - and XTTS-v2, Chatterbox and the rest - are realistically out of reach for this setup. They want 6-24 GB of VRAM that you have already spent. Nothing is wrong with your hardware; you are simply running three demanding programs at once."
+
