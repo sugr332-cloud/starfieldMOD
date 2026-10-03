@@ -2,8 +2,8 @@
 
 **Status:** Phase 0 完了 / Phase 1 準備  
 **Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  
-**Version:** 0.6  
-**Date:** 2026-10-03
+**Version:** 0.7  
+**Date:** 2026-10-04
 
 ## 1. 目的
 
@@ -78,6 +78,19 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 | Seamless Loading Screens | 残存ロードの視覚的シームレス化 | 採用候補（ReShade 6.8.0以上・アドオン対応版が必須） |
 | Seamless Neon | Neonロード削減 | 実機検証後（新規ゲーム/NG+前提） |
 | Spaceships Plus | 船システム拡張 | 実機検証後（Phase 2.5） |
+
+### Outpost Life / 追加候補
+
+| MOD | 役割 | 方針 |
+|---|---|---|
+| Bard's Outpost Recruitment Beacon | 拠点に募集ビーコンを設置し、入植者（Colonist）を募集・定住させる | **追加候補。初期構成には含めない** |
+| Bard's Outpost Crew Command | 募集した入植者にPatrol、Cleanup等の役割を割り当てる | **追加候補。Recruitment Beaconとセットで後段評価** |
+
+方針:
+- 現在のCivil NPCs / Ship Crew Assignments等と機能が一部重複するため、Phase 1〜2の安定動作を確認してから追加を判断する。
+- Recruitment BeaconとCrew Commandは併用を前提とした候補として扱う。
+- Civil NPCs、AISS等が同じNPCの生成・AI行動・Actor/AI Packageを制御する場合は、実機および競合監査で干渉を確認する。
+- 初期Stableには入れず、追加する場合は専用テストプロファイルで検証してからStableへの採用可否を判断する。
 
 ### Experimental
 
