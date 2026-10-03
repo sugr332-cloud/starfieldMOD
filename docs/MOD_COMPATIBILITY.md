@@ -1,0 +1,115 @@
+# Starfield Space Life JP — 競合分析および運用管理規約
+
+- 調査日: 2026-10-03
+- 参照仕様: `docs/MOD_SPEC.md` (v0.5) 8章・4章・7.1章
+
+---
+
+## 1. 確定した競合および重大度一覧（出典あり）
+
+仕様書8章の定義に基づく重大度分類:
+- **CRITICAL**: 起動不能、セーブロード不能、CTD、永久ロード、操作不能、主要処理破綻
+- **HIGH**: クエスト進行不能、NPC/クルー停止、船機能停止、Grav Jump不能、AISS会話不能
+- **MEDIUM**: UI崩れ、テキスト欠落、一部アニメーション/ロード演出不良
+- **LOW**: 表示順、翻訳漏れ、ログ警告のみ
+
+| 領域 / 組み合わせ | 重大度 | 内容・競合メカニズム | 出典 (確認日: 2026-10-03) | 対策・管理方針 |
+|---|---|---|---|---|
+| **Real Fuel × Ships Need Gas** | **CRITICAL** | 同一機能（He-3燃料消費によるGrav Jump制限、ステーション補給機能）の重複による完全破綻。 | 仕様書4章、[Nexus ID: 13306](https://www.nexusmods.com/starfield/mods/13306), [Nexus ID: 7197](https://www.nexusmods.com/starfield/mods/7197) | **完全排他（同時導入不可）**。Real Fuel を単独採用し、Ships Need Gas は除外。 |
+| **全SFSEプラグイン × ゲーム本体バージョン** | **HIGH** | ゲーム本体（`Starfield.exe`）の更新によりメモリアドレスが変化し、未対応DLLが起動時CTDを引き起こす。 | [SFSE公式](https://sfse.silverlock.org/) | ゲームバージョン `1.16.244` に対応したSFSE 0.2.21および各プラグインのみを使用。本体更新時は起動停止。 |
+| **Seamless Neon（ワールドスペース改変）** | **HIGH** | ネオン内部セルを外部ワールドスペースへ統合。既存セーブに導入すると旧セルにクエストオブジェクトが残留しクエスト進行不能となる。 | [Nexus ID: 17340 (作者説明)](https://www.nexusmods.com/starfield/mods/17340) | **New Game または NG+ (Unity jump) が必須**。他のネオン改変MOD（Neon Expanded等）とは完全排他。 |
+| **Grav Lanes の非互換MOD** | **HIGH** | Grav Lanes は Immersive Grav Jumps と非互換（競合）。 | [Nexus ID: 16438 (作者説明)](https://www.nexusmods.com/starfield/mods/16438) | Immersive Grav Jumps は導入しない。 |
+| **Civil NPCs × AISS** | **LOW** | Civil NPCs は GMST（ゲーム設定値8項目）の調整のみでスクリプトなし。AISS の会話開始に干渉せず共存。 | [Nexus ID: 17292](https://www.nexusmods.com/starfield/mods/17292), [Nexus ID: 17392](https://www.nexusmods.com/starfield/mods/17392) | 競合なし。共存可能。 |
+
+---
+
+## 2. Grav Lanes × True Seamless Grav Jumps の再調査結果
+
+- **以前の判定（CRITICAL）の撤回**:
+  - 当初、ジャンプ中船内歩行スクリプトとロード画面スキップDLLの衝突を懸念してCRITICALと推測判定していましたが、公式情報の再調査により**CRITICAL判定を正式に取り下げます**。仕様書4章への「排他化」提案も撤回します。
+- **事実と出典 (確認日: 2026-10-03)**:
+  - **作者併用推奨**: Grav Lanes の Nexus ページにおいて、作者（slamanna）は **True Seamless Grav Jumps を併用推奨（Recommended）** として明記しています（出典: [Nexus Mods ID: 16438](https://www.nexusmods.com/starfield/mods/16438)）。
+  - **併用前提MODの存在**: 両MODを併用することを前提とした MOD（例: [Nexus Mods ID: 17417](https://www.nexusmods.com/starfield/mods/17417) "Alien Juggernaut Jump Sound Replacer"）が公開されています。
+- **今後の対応**:
+  - 「互換性あり」と確定的に断定することは避け、**「作者が併用を推奨。実機での動作および視覚演出の調和は Phase 3 で検証」** と記録して段階的にテストします。
+
+---
+
+## 3. 未確認項目（推測）— 重大度判定保留
+
+以下の項目は、公式の明記や複数ユーザーの確定的な不具合報告が確認できておらず、現時点では技術的な懸念・推測にとどまるため、重大度判定を行わずに「未確認（推測）」として記録します。実機テスト（Phase 1〜4）にて実際の挙動を検証します。
+
+### 3.1 Spaceships Plus × Real Fuel の燃料連携
+- **推測される懸念**:
+  - Spaceships Plus の作者説明には「works with or without Real Fuel」とあり、Real Fuel との連携機能が謳われている（出典: [Nexus Mods ID: 17034](https://www.nexusmods.com/starfield/mods/17034)）。
+  - しかし、両者を同時に有効化した際、設定メニューで明示的に調整しない場合に He-3 燃料の消費が二重に発生しないかについては、公式に明記されていないため**未確認の推測**である。
+- **検証計画**: Phase 2 において、ジャンプ時・航行時の燃料消費量を実測して確認する。
+
+### 3.2 Spaceships Plus × Ship Crew Assignments の干渉
+- **推測される懸念**:
+  - Spaceships Plus の船体破損・減圧イベント時、Ship Crew Assignments のアニメーションマーカーに固定されたクルーが退避行動をとれるかについて。
+  - 両MOD間の相互干渉に関する作者の明記やユーザー報告は確認されておらず、**未確認の推測**である。
+- **検証計画**: Phase 2 において、船内減圧時のクルー挙動を実機で観察する。
+
+### 3.3 Absolute HOTAS × 航行系MOD の入力割り込み
+- **推測される懸念**:
+  - Grav Lanes による自動航行中や Seamless Planet Takeoffs による離陸上昇中に、HOTAS のアナログ軸入力がスクリプト制御に割り込んでベクトルを乱さないかについて。
+  - 公式の不具合報告は確認されておらず、**未確認の推測**である。
+- **検証計画**: Phase 3 / 4 において、自動シーケンス中のスティック入力挙動を実機で検証する。
+
+### 3.4 AISS UI の日本語表示・IME入力
+- **推測される懸念**:
+  - AISS のカスタムSWFが日本語フォントグリフを正しく描画できるか、DirectX 12排他フルスクリーン下で日本語IMEが直接入力できるかについて。
+  - 公開ドキュメントに確証がなく、**未確認の推測**である。
+- **検証計画**: Phase 1 の実機テストで検証し、表示不良時はフォント設定、入力不能時はボーダーレスウィンドウや貼り付け等の代替手段を検証する。
+
+---
+
+## 4. MOD運用・競合防止ルール案
+
+### 4.1 SF1Edit によるレコード競合チェック手順
+SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
+1. **MO2への登録**: `SF1Edit64.exe` を MO2 の実行可能プログラム一覧に登録する。
+2. **起動**: 必ず MO2 経由で起動する（MO2の仮想ファイルシステム VFS を通すことで、アクティブなMODプラグインがすべて読み込まれる）。
+3. **モジュール選択**: チェック対象のプロファイル（Stable / Immersion-Test 等）で有効化されている全プラグインにチェックを入れて「OK」を押す。
+4. **競合フィルタの適用**: バックグラウンドローダー完了後、左側のツリーで右クリックし、`Apply Filter to show Conflicts` を実行する。
+5. **判定基準**:
+   - **赤色（Conflict / Overwrite）**: 他のMODによってレコードが上書きされている状態。意図した上書き（パッチ等）か、予期せぬ破壊かを右ペインの詳細ビューで確認。
+   - **緑色（No Conflict）**: 単独追加または完全に調和している状態。
+6. **競合解消パッチの作成**: 複数MODの変更点を統合する必要がある場合、右クリックから `Copy as override into...` を選択し、新規パッチESL（例: `SpaceLife_Patch.esp`）にマージする。
+
+### 4.2 MO2 のファイル競合（上書き）確認手順
+ファイルレベル（Mesh, Texture, Script PEX, UI SWF）の競合確認:
+1. MO2の左ペイン（MODインストール一覧）の「Flags」列を確認する。
+   - **赤マイナスアイコン (`-`)**: 下のMODによってファイルが上書きされている。
+   - **緑プラスアイコン (`+`)**: 上のMODのファイルを上書きしている。
+   - **赤緑両方 (`+-`)**: 上書きしつつ、さらに下からも上書きされている。
+2. 対象MODをダブルクリックし、「Conflicts（競合）」タブを開く。
+3. 上書きされているファイル一覧を確認し、特に `.pex`（スクリプト）や `.swf`（UI）が意図せず上書きされていないかを検証する。
+4. 優先すべきMODを左ペインでドラッグ＆ドロップし、下位（優先度大）へ配置する。
+
+### 4.3 日本語化パッチのロード順ルール
+**問題の背景**:
+日本語化パッチ（ESM形式）をMODの後にロードする際、古いバージョンのバニラデータに基づいて作成されたパッチをそのまま配置すると、元MODが行ったパラメータ変更（攻撃力、消費燃料、AI設定等）がバニラ値に巻き戻ってしまう「レコード逆行現象」が発生する。
+
+**運用ルール**:
+1. **翻訳パッチの形式優先順位**:
+   - 第1優先: **Stringsファイル / xTranslator による文字列のみの差分適用**（プラグイン自体のレコード構造を変更しないため逆行が発生しない）。
+   - 第2優先: レコード更新後の最新プラグインに対応した翻訳ESM。
+2. **ロード順の原則**:
+   - 翻訳ESMが存在する場合、必ず「元MODの直後」に配置する。
+3. **SF1Editでの逆行監査**:
+   - 翻訳ESMを配置した後、SF1Editで元MODと翻訳ESMを比較し、英語テキスト以外のゲームプレイ数値レコードが元MODの値を正しく保持しているかを確認する。
+
+### 4.4 全SFSEプラグインのゲームバージョン一括確認方法
+起動時にゲームエンジンがロードした全DLLのステータスを一括で検証する標準手順:
+1. SFSE経由（`sfse_loader.exe`）でゲームを一度起動し、メインメニュー表示後に終了する。
+2. 生成されたログファイルを確認する。
+   - パス: `<Starfield>\Data\SFSE\sfse.log`（MO2環境下では MO2の `overwrite\SFSE\sfse.log` または各MODフォルダに出力される）。
+3. ログ内の以下の記述を検索・点検する:
+   ```text
+   checking plugin: <PluginName>.dll
+   plugin version: x.x.x
+   compatible: YES (target version: 1.16.244.0)
+   ```
+4. もし `disabled, incompatible version` や `failed to load` のエラーが存在した場合、そのプラグインは現在の本体バージョンで動作していないと判定し、MO2で無効化する。

@@ -1,0 +1,71 @@
+# Starfield Space Life JP — 日本語化監査レポート
+
+- 調査日: 2026-10-03
+- 参照仕様: `docs/MOD_SPEC.md` (v0.5) 6章
+
+---
+
+## 1. 日本語化優先度別 候補MOD一覧
+
+仕様書6章の優先度分類:
+- **優先度S**: クエスト、NPC会話、アイテム名、船パーツ、頻繁に見るUI、燃料・修理・船システム説明
+- **優先度A**: MOD設定、チュートリアル、ヘルプ、ゲームプレイ説明
+- **優先度B**: 開発者向け設定、デバッグ、ログ、内部ID
+- **対象外**: 基盤MOD（SFSE, Address Library等）、新規テキストがほぼない機能MOD
+
+| 優先度 | MOD名 | プレイヤー向けテキストの有無 | 既存日本語化パッチ | 翻訳が必要な範囲 | 作者の翻訳許可条件 (Nexus Permissions) | 出典 (確認日: 2026-10-03) |
+|---|---|---|---|---|---|---|
+| **S** | **AISS - AI Settled Systems** | **あり**（会話ダイアログ、UI、設定画面） | なし（プロンプト・設定で日本語化） | ・NPC会話（LLM出力はプロンプトで制御）<br>・ゲーム内UIテキスト<br>・設定メニュー | 翻訳パッチの公開可（元MODの再配布は不可） | [Nexus ID: 17392](https://www.nexusmods.com/starfield/mods/17392) |
+| **S** | **Real Fuel** | **あり**（燃料アイテム、補給所UI、警告メッセージ） | **あり** (v2.01対応, 2game.info) | 既存パッチで100%カバー済み。バージョンアップ時の差分追従。 | 翻訳パッチ公開可 (クレジット表記) | [Nexus ID: 13306](https://www.nexusmods.com/starfield/mods/13306) |
+| **S** | **Spaceships Plus** | **あり**（船システム警告、燃料スクープ、EVA修理UI） | なし (要作成) | ・船内警告メッセージ<br>・修理キット等の追加アイテム名<br>・設定メニュー | 翻訳パッチ公開可 (元MODを含まないこと) | [Nexus ID: 17034](https://www.nexusmods.com/starfield/mods/17034) |
+| **S** | **Ship Crew Assignments** | **あり**（クルー指示メニュー、マーカー名） | なし (要作成、短文) | ・クルーへの指示選択肢（Assign, Shift等）<br>・マーカー配置名 | 翻訳パッチ公開可 | [Nexus ID: 12744](https://www.nexusmods.com/starfield/mods/12744) |
+| **A** | **Absolute HOTAS** | **あり**（設定ウィザードUI、軸設定画面） | なし | ・`Ctrl+Alt+B` で開くキャリブレーション画面<br>※英語のままでも操作可能 | 翻訳パッチ公開可 | [Nexus ID: 16668](https://www.nexusmods.com/starfield/mods/16668) |
+| **A** | **Grav Lanes** | **あり**（待機時間選択メニュー、メッセージ） | なし (極小) | ・時間選択ダイアログ（10秒〜10分、Instant等） | 翻訳パッチ公開可 | [Nexus ID: 16438](https://www.nexusmods.com/starfield/mods/16438) |
+| **A** | **True Seamless Grav Jumps** | なし（視覚演出・INIのみ） | 対象外 | なし (設定INIのコメントのみ) | - | [Nexus ID: 17159](https://www.nexusmods.com/starfield/mods/17159) |
+| **A** | **Seamless Loading Screens** | なし（ReShade/INIのみ） | 対象外 | なし | - | [Nexus ID: 18239](https://www.nexusmods.com/starfield/mods/18239) |
+| **A** | **Seamless Neon** | ほぼなし（街区統合・配置変更） | 不要 | バニラの日本語看板・NPC名がそのまま維持される | - | [Nexus ID: 17340](https://www.nexusmods.com/starfield/mods/17340) |
+| **A** | **Seamless Planet Takeoffs** | なし（演出・INIのみ） | 対象外 | なし | - | [Nexus ID: 17719](https://www.nexusmods.com/starfield/mods/17719) |
+| **B / 対象外** | **Longer Names v2** | なし (INI設定のみ) | 対象外 | なし | - | [Nexus ID: 5046](https://www.nexusmods.com/starfield/mods/5046) |
+| **B / 対象外** | **SFSE** | なし (基盤ツール) | 対象外 | なし | - | [sfse.silverlock.org](https://sfse.silverlock.org/) |
+| **B / 対象外** | **Address Library for SFSE Plugins** | なし (バイナリDB) | 対象外 | なし | - | [Nexus ID: 3256](https://www.nexusmods.com/starfield/mods/3256) |
+| **B / 対象外** | **Cassiopeia Papyrus Extender** | なし (スクリプト基盤) | 対象外 | なし | - | [Nexus ID: 10896](https://www.nexusmods.com/starfield/mods/10896) |
+| **B / 対象外** | **Civil NPCs** | なし (GMST数値変更のみ) | 対象外 | なし | - | [Nexus ID: 17292](https://www.nexusmods.com/starfield/mods/17292) |
+
+---
+
+## 2. AISS（AI Settled Systems）の日本語化とUI対応
+
+### 2.1 会話テキストの日本語化（LLMプロンプト制御）
+- AISS は NPC の発言生成を LM Studio（ローカルLLM）に委譲している。
+- したがって、NPC の返答本文の日本語化は MOD のリソース翻訳（Stringsファイル等）ではなく、**AISS のプロファイル・システムプロンプト設定** によって行う。
+- 対策方針:
+  - `configs/AISS/` にシステムプロンプト指示を追加する。
+  - 指示例: `必ず自然な日本語のみで返答してください。英語や他の言語を混在させないでください。`
+  - NPCの人格設定（口調・語尾・一人称）を日本語で具体的に定義する。
+
+### 2.2 ゲーム内UIの日本語表示（未確認項目）
+- **現状**: 公開情報において、AISS のカスタムUIが標準の日本語フォント（JIS第1・第2水準）を正常に表示可能かについての公式報告は確認できていない。
+- **課題**: カスタムSWFが内部フォント（欧文のみ）を強制している場合、日本語テキストが「□□□（豆腐）」になるリスクがある。
+- **対応**:
+  - `<Starfield>\Data\Interface\fontconfig.txt` で定義されている日本語フォントマップが AISS の UI に正しく適用されるかを確認する。
+  - **Phase 1 の実機テストで日本語表示の正常性を検証**する。
+
+### 2.3 ゲーム内日本語入力（IME）の対応（未確認項目）
+- **現状**: Starfield 本体のDirectX 12排他フルスクリーン環境では、Windows 標準の日本語IMEがフックされず、ゲーム内入力欄で漢字変換ができない既知の技術的制約がある。
+- **対応方針**:
+  - ゲームの表示モードを「ボーダーレスフルスクリーン（Borderless Windowed）」に設定し、IMEの割り込み入力を可能にする。
+  - IMEが依然として無効化される場合の代替手段:
+    1. クリップボード経由の貼り付け（外部エディタで書いた日本語を `Ctrl+V` で貼り付ける）。
+    2. 将来的な音声認識拡張。
+  - **Phase 1 の実機テストで日本語IMEの直接入力可否を判定**し、結果を `docs/TEST_PHASE1.md` に記録する。
+
+---
+
+## 3. 日本語化翻訳パッチの管理規約
+
+1. **MOD本体の非同梱**:
+   - Nexus Mods の著作権ポリシー（Permissions）および本リポジトリの基本原則（2章・14章）に従い、MOD本体のアーカイブや再配布可能バイナリはリポジトリに一切含めない。
+2. **差分パッチ形式の採用**:
+   - 翻訳データは xTranslator の XML 差分ファイル、または差分文字列ファイルとしてリポジトリ内で管理する。
+3. **他MODとの変更巻き戻し防止**:
+   - レコード上書きを伴う ESM 形式の翻訳パッチを適用する際は、元MODのゲームプレイ設定値（燃料消費量、ステータス等）がバニラ値に戻らないよう、SF1Edit でマージ整合性を検証する。
