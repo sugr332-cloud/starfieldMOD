@@ -1,11 +1,16 @@
 @echo off
-chcp 65001 > nul
 setlocal
-
-:: カレントディレクトリをスクリプトの配置場所に移動
 cd /d "%~dp0"
 
-:: PowerShell を実行ポリシー Bypass で呼び出し
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-StarfieldAI.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-StarfieldAI.ps1" %*
+set "SCRIPT_EXIT_CODE=%ERRORLEVEL%"
+
+if %SCRIPT_EXIT_CODE% neq 0 (
+    echo.
+    echo [ERROR] Launcher stopped with exit code %SCRIPT_EXIT_CODE%.
+    pause
+    exit /b %SCRIPT_EXIT_CODE%
+)
 
 endlocal
+exit /b 0

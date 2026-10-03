@@ -25,6 +25,7 @@ tools/launcher/launcher.config.json
 # 生成音声・ログ
 *.wav
 *.mp3
+tools/launcher/logs/
 logs/
 *.log
 

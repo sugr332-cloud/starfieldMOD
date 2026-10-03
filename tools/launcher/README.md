@@ -7,10 +7,11 @@ Starfield Space Life JP プロジェクトにおける Phase 1 統合ランチ�
 
 ## 1. 構成ファイル
 
-- `Start-StarfieldAI.bat`: ユーザー実行用バッチファイル（PowerShell の実行ポリシーを Bypass して起動）。
-- `Start-StarfieldAI.ps1`: ランチャー本体（PowerShell スクリプト）。
+- `Start-StarfieldAI.bat`: ユーザー実行用バッチファイル（PowerShell の実行ポリシーを Bypass して起動、エラー時は pause して画面を保持）。
+- `Start-StarfieldAI.ps1`: ランチャー本体（PowerShell スクリプト。ログ自動記録、二重エラーハンドリング機能付き）。
 - `launcher.config.example.json`: 設定ファイルのテンプレート（Git 管理）。
 - `launcher.config.json`: 実環境用設定ファイル（ローカル固有、`.gitignore` で除外）。
+- `logs/`: 実行ごとのログファイル保存ディレクトリ（`launcher-YYYYMMDD-HHMMSS.log`、`.gitignore` で除外）。
 - `README.md`: 本書。
 
 ---
@@ -32,7 +33,25 @@ Starfield Space Life JP プロジェクトにおける Phase 1 統合ランチ�
 
 ---
 
-## 3. 設定ファイル（launcher.config.json）の仕様
+## 3. コマンドライン引数（高度な実行・検証）
+
+バッチファイルまたは PowerShell スクリプトには以下の引数を指定できます（バッチファイル経由でもそのまま渡されます）：
+
+- `-DryRun`: ステップ1〜3を実行後、ステップ4・5で実行される MO2 起動コマンド（実パスと引数）を画面およびログに表示し、実際のプロセス起動を行わずに終了します。
+- `-TestOnly`: ステップ1〜3（常駐確認・LM Studio 起動・API 疎通テスト）のみを実行して終了します（ゲーム起動は行いません）。
+- `-NonInteractive`: VRAM 解放確認等の対話型プロンプトをスキップします（スクリプト自動実行用）。
+
+```cmd
+:: ドライランの実行例
+tools\launcher\Start-StarfieldAI.bat -DryRun
+
+:: テストモードの実行例
+tools\launcher\Start-StarfieldAI.bat -TestOnly
+```
+
+---
+
+## 4. 設定ファイル（launcher.config.json）の仕様
 
 ```json
 {
@@ -68,9 +87,18 @@ Starfield Space Life JP プロジェクトにおける Phase 1 統合ランチ�
 
 ---
 
-## 4. デスクトップショートカットの作成方法
+## 5. デスクトップショートカットの仕様
 
-ランチャーから自動作成されるショートカット、または以下の手順でデスクトップに配置可能です：
-- リンク先: `<リポジトリパス>\tools\launcher\Start-StarfieldAI.bat`
-- アイコンの変更: `<MO2インストール先>\ModOrganizer.exe` を指定
-- ショートカット名: `Starfield（MOD）`
+デスクトップのショートカット「Starfield（MOD）」は以下の仕様で作成されています：
+- **リンク先**: `<リポジトリパス>\tools\launcher\Start-StarfieldAI.bat`
+- **作業フォルダ**: `<リポジトリパス>\tools\launcher`
+- **アイコン**: `<MO2インストール先>\ModOrganizer.exe`（MO2 公式アイコン）
+
+---
+
+## 6. トラブルシューティング
+
+万が一エラーが発生した場合、ウィンドウは自動で閉じず、停止理由とエラー詳細が画面に表示された状態で一時停止（Pause）します。
+また、実行時の詳細ログは以下に毎回自動保存されます：
+`<リポジトリパス>\tools\launcher\logs\launcher-YYYYMMDD-HHMMSS.log`
+エラー内容を報告する際は、該当する最新の `.log` ファイルの内容をご確認ください。
