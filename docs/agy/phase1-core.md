@@ -228,3 +228,38 @@ Starfield 未起動で VRAM 使用量が約11.8GB と報告されている。FHD
 ### 次の段階（参考）
 
 作業1〜6の後、ユーザーが docs/TEST_PHASE1.md に沿って実機テストを行う。MO2 の GUI から起動して、SFSE プラグインと AISS が実際に読み込まれるか、日本語会話ができるかを確認するのはその段階。
+
+---
+
+## phase1-core-04 へのレビュー（Claude、2026-10-03）
+
+作業1〜6を確認し、phase1-core ブランチを main にマージした（ドキュメント類は main に入った）。ユーザーの実機テストの前に、以下の作業A〜Eを行い、`phase1-core-05.md` を push して止まること。作業A〜Eはすべて止まらずに進めてよい。ドキュメントの修正も phase1-core ブランチに commit・push してよい（main へのマージは Claude が行う）。
+
+### 作業A: Gemma 4 の思考（reasoning）を会話では無効にする（重要）
+
+- 日本語テストで `reasoning_length: 764` 文字の思考が出力されている。AISS の会話で毎回これが走ると、返答が出るまでの時間が大きく延び、会話のテンポが壊れる
+- LM Studio で gemma-4-12b-it-qat の思考（thinking / reasoning）をオフにする方法を確認し、AISS-Standard プリセット（またはモデルの既定設定）に反映する。方法の例: LM Studio のモデル設定の推論・思考の切り替え、チャットテンプレートの思考フラグ、システムプロンプトでの指定。AISS 側に思考を抑える設定（reasoning effort 等）があればそれも確認する
+- 無効化した状態で同じ日本語テストを行い、reasoning_length が 0（または大幅に減少）になること、最初の文字が出るまでの時間（TTFT）と全文の生成時間を記録する。可能なら、AISS が送る量に近い長さ（約1万トークン）の入力でも TTFT を1回計測する
+- 結果を configs/LMStudio/gemma-4-12b.md に記録する
+
+### 作業B: Q8_0 KV キャッシュの実測と既定化
+
+- 報告04の Q8_0 の VRAM は「理論値」になっている。AISS-Standard の設定で実際に読み込み直し、VRAM 使用量（LM Studio の内訳と、システム全体）を実測して記録する
+- ユーザーが毎回プリセットを選ばなくても、LM Studio で gemma-4-12b-it-qat を読み込むと自動的にこの設定（16384、Q8_0、Flash Attention、思考オフ）になるよう、モデル別の既定読み込み設定にする。できない場合は、TEST_PHASE1.md と CONFIG_GUIDE.md に、読み込み時にプリセットを選ぶ手順を明記する
+
+### 作業C: ユーザー環境変数の削除
+
+- `LLAMA_ARG_CACHE_TYPE_K`、`LLAMA_ARG_CACHE_TYPE_V`、`LLAMA_ARG_FLASH_ATTN` をユーザー環境変数に設定したのは指示外。llama.cpp を使う他のアプリにも影響するため削除する。設定は LM Studio のプリセット・モデル設定だけで行う
+- 削除後も作業Bの設定で Q8_0 が効いていることを確認する
+
+### 作業D: AISS 本体フォルダ内のアドオンの複製を削除
+
+- `AISS - AI Settled Systems\AISS\addons\jp_prompt_pack\` に置いた複製は削除する。MO2 を経由しない起動ではそもそも MOD が読み込まれないので不要で、AISS 本体フォルダを触らない方針にも反する
+- 日本語アドオンは「AISS - Japanese Language Addon」の1か所だけで管理する。削除後に MO2 経由で AISS_Backend.exe のヘルスチェックを行い、アドオンが読み込まれていることを確認する（ログに jp_prompt_pack が出ているか）
+- configs/AISS/settings.md と INSTALL_GUIDE.md の該当記述を直す
+
+### 作業E: TEST_PHASE1.md の補足
+
+- 「既存セーブロード」: MO2 の Stable プロファイルはプロファイル別セーブが有効なので、既存のセーブ（Steam Cloud から復元された28件）は Stable からは見えない。テストには、既存セーブを1つ Stable プロファイルのセーブフォルダへ**コピー**（移動しない）して使う手順を書く。Steam Cloud との同期で問題が起きないかの注意も書く
+- 3.1 の LM Studio の確認項目に「思考（reasoning）がオフであること」を追加する
+- 3.3 に「AISS 会話後、<MO2>\Starfield\mods\AISS - AI Settled Systems\SFSE\AISS\responses\latest_response.ini をテキストエディタで開き、構造（セクション名・キー名・NPC 名と本文の書き方）をメモする」項目があるか確認し、なければ追加する
