@@ -122,7 +122,7 @@ AISS 付属ドキュメント (`FEATURES.txt`, `LMSTUDIO_SETUP_GUIDE.txt`, `READ
     1. プロファイルを `Stable` に戻し、LM Studio・AISS Backend・SFSE を全自動起動。
 
 ### 4.4 デスクトップショートカットの整備
-デスクトップ（`C:\Users\sugr3\OneDrive\Desktop`）に以下のショートカットを整備しました（どちらも MO2 公式アイコンを使用）。
+デスクトップ（`<Desktop>`）に以下のショートカットを整備しました（どちらも MO2 公式アイコンを使用）。
 1. **「Starfield（AIあり）」**:
    - リンク先: `<Repository>/tools/launcher/Start-StarfieldAI.bat`
    - 引数: なし（全自動起動、プロファイル `Stable`）
