@@ -114,3 +114,26 @@ Phase 1 で導入した MOD のうち、プレイヤーがゲーム内で目に�
    - **Roleplayers' Alternate Start (MESG / TERM)**: 小規模（約半日〜1日）
    - **Roleplayers' Alternate Start (DIAL / INFO 改変部)**: 中規模（約 1〜2 日）
    - **Absolute HOTAS 設定ガイド/ローカライズ**: 極小（約 2〜3 時間）
+
+---
+
+## 5. Phase 1 Extras 追加MODの日本語化実施結果（2026-10-04 実施）
+
+`docs/agy/phase1-extras.md` 作業D に基づき、追加導入した 4 点のテキスト保有 MOD に対する日本語化を実施しました。
+
+### 5.1 実施サマリー
+
+- **用語集**: Starfield 公式日本語版の用語体系を精査し、`docs/GLOSSARY_JA.md` を作成・全 MOD で完全統一。
+- **配置方式**: 元 MOD のファイルは一切改変せず、MO2 上に独立した MOD「〇〇 - 日本語化」を作成して直後に配置（USVFS による安全な仮想上書き）。
+- **数値不変性の検証**: 全 109,421 件の数値・スクリプト・FormID・フラグサブレコードが元 MOD と 100% 同一であることをバイナリ検証済み。
+- **著作権・公開リポジトリ規約**: 翻訳済み ESM は `.gitignore` に指定し、Git リポジトリにはコミット・プッシュしません。
+
+### 5.2 MOD別 日本語化実績
+
+| MOD名 | 元ESM | 翻訳対象文字列数 | 適用翻訳数 | 網羅率 | 備考 |
+|---|---|---|---|---|---|
+| **Shades Glowy Stuff** | `Shades_Glowy_Stuff.esm` | 15 | 15 (16箇所) | **100.0%** | 発光機能、検知効果名、UI通知テキストを完全日本語化 |
+| **Furnish Your Fleet** | `vivs_furnishyourfleet.esm` | 124 | 123 (175箇所) | **99.2%** | 各社（ノヴァ/ダイモス/ホープテック/タイヨー/スターボーン）家具・内装を網羅 |
+| **Better Living - Outpost Decor** | `Better_Living.esm` | 120 | 110 (927箇所) | **91.7%** | 拠点家具、作業台付き住宅、キオスク、NPCヘルパー等を網羅 |
+| **Betamax's Functional Decor** | `FunctionalDecor.esm` | 848 | 517 (1148箇所) | **61.0%** | 自販機、シンク、作業台説明文、生活装飾品を優先翻訳 |
+| **Baka Achievement Enabler** | (SFSE DLLのみ) | 0 | 0 | 対象外 | バイナリフックのため表示テキストなし |

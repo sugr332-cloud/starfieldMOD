@@ -155,10 +155,10 @@ SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
    ```text
    *x2357aiss.esm                     (Stable プロファイルのみ)
    *RoleplayersAlternateStart.esm
-   *ShadesGlowyStuff.esm
-   *FurnishYourFleet.esm
-   *BetterLiving.esm
-   *BetamaxsFunctionalDecor.esm
+   *Shades_Glowy_Stuff.esm
+   *vivs_furnishyourfleet.esm
+   *Better_Living.esm
+   *FunctionalDecor.esm
    ```
 3. **日本語化パッチの配置原則**:
    - 後続の作業Dで作成する各MODの「〇〇 - 日本語化」MODは、MO2左ペインにおいて元のMODの直下に配置する。
