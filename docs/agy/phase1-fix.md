@@ -36,6 +36,7 @@
   2. Steam から起動したときと、MO2 → sfse_loader.exe で起動したときで、言語の決まり方が違うか（Steam の起動時引数・言語設定が sfse_loader 経由では渡らない可能性）
   3. 対策の第一候補: MO2 の Stable プロファイルの `StarfieldCustom.ini` の `[General]` に `sLanguage=ja` を追加する（既存の sIntroSequence 等は残す）。追加前にバックアップする
   4. Data フォルダに日本語の音声アーカイブ（Voices の _ja 等）があるか。なければ Steam の言語設定が日本語でないか、日本語音声が未ダウンロード
+- **追記（Claude、14:20）**: Stable プロファイルの StarfieldCustom.ini（ユーザー共有）は `[Archive]` セクションが2回重複しており、`sLanguage` が無い。重複を1つにまとめ、`[General]` に `sLanguage=ja` を追加すること（`sLocalSavePath=__MO_Saves\` と `bUseMyGamesDirectory=1` は MO2 のプロファイル別セーブ用なので残す）
 - 注意: StarfieldPrefs.ini の `[Bethesda.net]` の UUID はアカウントに紐づく値なので、リポジトリに書かない
 
 - Starfield は日本語音声がある。以下を確認する
