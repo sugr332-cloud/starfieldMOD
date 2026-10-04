@@ -21,6 +21,12 @@ tools/launcher/launcher.config.json
 *.safetensors
 *.aivmx
 *.gguf
+*.strings
+*.dlstrings
+*.ilstrings
+
+# スクラッチ作業ディレクトリ
+scratch/
 
 # 生成音声・ログ
 *.wav

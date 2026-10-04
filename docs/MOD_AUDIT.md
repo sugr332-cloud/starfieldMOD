@@ -231,9 +231,10 @@
 - **日本語化**: 設定メニューや説明文にテキストがある場合、xTranslator で翻訳対応。
 
 ### 6.2 Baka Achievement Enabler (SFSE) (実績解除MOD)
-- **最新版**: Nexus ID: 658 (作者: shademe)
+- **最新版**: Nexus ID: 658 (作者: shad0wshayd3 / shademe, バージョン: 7.0.0)
 - **URL**: `https://www.nexusmods.com/starfield/mods/658`
-- **ゲームバージョン互換性**: 1.16.244 対応済 (Stable)
+- **ゲームバージョン互換性**: **1.16.244 正式対応済** (Stable)
+  - ※Nexus Posts タブにおける作者（shad0wshayd3）の固定投稿（Pinned Post）にて、「バージョン 7.0.0 はゲームバージョン 1.16.236、1.16.242、1.16.244 をサポートしています」と明記されていることを確認済み。
 - **必須依存**: SFSE (0.2.21), Address Library for SFSE Plugins (v16, All in one)
 - **特徴・仕組み**:
   - MODやコンソールコマンド使用時でも、Steam 実績（Achievements）の解除を有効に保つ SFSE DLL プラグイン。
