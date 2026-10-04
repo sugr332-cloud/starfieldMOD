@@ -91,9 +91,9 @@
 
 ## 5. 作業2: 状態確認ツール（Check-AISS）の作成
 
-- **ツールパス**: [`tools/diag/Check-AISS.ps1`](file:///C:/Users/sugr3/starfieldMOD/tools/diag/Check-AISS.ps1) / [`tools/diag/Check-AISS.bat`](file:///C:/Users/sugr3/starfieldMOD/tools/diag/Check-AISS.bat)
+- **ツールパス**: [`tools/diag/Check-AISS.ps1`](<Repository>/tools/diag/Check-AISS.ps1) / [`tools/diag/Check-AISS.bat`](<Repository>/tools/diag/Check-AISS.bat)
 - **ショートカット**: デスクトップに「**AISS 状態確認**」を作成済み。
-- **ドキュメント**: [`tools/diag/README.md`](file:///C:/Users/sugr3/starfieldMOD/tools/diag/README.md)
+- **ドキュメント**: [`tools/diag/README.md`](<Repository>/tools/diag/README.md)
 - **テスト結果**:
   - LM Studio サーバー稼働状態: [OK]
   - AISS Backend プロセス: [OK]
