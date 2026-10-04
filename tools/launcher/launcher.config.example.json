@@ -15,5 +15,10 @@
     "serverUrl": "http://127.0.0.1:1234",
     "modelIdentifier": "gemma-4-12b-it-qat",
     "testTimeoutSeconds": 15
+  },
+  "llmProxy": {
+    "enabled": true,
+    "port": 1235,
+    "scriptPath": "tools\\llm-proxy\\llm_proxy.py"
   }
 }

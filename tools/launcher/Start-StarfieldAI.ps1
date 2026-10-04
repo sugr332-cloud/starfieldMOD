@@ -248,8 +248,104 @@ try {
 
     }
 
+    # 4.5. LLM Proxy（思考抑制中継プロキシ）の確認・起動
+    if (-not $NoAI -and -not $NoLLM) {
+        $currentStep = "ステップ 3.5/5: LLM Proxy（思考抑制中継）の確認・起動"
+        Write-Host "[$currentStep] 実行中..." -ForegroundColor Green
+
+        $proxyPort = if ($config.llmProxy -and $config.llmProxy.port) { $config.llmProxy.port } else { 1235 }
+        $proxyUrl = "http://127.0.0.1:$proxyPort"
+        $proxyEnabled = if ($config.llmProxy -and ($null -ne $config.llmProxy.enabled)) { $config.llmProxy.enabled } else { $true }
+
+        if ($proxyEnabled) {
+            $proxyRunning = $false
+            try {
+                $health = Invoke-RestMethod -Uri "$proxyUrl/health" -Method Get -TimeoutSec 2 -ErrorAction Stop
+                if ($health.status -eq "ok" -and $health.upstream_healthy) {
+                    $proxyRunning = $true
+                    Write-Host "  LLM Proxy はすでに稼働中です ($proxyUrl -> $($config.lmStudio.serverUrl))。" -ForegroundColor Green
+                }
+            } catch {
+                $proxyRunning = $false
+            }
+
+            if (-not $proxyRunning) {
+                # スクリプトパスの特定
+                $proxyScript = if ($config.llmProxy.scriptPath) {
+                    if ([System.IO.Path]::IsPathRooted($config.llmProxy.scriptPath)) {
+                        $config.llmProxy.scriptPath
+                    } else {
+                        Join-Path (Split-Path -Parent (Split-Path -Parent $scriptDir)) $config.llmProxy.scriptPath
+                    }
+                } else {
+                    Join-Path (Split-Path -Parent $scriptDir) "llm-proxy\llm_proxy.py"
+                }
+
+                if (-not (Test-Path $proxyScript)) {
+                    throw "LLM Proxy スクリプトが見つかりません: $proxyScript"
+                }
+
+                $pyCmd = Get-Command pythonw -ErrorAction SilentlyContinue
+                $pyExe = if ($pyCmd) { $pyCmd.Source } else { "python" }
+                $proxyLogFile = Join-Path $logDir "llm_proxy.log"
+
+                Write-Host "  LLM Proxy をバックグラウンド起動中 (ポート: $proxyPort)..." -ForegroundColor Cyan
+                $procArgs = "`"$proxyScript`" --port $proxyPort --upstream $($config.lmStudio.serverUrl) --log-file `"$proxyLogFile`""
+                Start-Process -FilePath $pyExe -ArgumentList $procArgs -WindowStyle Hidden -WorkingDirectory (Split-Path -Parent $proxyScript)
+
+                # 起動待機
+                $retries = 5
+                while ($retries -gt 0) {
+                    Start-Sleep -Seconds 1
+                    try {
+                        $health = Invoke-RestMethod -Uri "$proxyUrl/health" -Method Get -TimeoutSec 2 -ErrorAction Stop
+                        if ($health.status -eq "ok") {
+                            $proxyRunning = $true
+                            break
+                        }
+                    } catch {
+                        $retries--
+                    }
+                }
+
+                if ($proxyRunning) {
+                    Write-Host "  LLM Proxy を正常に起動しました ($proxyUrl)。" -ForegroundColor Green
+                } else {
+                    throw "LLM Proxy の起動確認（ヘルスチェック）に失敗しました: $proxyUrl/health"
+                }
+            }
+
+            # Proxy 経由の思考抑制テスト
+            Write-Host "  Proxy 経由の思考抑制テストを送信中..." -ForegroundColor Cyan
+            try {
+                $proxyTestBody = @{
+                    model = $config.lmStudio.modelIdentifier
+                    messages = @(
+                        @{ role = "user"; content = "疎通確認" }
+                    )
+                    max_tokens = 10
+                } | ConvertTo-Json -Compress
+
+                $proxyTestBytes = [System.Text.Encoding]::UTF8.GetBytes($proxyTestBody)
+                $swProxy = [System.Diagnostics.Stopwatch]::StartNew()
+                $proxyResp = Invoke-RestMethod -Uri "$proxyUrl/v1/chat/completions" -Method Post -ContentType "application/json; charset=utf-8" -Body $proxyTestBytes -TimeoutSec $config.lmStudio.testTimeoutSeconds
+                $swProxy.Stop()
+
+                $reasoningTokens = if ($proxyResp.usage -and ($null -ne $proxyResp.usage.reasoning_tokens)) { $proxyResp.usage.reasoning_tokens } else { 0 }
+                if ($reasoningTokens -eq 0) {
+                    Write-Host "  Proxy 疎通確認成功！（思考トークン: 0、応答速度: $($swProxy.ElapsedMilliseconds) ms）" -ForegroundColor Green
+                } else {
+                    Write-Host "  [警告] Proxy 経由で思考トークン ($reasoningTokens) が検出されました。" -ForegroundColor Yellow
+                }
+            } catch {
+                throw "LLM Proxy へのテストリクエストに失敗しました: $_"
+            }
+            Write-Host ""
+        }
+    }
+
     if ($TestOnly) {
-        Write-Host "[テスト完了] ステップ 1〜3 が正常に確認されました。MO2 / ゲーム起動はスキップします。" -ForegroundColor Yellow
+        Write-Host "[テスト完了] ステップ 1〜3.5 が正常に確認されました。MO2 / ゲーム起動はスキップします。" -ForegroundColor Yellow
         Exit-Launcher 0
     }
 
@@ -264,12 +360,21 @@ try {
     }
 
     if ($NoAI) {
-        $currentStep = "ステップ 4/5: AISS Backend スキップ (-NoAI)"
-        Write-Host "[$currentStep] AIなしモードのため、AISS Backend の起動をスキップします。" -ForegroundColor Yellow
+        $currentStep = "ステップ 4/5: AISS Backend & LLM Proxy スキップ (-NoAI)"
+        Write-Host "[$currentStep] AIなしモードのため、AISS Backend および LLM Proxy の起動をスキップします。" -ForegroundColor Yellow
         $runningAiss = Get-Process -Name "AISS_Backend" -ErrorAction SilentlyContinue
         if ($runningAiss) {
             Write-Host "  [情報] バックグラウンドで稼働中の AISS Backend を停止します..." -ForegroundColor DarkGray
             $runningAiss | Stop-Process -Force -ErrorAction SilentlyContinue
+        }
+        try {
+            $proxyProcs = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match "llm_proxy\.py" }
+            foreach ($p in $proxyProcs) {
+                Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+                Write-Host "  [情報] バックグラウンドで稼働中の LLM Proxy を停止しました (PID: $($p.ProcessId))。" -ForegroundColor DarkGray
+            }
+        } catch {
+            $null = $_
         }
         Write-Host ""
     } else {
