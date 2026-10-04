@@ -118,3 +118,31 @@ LM Studio のサーバーログから、直近の数回の会話それぞれに�
 ### 修正2: 返事の表示方法
 
 - HUD 通知（画面右上）は表示時間が短く、長い文が切れたり読み終わる前に消えたりすることがある。AISS 付属ドキュメントで、返事を字幕・会話メニュー・その他の方法で表示する設定があるか確認し、選択肢を報告する（今は HUD 通知のままでよい）
+
+---
+
+## 再発: 思考が止まっていない（Claude、2026-10-04 18:34）
+
+ユーザーの実機テスト（AIあり、Helga Dubray）で、約20秒待った後に次のエラーが表示された。
+
+```
+HELGA DUBRAY: AISS BACKEND ERROR: LM STUDIO RESPONSE MISSING A PLAIN TEXT REPLY.
+RESPONSE KEYS: ID, OBJECT, CREATED, MODEL, CHOICES, USAGE, STATS, SYSTEM_FINGERPRINT
+```
+
+見立て: ゲーム中の実リクエストでは**思考が止まっておらず**、`max_tokens: 250` を思考（reasoning_content）で使い切り、本文（content）が空になった。agy の検証（思考トークン 0）は、AISS 実機と違う送り方（パラメータを agy が付けた）だった可能性が高い。`config.json` に書いた `reasoning_effort` / `reasoning.enabled` を AISS が実際に LM Studio へ送っていない、または LM Studio が Gemma 4 に対してそれを無視している。
+
+### 修正3（最優先。止まらずに進めてよい）
+
+1. **事実確認**: LM Studio のサーバーログで、18:3x 頃の AISS からのリクエストについて、送られたパラメータ（reasoning 関連が含まれているか）、出力の reasoning_content のトークン数、content の長さ、finish_reason を確認する
+2. **AISS からのリクエストそのもの**で思考を止める。以下の順に試し、効いたものを採用する
+   - a. LM Studio のモデル別既定設定（gemma-4-12b-it-qat）で思考をオフにする。API 経由のリクエストにも適用されることを、AISS と同じ形（reasoning 関連のパラメータを**付けない**リクエスト）で確認する
+   - b. a ができない場合、LM Studio のモデル設定でチャットテンプレート（Jinja）を編集し、思考を既定でオフにする（Gemma 4 の思考を有効にする記述を無効化）。変更前のテンプレートは保存しておく
+   - c. a・b ができない場合、AISS と LM Studio の間に小さな中継（`tools/llm-proxy/`、127.0.0.1 の別ポート）を置き、AISS からのリクエストに思考オフのパラメータ（chat_template_kwargs 等、LM Studio が実際に従うもの）を付け足して LM Studio に渡す。AISS の接続先 URL を中継に向ける。中継は起動ランチャーから自動起動する
+3. **保険**: 思考が出てしまった場合に本文が空にならないよう、AISS 側の max_tokens は思考を止めたことを確認するまで 600 程度にしておく（確認後に 250 に戻す）
+4. **確認方法**: reasoning 関連のパラメータを付けない、AISS と同じ形のリクエストで、思考トークン 0・本文あり・所要時間を確認する。可能なら、ゲームを起動していない状態で Backend に AISS 形式のテストリクエストを処理させて確認する
+5. 結果を `phase1-aiss-02.md`（phase1-aiss ブランチ）に書いて push して止まる。ユーザーが試す手順も書く
+
+### 進め方
+
+- phase1-extras の作業C・D の途中であれば、区切りのよいところで中断してこの修正3を先に行ってよい。どこまで進んだかを報告に書くこと
