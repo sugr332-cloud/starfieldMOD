@@ -91,6 +91,19 @@ try {
             Write-Host "  [情報] ModOrganizer.ini の確認をスキップしました: $_" -ForegroundColor DarkGray
         }
     }
+    # AISS 日本語アドオンの同期（MO2 別 MOD から AISS 本体 addons への配備）
+    $jpAddonSrc = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - Japanese Language Addon\AISS\addons\jp_prompt_pack"
+    $jpAddonDst = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - AI Settled Systems\AISS\addons\jp_prompt_pack"
+    if (Test-Path $jpAddonSrc) {
+        try {
+            if (-not (Test-Path $jpAddonDst)) {
+                Copy-Item -Path $jpAddonSrc -Destination $jpAddonDst -Recurse -Force | Out-Null
+                Write-Host "  日本語アドオン (jp_prompt_pack) を AISS 本体に配備しました。" -ForegroundColor Green
+            }
+        } catch {
+            Write-Host "  [警告] 日本語アドオンの同期に失敗しました: $_" -ForegroundColor Yellow
+        }
+    }
 
     # 2. VRAM 節約チェック（常駐プロセスの確認）
     $currentStep = "ステップ 1/5: VRAM 常駐アプリのチェック"
