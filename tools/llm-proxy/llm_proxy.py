@@ -168,6 +168,7 @@ class LLMProxyHandler(BaseHTTPRequestHandler):
             try:
                 resp_json = json.loads(resp_body.decode("utf-8"))
                 usage = resp_json.get("usage", {})
+                prompt_tokens = usage.get("prompt_tokens", 0)
                 reasoning_tokens = usage.get("reasoning_tokens", 0)
                 completion_tokens = usage.get("completion_tokens", 0)
                 
@@ -187,7 +188,7 @@ class LLMProxyHandler(BaseHTTPRequestHandler):
                         resp_body = json.dumps(resp_json, ensure_ascii=False).encode("utf-8")
 
                     logger.info(
-                        f"Response completed in {duration:.2f}s: reasoning_tokens={reasoning_tokens}, "
+                        f"Response completed in {duration:.2f}s: prompt_tokens={prompt_tokens}, reasoning_tokens={reasoning_tokens}, "
                         f"completion_tokens={completion_tokens}, finish_reason={finish_reason}, "
                         f"content_length={len(content)}"
                     )

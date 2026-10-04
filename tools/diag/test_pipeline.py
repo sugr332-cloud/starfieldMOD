@@ -59,25 +59,27 @@ def calc_japanese_ratio(text):
     return ratio, jp_chars, total_chars
 
 def get_latest_proxy_stats(log_file):
-    """中継プロキシログから直近の reasoning_tokens, completion_tokens, finish_reason を取得"""
+    """中継プロキシログから直近の prompt_tokens, reasoning_tokens, completion_tokens, finish_reason を取得"""
     if not os.path.exists(log_file):
-        return {"reasoning_tokens": 0, "completion_tokens": 0, "finish_reason": "unknown"}
+        return {"prompt_tokens": 0, "reasoning_tokens": 0, "completion_tokens": 0, "finish_reason": "unknown"}
     try:
         with open(log_file, "r", encoding="utf-8", errors="replace") as f:
             lines = f.readlines()
         for line in reversed(lines):
             if "Response completed in" in line:
+                m_pt = re.search(r'prompt_tokens=(\d+)', line)
                 m_rt = re.search(r'reasoning_tokens=(\d+)', line)
                 m_ct = re.search(r'completion_tokens=(\d+)', line)
                 m_fr = re.search(r'finish_reason=(\w+)', line)
                 return {
+                    "prompt_tokens": int(m_pt.group(1)) if m_pt else 0,
                     "reasoning_tokens": int(m_rt.group(1)) if m_rt else 0,
                     "completion_tokens": int(m_ct.group(1)) if m_ct else 0,
                     "finish_reason": m_fr.group(1) if m_fr else "unknown"
                 }
     except Exception:
         pass
-    return {"reasoning_tokens": 0, "completion_tokens": 0, "finish_reason": "unknown"}
+    return {"prompt_tokens": 0, "reasoning_tokens": 0, "completion_tokens": 0, "finish_reason": "unknown"}
 
 def ensure_services(mod_dir, repo_root):
     print("--- [1] サービス稼働確認 ---")
@@ -247,6 +249,7 @@ def run_test_turn(mod_dir, repo_root, prompt_text="こんにちは"):
 
     print(f"--- [3] 経路応答結果 (数値解析) ---")
     print(f"  所要時間       : {elapsed:.2f} 秒")
+    print(f"  入力トークン   : {proxy_stats['prompt_tokens']}")
     print(f"  思考トークン   : {proxy_stats['reasoning_tokens']}")
     print(f"  出力トークン   : {proxy_stats['completion_tokens']}")
     print(f"  終了理由       : {proxy_stats['finish_reason']}")
@@ -259,6 +262,7 @@ def run_test_turn(mod_dir, repo_root, prompt_text="こんにちは"):
     return {
         "success": success,
         "elapsed": elapsed,
+        "prompt_tokens": proxy_stats['prompt_tokens'],
         "reasoning_tokens": proxy_stats['reasoning_tokens'],
         "completion_tokens": proxy_stats['completion_tokens'],
         "finish_reason": proxy_stats['finish_reason'],
@@ -299,11 +303,11 @@ def main():
         time.sleep(1)
 
     print("\n==================== [ 経路テスト 総合検証結果 ] ====================")
-    print("| 回数 | 判定 | 所要時間 | 思考トークン | 本文文字数 | 日本語割合 | 終了理由 |")
-    print("|:---:|:---:|:---:|:---:|:---:|:---:|:---:|")
+    print("| 回数 | 判定 | 所要時間 | 入力トークン | 思考トークン | 本文文字数 | 日本語割合 | 終了理由 |")
+    print("|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|")
     for r in results:
         status_str = "合格" if r["success"] else "不合格"
-        print(f"| #{r['turn']} | {status_str} | {r['elapsed']:.2f}s | {r['reasoning_tokens']} tokens | {r['char_count']} 文字 | {r['jp_ratio']:.1f}% | {r['finish_reason']} |")
+        print(f"| #{r['turn']} | {status_str} | {r['elapsed']:.2f}s | {r['prompt_tokens']} tokens | {r['reasoning_tokens']} tokens | {r['char_count']} 文字 | {r['jp_ratio']:.1f}% | {r['finish_reason']} |")
 
     print(f"\n総合結果: {success_count} / {iterations} 回 合格")
     if success_count == iterations:

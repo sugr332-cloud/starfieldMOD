@@ -93,6 +93,28 @@ uMainMenuDelayBeforeAllowSkip=0
 ### 2.2 StarfieldPrefs.ini
 `<MO2>\Starfield\profiles\Stable\StarfieldPrefs.ini` にゲーム解像度・グラフィック設定・コントロール設定が保持されます。
 
+### 2.3 ゲームのフレームレート上限設定（GPU負荷抑制とLLM推論速度の安定化）
+
+ゲーム実行中に GPU（AMD Radeon RX 9070）が描画処理で 100% 飽和していると、AISS の会話リクエスト発生時に LM Studio のプロンプト評価（Prefill）やトークン生成の帯域・リソースが奪われ、応答待機時間が増加します。フレームレート上限（60fps 等）をかけることで、GPU に余力を残し、ゲーム中の会話応答速度を安定化させることができます。
+
+#### (1) StarfieldPrefs.ini による垂直同期（V-Sync）設定
+プロファイル別 INI（`profiles\Stable\StarfieldPrefs.ini` および `profiles\Stable-NoAI\StarfieldPrefs.ini`）の `[Display]` セクションで垂直同期を有効化します（モニターが 60Hz の場合は 60fps に制限されます）。
+```ini
+[Display]
+bEnableVsync=1
+```
+※本プロジェクトでは両プロファイルの INI に `bEnableVsync=1` を標準適用済みです。
+
+#### (2) グラフィックドライバ（AMD Software: Adrenalin Edition）による上限設定（最も推奨）
+高リフレッシュレートモニター（144Hz / 240Hz 等）を使用している環境や、より厳密に 60fps に固定したい場合は、ドライバ側で上限を設定します。
+1. **AMD Software: Adrenalin Edition** を開きます。
+2. 上部メニューの **「ゲーミング」** → **「ゲーム」** から **「Starfield」** を選択します。
+3. **「Radeon Chill」** を有効化し、**最小 FPS: `60` / 最大 FPS: `60`** に設定します（または「フレームレート ターゲット コントロール (FRTC)」を `60` に設定）。
+4. これにより、ゲームレンダリングが無駄に高フレームを回すのを防ぎ、LM Studio によるローカル LLM 推論に必要な演算性能と VRAM 帯域を常に確保できます。
+
+#### (3) ゲーム内メニューからの設定確認
+ゲーム起動後、**「設定」** → **「ディスプレイ」** → **「垂直同期」** が **「オン」** になっていることを確認してください。
+
 ---
 
 ## 3. LM Studio 設定（Phase 1 標準）
