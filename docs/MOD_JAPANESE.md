@@ -72,3 +72,45 @@
    - 翻訳データは xTranslator の XML 差分ファイル、または差分文字列ファイルとしてリポジトリ内で管理する。
 3. **他MODとの変更巻き戻し防止**:
    - レコード上書きを伴う ESM 形式の翻訳パッチを適用する際は、元MODのゲームプレイ設定値（燃料消費量、ステータス等）がバニラ値に戻らないよう、SF1Edit でマージ整合性を検証する。
+
+
+---
+
+## 4. Phase 1 導入済み MOD の英語テキスト詳細一覧と翻訳方針（2026-10-04 調査）
+
+Phase 1 で導入した MOD のうち、プレイヤーがゲーム内で目にする英語テキストの精査結果です。
+
+### 4.1 英語テキスト詳細一覧
+
+| 優先度 | MOD名 | 該当箇所 / 画面 | プレイヤーが目にする英語テキスト例 | 規模 |
+|---|---|---|---|---|
+| **S** | **AISS - AI Settled Systems** | ダイアログ選択肢 | `Chat with AISS - [NPC名]` | 約50項目 |
+| **S** | **AISS - AI Settled Systems** | HUD通知（画面右上） | `AISS REQUEST SENT TO [NPC名].`<br>`AISS: [NPC名] response ready; TTS playing.`<br>`AISS NPC set: [NPC名]` | 約20〜30文 |
+| **S** | **AISS - AI Settled Systems** | ポップアップ / エラー | `AISS is waiting for the backend response.`<br>`AISS Backend unreachable.` | 約10〜15文 |
+| **S** | **AISS - AI Settled Systems** | インベントリアイテム | AISS Setup アイテム名・説明文・初期化完了メッセージ | 約5〜10文 |
+| **A** | **Roleplayers' Alternate Start** | NEW ゲーム直後の選択メニュー | スタート地点・ナラティブ選択肢（46 MESG）<br>（例: `Choose your starting scenario`, `Freestar Ranger Trainee`, `Mining Colony Guard` 等） | 46 MESG |
+| **A** | **Roleplayers' Alternate Start** | 装備・設定ターミナル | スタート直後の装備支給・所持品選択ターミナル画面（39 TERM） | 39 TERM |
+| **A** | **Roleplayers' Alternate Start** | ロッジ等の改変会話テキスト | コンステレーションメンバー等の初期会話改変部分（バニラ部音声は日本語だが字幕が一部英語化） | 400+ DIAL/INFO |
+| **A** | **Absolute HOTAS** | 設定画面（`Ctrl+Alt+B`） | 軸キャリブレーション、デッドゾーン設定、ボタン割り当てウィザード画面 | 約30〜50項目 |
+| **対象外** | **Longer Names v2** | なし（内部INIのみ） | なし | - |
+| **対象外** | **Address Library for SFSE Plugins** | なし（DLL基盤） | なし | - |
+| **対象外** | **Cassiopeia Papyrus Extender** | なし（Papyrus関数拡張） | なし | - |
+
+### 4.2 翻訳手法と作業量見積もり
+
+1. **翻訳手法**:
+   - **ESM 内テキスト（Roleplayers' Alternate Start, AISS ESM部）**:
+     - `xTranslator` を使用して ESM から Strings / Translation XML を抽出し翻訳。
+     - 元 MOD ファイルは改変せず、MO2 の独立 MOD（例: `Roleplayers Alternate Start - Japanese Patch`）として Strings またはパッチ ESM を配置して上書き適用。
+   - **Papyrus スクリプト内の通知テキスト（AISS）**:
+     - PEX スクリプト（`x2357aissquestscript.pex`）内の文字列、またはスクリプトプロパティのオーバーライド。
+   - **AISS Backend 側メッセージ**:
+     - `config.json` やプロファイル内の設定、または `hud.ini` 経由でのメッセージ置換。
+   - **Absolute HOTAS**:
+     - DLL 埋め込み UI のため、設定ファイル（TOML/INI）によるローカライズ可否を確認の上、必要に応じて設定画面ガイドを作成。
+
+2. **作業量見積もり**:
+   - **AISS UI・通知文字列**: 極小（約 1〜2 時間）
+   - **Roleplayers' Alternate Start (MESG / TERM)**: 小規模（約半日〜1日）
+   - **Roleplayers' Alternate Start (DIAL / INFO 改変部)**: 中規模（約 1〜2 日）
+   - **Absolute HOTAS 設定ガイド/ローカライズ**: 極小（約 2〜3 時間）

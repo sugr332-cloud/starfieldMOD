@@ -63,6 +63,35 @@ try {
         throw "設定された MO2 実行ファイルが見つかりません: $($config.mo2ExecutablePath)`n       launcher.config.json の mo2ExecutablePath を確認してください。"
     }
 
+    # MO2 プロファイル名の決定（デフォルト: Stable）
+    $mo2Profile = if ($config.mo2Profile) { $config.mo2Profile } else { "Stable" }
+
+    # AISS Backend 実行ファイルの決定
+    $aissExePath = if ($config.aissExecutablePath -and (Test-Path $config.aissExecutablePath)) {
+        $config.aissExecutablePath
+    } else {
+        $defaultAiss = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - AI Settled Systems\AISS\AISS_Backend.exe"
+        if (Test-Path $defaultAiss) { $defaultAiss } else { $null }
+    }
+
+    # MO2 の ModOrganizer.ini を検査し、selected_profile を指定プロファイルに固定
+    $mo2IniPath = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\ModOrganizer.ini"
+    if (Test-Path $mo2IniPath) {
+        try {
+            $mo2IniRaw = Get-Content $mo2IniPath -Raw -Encoding UTF8
+            if ($mo2IniRaw -match "selected_profile=@ByteArray\((.*?)\)") {
+                $curProfile = $matches[1]
+                if ($curProfile -ne $mo2Profile) {
+                    Write-Host "  MO2 の選択プロファイル ($curProfile) を '$mo2Profile' に切り替えます..." -ForegroundColor Cyan
+                    $updatedIni = $mo2IniRaw -replace "selected_profile=@ByteArray\(.*?\)", "selected_profile=@ByteArray($mo2Profile)"
+                    [System.IO.File]::WriteAllText($mo2IniPath, $updatedIni, [System.Text.Encoding]::UTF8)
+                }
+            }
+        } catch {
+            Write-Host "  [情報] ModOrganizer.ini の確認をスキップしました: $_" -ForegroundColor DarkGray
+        }
+    }
+
     # 2. VRAM 節約チェック（常駐プロセスの確認）
     $currentStep = "ステップ 1/5: VRAM 常駐アプリのチェック"
     Write-Host "[$currentStep] 実行中..." -ForegroundColor Green
@@ -205,30 +234,48 @@ try {
     if ($config.openMo2Only) {
         $currentStep = "MO2 単独起動"
         Write-Host "[ステップ 4/5] MO2 を開くだけのモード（openMo2Only = true）です。" -ForegroundColor Yellow
-        Write-Host "  Mod Organizer 2 を起動します..." -ForegroundColor Cyan
-        Start-Process -FilePath $config.mo2ExecutablePath -ArgumentList "-i $($config.mo2InstanceName)"
+        Write-Host "  Mod Organizer 2 をプロファイル '$mo2Profile' で起動します..." -ForegroundColor Cyan
+        Start-Process -FilePath $config.mo2ExecutablePath -ArgumentList "-i $($config.mo2InstanceName) -p `"$mo2Profile`""
         Write-Host "  MO2 の GUI から手動で「AISS Backend」と「SFSE」を実行してください。" -ForegroundColor Green
         Exit-Launcher 0
     }
 
     $currentStep = "ステップ 4/5: AISS Backend 起動"
-    $aissShortcut = "moshortcut://$($config.mo2InstanceName):$($config.aissExecutableTitle)"
+    $runningAiss = Get-Process -Name "AISS_Backend" -ErrorAction SilentlyContinue
 
-    if ($DryRun) {
+    if ($runningAiss) {
+        Write-Host "[$currentStep] AISS Backend はすでに起動しています (PID: $($runningAiss[0].Id))。" -ForegroundColor Green
+    } elseif ($DryRun) {
         Write-Host "[$currentStep] (ドライラン)" -ForegroundColor Magenta
-        Write-Host "  [DryRun] 実行予定コマンド:" -ForegroundColor Cyan
-        Write-Host "    実行ファイル: $($config.mo2ExecutablePath)" -ForegroundColor Cyan
-        Write-Host "    引数        : `"$aissShortcut`"" -ForegroundColor Cyan
+        if ($aissExePath) {
+            Write-Host "  [DryRun] AISS Backend 直接起動予定: $aissExePath" -ForegroundColor Cyan
+        } else {
+            Write-Host "  [DryRun] AISS Backend MO2 経由起動予定: moshortcut://$($config.mo2InstanceName):$($config.aissExecutableTitle)" -ForegroundColor Cyan
+        }
     } else {
-        Write-Host "[$currentStep] MO2 経由で起動中..." -ForegroundColor Green
+        Write-Host "[$currentStep] AISS Backend を起動中..." -ForegroundColor Green
         try {
-            Start-Process -FilePath $config.mo2ExecutablePath -ArgumentList "`"$aissShortcut`""
-            Write-Host "  AISS Backend 起動コマンドを発行しました。" -ForegroundColor Cyan
+            if ($aissExePath) {
+                $aissDir = Split-Path -Parent $aissExePath
+                Start-Process -FilePath $aissExePath -WorkingDirectory $aissDir
+                Write-Host "  AISS Backend を直接起動しました。" -ForegroundColor Cyan
+            } else {
+                $aissShortcut = "moshortcut://$($config.mo2InstanceName):$($config.aissExecutableTitle)"
+                Start-Process -FilePath $config.mo2ExecutablePath -ArgumentList "`"$aissShortcut`""
+                Write-Host "  AISS Backend を MO2 ショートカット経由で起動しました。" -ForegroundColor Cyan
+            }
         } catch {
             throw "AISS Backend の起動に失敗しました: $_"
         }
         Write-Host "  AISS Backend の初期化を待機中（3秒）..." -ForegroundColor DarkGray
         Start-Sleep -Seconds 3
+
+        $checkAiss = Get-Process -Name "AISS_Backend" -ErrorAction SilentlyContinue
+        if ($checkAiss) {
+            Write-Host "  AISS Backend 正常稼働確認 (PID: $($checkAiss[0].Id))" -ForegroundColor Green
+        } else {
+            Write-Host "  [情報] AISS Backend プロセスの初期化が進行中です。" -ForegroundColor DarkGray
+        }
     }
     Write-Host ""
 
@@ -239,7 +286,7 @@ try {
         Write-Host "[$currentStep] (ドライラン)" -ForegroundColor Magenta
         Write-Host "  [DryRun] 実行予定コマンド:" -ForegroundColor Cyan
         Write-Host "    実行ファイル: $($config.mo2ExecutablePath)" -ForegroundColor Cyan
-        Write-Host "    引数        : `"$sfseShortcut`"" -ForegroundColor Cyan
+        Write-Host "    引数        : `"$sfseShortcut`" -p `"$mo2Profile`"" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "==========================================================" -ForegroundColor Magenta
         Write-Host "   [ドライラン完了] コマンド検証が正常に完了しました。" -ForegroundColor Magenta
@@ -247,9 +294,9 @@ try {
         Write-Host "==========================================================" -ForegroundColor Magenta
         Exit-Launcher 0
     } else {
-        Write-Host "[$currentStep] SFSE（Starfield）を MO2 経由で起動中..." -ForegroundColor Green
+        Write-Host "[$currentStep] SFSE（Starfield）をプロファイル '$mo2Profile' で MO2 経由で起動中..." -ForegroundColor Green
         try {
-            Start-Process -FilePath $config.mo2ExecutablePath -ArgumentList "`"$sfseShortcut`""
+            Start-Process -FilePath $config.mo2ExecutablePath -ArgumentList "`"$sfseShortcut`" -p `"$mo2Profile`""
             Write-Host "  SFSE 起動コマンドを発行しました。Starfield が起動します！" -ForegroundColor Green
         } catch {
             throw "SFSE の起動に失敗しました: $_"

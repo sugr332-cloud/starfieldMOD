@@ -1,7 +1,9 @@
 {
   "mo2ExecutablePath": "<MO2_INSTALL_DIR>\\ModOrganizer.exe",
   "mo2InstanceName": "Starfield",
+  "mo2Profile": "Stable",
   "aissExecutableTitle": "AISS Backend",
+  "aissExecutablePath": "",
   "sfseExecutableTitle": "SFSE",
   "openMo2Only": false,
   "vramHeavyProcesses": [
