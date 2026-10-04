@@ -99,7 +99,7 @@ try {
             Write-Host "  [情報] ModOrganizer.ini の確認をスキップしました: $_" -ForegroundColor DarkGray
         }
     }
-    # AISS 日本語アドオンの同期（AIあり時のみ実施）
+    # AISS 日本語アドオンの同期 & 接続先 URL 検証（AIあり時のみ実施）
     if (-not $NoAI) {
         $jpAddonSrc = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - Japanese Language Addon\AISS\addons\jp_prompt_pack"
         $jpAddonDst = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - AI Settled Systems\AISS\addons\jp_prompt_pack"
@@ -111,6 +111,23 @@ try {
                 }
             } catch {
                 Write-Host "  [警告] 日本語アドオンの同期に失敗しました: $_" -ForegroundColor Yellow
+            }
+        }
+
+        # AISS config.json の接続先が LLM Proxy に向いているかを検証
+        $aissConfigPath = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - AI Settled Systems\AISS\config.json"
+        if (Test-Path $aissConfigPath) {
+            try {
+                $aissConfigRaw = [System.IO.File]::ReadAllText($aissConfigPath, [System.Text.Encoding]::UTF8)
+                $proxyPort = if ($config.llmProxy -and $config.llmProxy.port) { $config.llmProxy.port } else { 1235 }
+                $expectedUrl = "http://127.0.0.1:$proxyPort/v1"
+                if ($aissConfigRaw -notmatch [regex]::Escape($expectedUrl)) {
+                    Write-Host "  AISS の接続先 URL を中継プロキシ ($expectedUrl) に自動更新します..." -ForegroundColor Cyan
+                    $aissConfigUpdated = $aissConfigRaw -replace '"base_url":\s*"http://127\.0\.0\.1:\d+/v1"', "`"base_url`": `"$expectedUrl`""
+                    [System.IO.File]::WriteAllText($aissConfigPath, $aissConfigUpdated, [System.Text.Encoding]::UTF8)
+                }
+            } catch {
+                Write-Host "  [情報] AISS config.json の接続先確認をスキップしました: $_" -ForegroundColor DarkGray
             }
         }
     }
@@ -381,9 +398,7 @@ try {
     $currentStep = "ステップ 4/5: AISS Backend 起動"
     $runningAiss = Get-Process -Name "AISS_Backend" -ErrorAction SilentlyContinue
 
-    if ($runningAiss) {
-        Write-Host "[$currentStep] AISS Backend はすでに起動しています (PID: $($runningAiss[0].Id))。" -ForegroundColor Green
-    } elseif ($DryRun) {
+    if ($DryRun) {
         Write-Host "[$currentStep] (ドライラン)" -ForegroundColor Magenta
         if ($aissExePath) {
             Write-Host "  [DryRun] AISS Backend 直接起動予定: $aissExePath" -ForegroundColor Cyan
@@ -391,7 +406,13 @@ try {
             Write-Host "  [DryRun] AISS Backend MO2 経由起動予定: moshortcut://$($config.mo2InstanceName):$($config.aissExecutableTitle)" -ForegroundColor Cyan
         }
     } else {
-        Write-Host "[$currentStep] AISS Backend を起動中..." -ForegroundColor Green
+        if ($runningAiss) {
+            Write-Host "[$currentStep] 稼働中の AISS Backend を検知しました。最新設定を反映するため再起動します..." -ForegroundColor Cyan
+            $runningAiss | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 1
+        } else {
+            Write-Host "[$currentStep] AISS Backend を起動中..." -ForegroundColor Green
+        }
         try {
             if ($aissExePath) {
                 $aissDir = Split-Path -Parent $aissExePath

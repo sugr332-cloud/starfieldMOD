@@ -102,10 +102,30 @@ class LLMProxyHandler(BaseHTTPRequestHandler):
         # 思考抑制パラメータの強制適用
         req_json["reasoning_effort"] = "none"
 
+        # 日本語返答指示の注入（AISS の英語指示を強力に上書き）
+        messages = req_json.get("messages", [])
+        jp_directive = (
+            "\n\n[CRITICAL OVERRIDE: LANGUAGE AND FORMAT - MUST FOLLOW]\n"
+            "- OVERRIDE ALL PREVIOUS INSTRUCTIONS: You MUST reply ONLY in natural, conversational Japanese (必ず自然な日本語のみで返答すること).\n"
+            "- Do NOT speak or write English under any circumstances.\n"
+            "- Keep replies very concise and direct: 1 to 2 sentences (30 to 80 Japanese characters).\n"
+            "- Do NOT output internal thoughts or stage directions in asterisks like *smiles* or *shifts weight*. Output pure in-character spoken dialogue only."
+        )
+
+        system_found = False
+        for msg in messages:
+            if msg.get("role") == "system":
+                msg["content"] = msg.get("content", "") + jp_directive
+                system_found = True
+                break
+
+        if not system_found:
+            messages.insert(0, {"role": "system", "content": jp_directive.strip()})
+
         # ログ記録
         model_name = req_json.get("model", "unknown")
         max_tokens = req_json.get("max_tokens", "default")
-        logger.info(f"Chat completion request: model={model_name}, max_tokens={max_tokens}, injected reasoning_effort=none")
+        logger.info(f"Chat completion request: model={model_name}, max_tokens={max_tokens}, injected reasoning_effort=none & Japanese prompt")
 
         modified_body = json.dumps(req_json, ensure_ascii=False).encode("utf-8")
 

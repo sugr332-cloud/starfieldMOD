@@ -1,37 +1,40 @@
-# AISS 稼働状態・会話診断ツール (Check-AISS)
+# AISS 経路診断ツール (tools/diag)
 
-Starfield の AI 会話 MOD（AISS - AI Settled Systems）が正常に通信できているか、返答が遅れている原因が何かをワンクリックで即座に確認・診断するためのツールです。
+## 概要
 
----
+ゲーム本体を起動することなく、以下の実通信経路全体をエンドツーエンドで自動検証する診断ツールです。
 
-## 1. 使い方
-
-### 方法 A: デスクトップショートカット（推奨）
-- デスクトップの「**AISS 状態確認**」ショートカットをダブルクリックします。
-
-### 方法 B: バッチファイルから起動
-- `tools/diag/Check-AISS.bat` をダブルクリックします。
-
-### 方法 C: PowerShell から起動
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/diag/Check-AISS.ps1
+```
+[SFSE/AISS/requests/latest_request.ini]
+       ↓ (ファイル監視)
+[AISS_Backend.exe]
+       ↓ (HTTP POST /v1/chat/completions)
+[LLM Proxy (ポート 1235)]  ← "reasoning_effort": "none" & 日本語指示を注入
+       ↓ (HTTP POST)
+[LM Studio (ポート 1234)]  ← gemma-4-12b-it-qat (推論実行)
+       ↓ (HTTP 200 応答)
+[AISS_Backend.exe]
+       ↓ (ファイル書き込み)
+[SFSE/AISS/responses/latest_response.ini]
 ```
 
----
+## 判定基準
 
-## 2. 診断項目と見方
+以下の条件をすべて満たした場合に「合格」と判定されます。
+1. **所要時間**: 10秒以内（通常 3〜5秒程度）
+2. **思考トークン**: **0 tokens**（中継プロキシによる `reasoning_effort: none` 注入の成否）
+3. **日本語割合**: **50.0% 以上**（ひらがな・カタカナ・漢字・和文記号の文字数比率）
+4. **終了理由**: **`stop`**（トークン上限枯渇 `length` ではなく自然終了）
+5. **エラー検出**: AISS Backend エラー文字列が一切含まれないこと
 
-| 項目 | 正常な表示 (OK) | 異常時の表示 (NG) と対処 |
-|---|---|---|
-| **1. LM Studio サーバー** | `[OK] LM Studio サーバー稼働中`<br>（モデル名が表示されます） | `[NG] LM Studio サーバーに接続できません`<br>→ LM Studio を起動し、Developer タブから「Start Server」を押してください。 |
-| **2. AISS Backend プロセス** | `[OK] AISS Backend 稼働中 (PID: xxx)` | `[NG] AISS Backend が停止しています`<br>→ デスクトップの「Starfield（MOD）」から起動するか、`AISS_Backend.exe` を直接起動してください。 |
-| **3. 会話状態と判定** | `【返事完了】（直近の処理時間: 約 x 秒）` | `【返事待ち（AI生成中）】（送信から x 秒経過）`<br>→ リクエストが LM Studio で生成処理中であることを示します。30 秒以上かかる場合はモデルの負荷やログを確認してください。 |
-| **4. Backend 最新ログ** | 直近の生成時間（`llm=...ms`）やログ | `error` や `fail` が含まれる行が赤色で強調表示されます。 |
+## 実行方法
 
----
+### PowerShell からの実行（推奨: 3回連続テスト）
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/diag/Test-Pipeline.ps1
+```
 
-## 3. ファイル構成
-
-- `Check-AISS.ps1`: 診断処理の本体スクリプト（PowerShell）
-- `Check-AISS.bat`: ダブルクリック用の起動バッチ（UTF-8 出力・ウィンドウ保持対応）
-- `README.md`: 本説明ドキュメント
+### Python から直接実行（回数指定可能）
+```bash
+python tools/diag/test_pipeline.py 3
+```
