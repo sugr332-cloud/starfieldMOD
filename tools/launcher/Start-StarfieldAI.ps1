@@ -3,6 +3,7 @@
 
 [CmdletBinding()]
 param(
+    [switch]$NoLLM,
     [switch]$TestOnly,
     [switch]$DryRun,
     [switch]$NonInteractive
@@ -113,6 +114,25 @@ try {
     }
     Write-Host ""
 
+    if ($NoLLM) {
+        $currentStep = "ステップ 2/5 & 3/5: LLM スキップ処理 (-NoLLM)"
+        Write-Host "[$currentStep] NoLLM モードで実行中..." -ForegroundColor Yellow
+        Write-Host "  LM Studio モデルの読み込みをスキップします。" -ForegroundColor Cyan
+
+        try {
+            $loadedModels = & lms ps 2>$null
+            if ($loadedModels -and ($loadedModels -notmatch "No models")) {
+                Write-Host "  ロード中の LM Studio モデルを検出しました。VRAM 解放のためアンロードします..." -ForegroundColor Yellow
+                & lms unload --all 2>$null | Out-Null
+                Write-Host "  すべてのモデルをアンロードしました。" -ForegroundColor Green
+            } else {
+                Write-Host "  ロード中のモデルはありません。" -ForegroundColor Green
+            }
+        } catch {
+            Write-Host "  (LM Studio CLI の確認はスキップされました: $_)" -ForegroundColor DarkGray
+        }
+        Write-Host ""
+    } else {
     # 3. LM Studio サーバーの確認・起動
     $currentStep = "ステップ 2/5: LM Studio サーバーの確認"
     Write-Host "[$currentStep] 実行中..." -ForegroundColor Green
@@ -173,6 +193,8 @@ try {
         throw "LM Studio API への疎通テストに失敗しました: $_"
     }
     Write-Host ""
+
+    }
 
     if ($TestOnly) {
         Write-Host "[テスト完了] ステップ 1〜3 が正常に確認されました。MO2 / ゲーム起動はスキップします。" -ForegroundColor Yellow
