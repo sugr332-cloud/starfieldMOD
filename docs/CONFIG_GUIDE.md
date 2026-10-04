@@ -22,15 +22,15 @@
 
 MO2 上に以下の 2 つのプロファイルを構築・運用します。両プロファイルとも `local_saves=true`（プロファイル別セーブ）が有効となっており、セーブデータは完全に分離されます。
 
-1. **`Stable`（AIあり構成）**:
-   - **用途**: AISS（AI NPC 会話）および全 MOD をフル稼働させる標準環境。
-   - **セーブデータ保存先**: `<MO2>\Starfield\profiles\Stable\saves\`
-   - **AISS 関連 MOD**: 有効（`AISS - AI Settled Systems`, `AISS - Japanese Language Addon`, `*x2357aiss.esm`）
-
-2. **`Stable-NoAI`（AIなし構成）**:
-   - **用途**: バニラ本来の会話システム＋非AI系MOD（操作・宇宙生活・装飾等）でプレイする軽量・安定環境。
+1. **`Stable-NoAI`（AIなし構成・標準プレイ環境）**:
+   - **用途**: バニラ本来の会話システム＋非AI系MOD（操作・宇宙生活・装飾等）でプレイする軽量・安定環境（**2026-10-05 以降の標準環境**）。
    - **セーブデータ保存先**: `<MO2>\Starfield\profiles\Stable-NoAI\saves\`
    - **AISS 関連 MOD**: 無効化（`-AISS - AI Settled Systems`, `-AISS - Japanese Language Addon`, plugins.txt から `x2357aiss.esm` を除外）
+
+2. **`Stable`（AIあり構成・参考・休止中）**:
+   - **用途**: AISS（AI NPC 会話）および全 MOD をフル稼働させる環境（※2026-10-05 に取りやめ、設定とファイルは残してあり再開可能）。
+   - **セーブデータ保存先**: `<MO2>\Starfield\profiles\Stable\saves\`
+   - **AISS 関連 MOD**: 有効（`AISS - AI Settled Systems`, `AISS - Japanese Language Addon`, `*x2357aiss.esm`）
 
 > [!IMPORTANT]
 > **セーブデータの引き継ぎ・移行手順**
@@ -117,7 +117,11 @@ bEnableVsync=1
 
 ---
 
-## 3. LM Studio 設定（Phase 1 標準）
+## 3. LM Studio 設定（※取りやめ・参考情報として保持）
+
+> [!NOTE]
+> **2026-10-05 にユーザーの判断で取りやめ**  
+> LM Studio によるローカル LLM 運用は、VRAM 消費および応答速度の観点から取りやめました。プロセスおよび自動起動は完全にオフにしてあります。将来の再開に備え、構成情報は参考として保持します。
 
 ### 3.1 モデル構成
 - **モデル名**: `unsloth/gemma-4-12b-it-qat-GGUF`
@@ -169,7 +173,11 @@ LM Studio に以下のプリセットを配備済みです：
 
 ---
 
-## 4. AISS 設定（変更差分およびアドオン方式）
+## 4. AISS 設定（※取りやめ・参考情報として保持）
+
+> [!NOTE]
+> **2026-10-05 にユーザーの判断で取りやめ**  
+> AISS による AI 会話機能は取りやめました。MOD 構成およびファイルは削除せず保持されており、将来の再開が可能です。以下の差分は参考情報として保持します。
 
 ### 4.1 config.json 変更差分
 設定ファイル: `<MO2>\Starfield\mods\AISS - AI Settled Systems\AISS\config.json`
@@ -240,14 +248,10 @@ GPU メモリ使用量調査（実測上位プロセス）:
 
 ---
 
-### 6.2 推奨手順: ワンクリック統合ランチャー（デスクトップショートカット）
+### 6.2 推奨手順: デスクトップの「Starfield（MOD）」アイコンから起動（標準）
 
-デスクトップに **「Starfield（AIあり）」** と **「Starfield（AIなし）」** の 2 つの専用ショートカットが用意されており、ダブルクリックするだけで目的のプロファイル・プロセスが自動構成されます。
-
-1. **「Starfield（AIあり）」**:
-   - AISS / LM Studio サーバー / SFSE を自動起動し、プロファイル `Stable` でゲームを開始します。
-2. **「Starfield（AIなし）」**:
-   - LM Studio モデルや AISS Backend を起動せず（稼働中なら自動停止）、プロファイル `Stable-NoAI` で SFSE を直接起動します。
+デスクトップに配置された **「Starfield（MOD）」** ショートカットをダブルクリックするだけで、AI なしのクリーンな MOD 構成（`Stable-NoAI` プロファイル）でゲームが自動起動します。  
+LM Studio や AISS Backend、中継プロキシは一切起動せず、VRAM や CPU リソースをゲーム本体に 100% 割り当てます。
 
 ```
 [デスクトップの「Starfield（MOD）」をダブルクリック]
@@ -256,48 +260,36 @@ GPU メモリ使用量調査（実測上位プロセス）:
   │     └─ WardogsClient, msedge, Discord 等の起動を検知した場合、「閉じますか？ (Y/N)」を確認
   │     └─ Y の場合はプロセスを通常終了して VRAM を即座に解放
   │
-  ├─ 2. LM Studio サーバー確認＆起動
-  │     └─ ポート 1234 の稼働を確認（未起動なら `lms server start` を実行）
+  ├─ 2. AI プロセスの停止確認（-NoAI モード）
+  │     └─ AISS Backend や LLM Proxy、LM Studio サーバーの起動をスキップ（稼働中なら自動停止）
   │
-  ├─ 3. モデル読み込み＆疎通テスト
-  │     └─ `gemma-4-12b-it-qat` をロード（既定設定: 16K, Q8_0, Flash Attention, 思考OFF）
-  │     └─ ローカル API へ短いテストリクエストを送信して正常応答を確認
-  │
-  ├─ 4. AISS Backend 起動
-  │     └─ MO2 経由で「AISS Backend」を起動（moshortcut://Starfield:AISS Backend）
-  │     └─ プロセス待機＆ロックファイル生成確認（約3秒）
-  │
-  └─ 5. SFSE（MOD 入り Starfield）起動
-        └─ MO2 経由で「SFSE」を自動実行（moshortcut://Starfield:SFSE）
+  └─ 3. SFSE（MOD 入り Starfield）起動
+        └─ MO2 経由でプロファイル「Stable-NoAI」を指定して「SFSE」を自動実行（moshortcut://Starfield:SFSE）
 ```
 
-- **ランチャー本体**: `tools/launcher/Start-StarfieldAI.bat`（PowerShell 実行ポリシーを自動バイパス）
-- **設定ファイル**: `tools/launcher/launcher.config.json`（環境ごとの MO2 パスや監視プロセスを管理）
+- **ランチャー本体**: `tools/launcher/Start-StarfieldAI.bat -NoAI`（PowerShell 実行ポリシーを自動バイパス）
+- **設定ファイル**: `tools/launcher/launcher.config.json`
 - **詳細ドキュメント**: [`tools/launcher/README.md`](file:///tools/launcher/README.md)
 
 ---
 
-### 6.3 代替手順: 手動起動（ランチャーが動かない場合）
+### 6.3 代替手順: MO2 GUI からの手動起動（ランチャーを使わない場合）
 
-ランチャーを使用しない場合、またはトラブル発生時は以下の手順で手動起動します。
+1. Mod Organizer 2 を起動します。
+2. 左上のプロファイル選択で **「Stable-NoAI」** が選ばれていることを確認します。
+3. 右上の実行ファイル一覧から **「SFSE」** を選択し、**「実行」** をクリックします。
 
-```
-[1. 常駐アプリの終了]
-   └─ WardogsClient、Edge ブラウザ、Discord 等を手動で終了して VRAM を解放
+---
 
-[2. LM Studio 起動]
-   └─ LM Studio を起動し、Local Server を ON（ポート 1234）にする
-   └─ モデル `gemma-4-12b-it-qat` はモデル既定設定（16384, Q8_0, Flash Attention, 思考OFF）が
-      自動適用されるため、プリセットの手動選択は不要（JIT によるオンデマンド読み込みも可能）
+### 6.4 取りやめ（参考として残す）: AI ありでの起動手順および再開手順
 
-[3. AISS_Backend.exe 起動]
-   └─ MO2 を開き、右上ドロップダウンから「AISS Backend」を選択して「実行」をクリック
-   └─ コンソールが開き、常駐待機状態（HEALTHY）になることを確認
+AI 会話（AISS + LM Studio）を再開したい場合は、以下の手順でいつでも復元・再開可能です。
 
-[4. MO2 GUI からゲーム起動（必須）]
-   └─ MO2 でプロファイル「Stable」が選択されていることを確認
-   └─ 右上ドロップダウンから「SFSE」を選択して「実行」をクリック
-```
-
-※ゲーム終了後は、AISS_Backend.exe および LM Studio を必要に応じて終了してください。
+#### 将来的に AI 会話を再開する場合の手順
+1. **LM Studio の起動とサーバー開始**:
+   LM Studio を起動し、モデル `gemma-4-12b-it-qat` をロードの上、Local Server をポート 1234 で開始します。
+2. **デスクトップショートカットの作成 / ランチャー通常実行**:
+   引数なしで `tools/launcher/Start-StarfieldAI.bat` を実行するか、ターゲットを引数なしのバッチにしたショートカットをデスクトップに作成します（自動的に中継プロキシ 1235、AISS Backend、`Stable` プロファイルを構成して起動します）。
+3. **MO2 手動起動の場合**:
+   MO2 でプロファイルを **「Stable」** に切り替え、右上から「AISS Backend」を実行（常駐確認）後、「SFSE」を起動します。
 

@@ -1,4 +1,4 @@
-﻿# Starfield Space Life JP — MODパッケージ実装仕様書
+# Starfield Space Life JP — MODパッケージ実装仕様書
 
 **Status:** Phase 0 完了 / Phase 1 準備  
 **Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  
@@ -12,13 +12,13 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 最重要目標:
 1. ロード画面を可能な範囲で削減する。
 2. 宇宙船を生活・活動拠点にする。
-3. NPCにAI会話・記憶・状況認識を追加する。
-4. LM StudioによるローカルLLMを使用する。
+3. NPCにAI会話・記憶・状況認識を追加する。（※2026-10-05 にユーザーの判断で取りやめ: 応答速度が初回 12〜15 秒、2回目以降 約4秒で、体験に見合わないと判断。ファイルは残してあり、再開は可能）
+4. LM StudioによるローカルLLMを使用する。（※2026-10-05 にユーザーの判断で取りやめ: VRAM消費大および応答速度のため。ファイルは保持、再開可能）
 5. X52 HOTASで宇宙船を操作する。
 6. 日本語プレイを維持し、追加MODのプレイヤー向けテキストを可能な限り日本語化する。
 7. MOD同士の機能重複・競合を避ける。
 8. MOD本体を無断再配布せず、構成・設定・日本語化・検証情報を管理する。
-9. AI会話に無料（ローカル優先）の日本語AI音声（TTS）を付ける。
+9. AI会話に無料（ローカル優先）の日本語AI音声（TTS）を付ける。（※2026-10-05 にユーザーの判断で取りやめ）
 
 ## 1.1 確認済みの実行環境（Phase 0監査、2026-10-03）
 
@@ -61,9 +61,9 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 | Address Library for SFSE Plugins | SFSE依存 | 必須 |
 | Cassiopeia Papyrus Extender | AISS依存 | 必須候補 |
 | Longer Names v2 | AISS依存 | 必須候補 |
-| AISS - AI Settled Systems | AI NPC | 中核候補 |
-| LM Studio | ローカルLLM（標準モデル: Gemma 4 12B QAT） | 中核 |
-| AivisSpeech Engine（他TTS候補は5.1） | 無料ローカルTTS | 採用候補（Phase 1.5） |
+| AISS - AI Settled Systems | AI NPC | 取りやめ（2026-10-05。ファイルは保持、再開可能） |
+| LM Studio | ローカルLLM（標準モデル: Gemma 4 12B QAT） | 取りやめ（2026-10-05。ファイルは保持、再開可能） |
+| AivisSpeech Engine（他TTS候補は5.1） | 無料ローカルTTS | 取りやめ（2026-10-05） |
 | Absolute HOTAS | HOTAS操作 | 採用候補 |
 | Roleplayers' Alternate Start | ニューゲーム導入のスキップ | 採用候補（Phase 1） |
 | Civil NPCs | NPC挙動改善 | 採用候補 |
@@ -154,7 +154,12 @@ AISSの旧版、旧backend、旧config、旧パッチを混在させない。
 TTSエンジン/ブリッジは同時に1系統のみ有効化する。
 AISSのTTS設定（ElevenLabs / Fish Audio / ローカルブリッジ）は1つだけを有効にする。
 
-## 5. AISS + LM Studio
+## 5. AISS + LM Studio（※取りやめ・参考情報として保持）
+
+> [!NOTE]
+> **2026-10-05 にユーザーの判断で取りやめ**  
+> 実機検証の結果、応答速度が初回 12〜15 秒、2回目以降 約4秒を要し、ゲームプレイのテンポや体験に見合わないと判断したため、AI 会話および LM Studio の運用を取りやめました。  
+> 関連ファイルや設定は残してあり、将来的に再開することは可能です。以下の記述は参考情報として保持します。
 
 想定経路:
 
@@ -222,7 +227,11 @@ AISSの人格・ワールドプロファイル・システムプロンプトが�
 
 TTSは初期Phase（Phase 1）では導入しない。Phase 1でAISS + LM Studioの日本語テキスト会話が安定した後、5.1の無料TTS構成を「Phase 1.5 — AI Voice」として段階導入する。
 
-## 5.1 AI音声（TTS）— 無料構成
+## 5.1 AI音声（TTS）— 無料構成（※取りやめ）
+
+> [!NOTE]
+> **2026-10-05 にユーザーの判断で取りやめ**  
+> AI会話（AISS）の取りやめに伴い、TTS の導入計画も中止しました。以下の記述は参考情報として保持します。
 
 ### 前提（2026-10-03時点の確認事項）
 
@@ -576,7 +585,11 @@ Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで�
 
 成果物: `docs/TEST_PHASE1.md`
 
-## 10.5 Phase 1.5 — AI Voice（無料TTS）
+## 10.5 Phase 1.5 — AI Voice（無料TTS）（※取りやめ）
+
+> [!NOTE]
+> **2026-10-05 にユーザーの判断で取りやめ**  
+> AI会話（AISS）の取りやめに伴い、本フェーズは中止となりました。
 
 前提:
 - Phase 1の日本語AI会話テストに合格していること
