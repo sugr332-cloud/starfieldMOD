@@ -31,6 +31,13 @@
 
 ## 作業2: 音声が英語になる原因の調査と修正（止まらずに進めてよい）
 
+- **追記（Claude、14:20）**: ユーザーが共有した StarfieldPrefs.ini には言語の項目（sLanguage）が含まれていなかった。Prefs が直接の原因ではない可能性が高い。次を優先して確認すること
+  1. ゲームフォルダの `Starfield.ini` の `[General] sLanguage` の値
+  2. Steam から起動したときと、MO2 → sfse_loader.exe で起動したときで、言語の決まり方が違うか（Steam の起動時引数・言語設定が sfse_loader 経由では渡らない可能性）
+  3. 対策の第一候補: MO2 の Stable プロファイルの `StarfieldCustom.ini` の `[General]` に `sLanguage=ja` を追加する（既存の sIntroSequence 等は残す）。追加前にバックアップする
+  4. Data フォルダに日本語の音声アーカイブ（Voices の _ja 等）があるか。なければ Steam の言語設定が日本語でないか、日本語音声が未ダウンロード
+- 注意: StarfieldPrefs.ini の `[Bethesda.net]` の UUID はアカウントに紐づく値なので、リポジトリに書かない
+
 - Starfield は日本語音声がある。以下を確認する
   - Steam の Starfield の言語設定（appmanifest の言語、Steam のプロパティ）
   - Data フォルダにある音声アーカイブ（Voices の ba2）のうち、日本語（_ja 等）が存在するか
