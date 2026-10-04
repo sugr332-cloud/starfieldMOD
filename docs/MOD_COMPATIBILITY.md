@@ -129,3 +129,36 @@ SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
    compatible: YES (target version: 1.16.244.0)
    ```
 4. もし `disabled, incompatible version` や `failed to load` のエラーが存在した場合、そのプラグインは現在の本体バージョンで動作していないと判定し、MO2で無効化する。
+
+---
+
+## 5. 追加MOD（Phase 1 Extras）の競合・ロード順分析
+
+- 調査日: 2026-10-04
+- 対象MOD: Shades Glowy Stuff, Baka Achievement Enabler, Furnish Your Fleet, Better Living, Betamax's Functional Decor
+
+### 5.1 競合マトリクス
+
+| MOD名 | 種別 | 主要機能 | 既存レコード改変 (Override) | 新規レコード (New Form) | 競合リスク | 対策 / 配置方針 |
+|---|---|---|---|---|---|---|
+| **Shades Glowy Stuff** | ESM / PEX | アイテム・コンテナの発光 | なし（近接オブジェクト動的シェーダー付与） | 発光設定・スクリプト | **LOW** | 既存セル・レコードを破壊しないため、ロード順任意。 |
+| **Baka Achievement Enabler** | SFSE DLL | 実績解除・警告抑止 | なし（メモリフック） | なし | **LOW** | Address Library 必須。プラグイン（ESM）不要のためロード順なし。 |
+| **Furnish Your Fleet** | ESM | 船内家具・生活設備追加 | なし（独立ビルドメニュー） | 各種船内家具 Form | **LOW** | 船内セル自体を編集せず、プレイヤーが配置する家具フォームを追加するため競合なし。 |
+| **Better Living - Outpost Decor** | ESM | 拠点家具・装飾追加 | なし（独立ビルドメニュー） | 拠点装飾 Form | **LOW** | アウトポスト用ビルドツリーに独自カテゴリを展開。安全に共存可能。 |
+| **Betamax's Functional Decor** | ESM | 機能性家具・自販機追加 | なし（独立ビルドメニュー） | 機能家具 Form | **LOW** | 独自カテゴリで整理されており、他家具MODと共存可能。 |
+
+### 5.2 ロード順とプロファイル運用ルール
+1. **プロファイルへの適用**:
+   - 追加MOD（光る・実績解除・家具3種）は、**`Stable`（AIあり）と `Stable-NoAI`（AIなし）の両プロファイル**に同一構成で登録・有効化する。
+   - ※AISS関連（`AISS - AI Settled Systems`、`AISS - Japanese Language Addon`）のみ `Stable` 専用とし、`Stable-NoAI` では無効化を維持する。
+2. **推奨ロード順（plugins.txt）**:
+   ```text
+   *x2357aiss.esm                     (Stable プロファイルのみ)
+   *RoleplayersAlternateStart.esm
+   *ShadesGlowyStuff.esm
+   *FurnishYourFleet.esm
+   *BetterLiving.esm
+   *BetamaxsFunctionalDecor.esm
+   ```
+3. **日本語化パッチの配置原則**:
+   - 後続の作業Dで作成する各MODの「〇〇 - 日本語化」MODは、MO2左ペインにおいて元のMODの直下に配置する。

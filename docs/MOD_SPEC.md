@@ -1,4 +1,4 @@
-# Starfield Space Life JP — MODパッケージ実装仕様書
+﻿# Starfield Space Life JP — MODパッケージ実装仕様書
 
 **Status:** Phase 0 完了 / Phase 1 準備  
 **Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  

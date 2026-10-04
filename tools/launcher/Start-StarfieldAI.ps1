@@ -3,6 +3,7 @@
 
 [CmdletBinding()]
 param(
+    [switch]$NoAI,
     [switch]$NoLLM,
     [switch]$TestOnly,
     [switch]$DryRun,
@@ -63,8 +64,15 @@ try {
         throw "設定された MO2 実行ファイルが見つかりません: $($config.mo2ExecutablePath)`n       launcher.config.json の mo2ExecutablePath を確認してください。"
     }
 
-    # MO2 プロファイル名の決定（デフォルト: Stable）
-    $mo2Profile = if ($config.mo2Profile) { $config.mo2Profile } else { "Stable" }
+    # モード判定と MO2 プロファイル名の決定
+    if ($NoAI) {
+        $NoLLM = $true
+        $mo2Profile = "Stable-NoAI"
+        Write-Host "  >>> 起動モード: [AIなし] (バニラ会話 / AISS・LLM完全停止 / プロファイル: $mo2Profile) <<<" -ForegroundColor Yellow
+    } else {
+        $mo2Profile = if ($config.mo2Profile) { $config.mo2Profile } else { "Stable" }
+        Write-Host "  >>> 起動モード: [AIあり] (AISS / LM Studio 連携 / プロファイル: $mo2Profile) <<<" -ForegroundColor Green
+    }
 
     # AISS Backend 実行ファイルの決定
     $aissExePath = if ($config.aissExecutablePath -and (Test-Path $config.aissExecutablePath)) {
@@ -91,17 +99,19 @@ try {
             Write-Host "  [情報] ModOrganizer.ini の確認をスキップしました: $_" -ForegroundColor DarkGray
         }
     }
-    # AISS 日本語アドオンの同期（MO2 別 MOD から AISS 本体 addons への配備）
-    $jpAddonSrc = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - Japanese Language Addon\AISS\addons\jp_prompt_pack"
-    $jpAddonDst = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - AI Settled Systems\AISS\addons\jp_prompt_pack"
-    if (Test-Path $jpAddonSrc) {
-        try {
-            if (-not (Test-Path $jpAddonDst)) {
-                Copy-Item -Path $jpAddonSrc -Destination $jpAddonDst -Recurse -Force | Out-Null
-                Write-Host "  日本語アドオン (jp_prompt_pack) を AISS 本体に配備しました。" -ForegroundColor Green
+    # AISS 日本語アドオンの同期（AIあり時のみ実施）
+    if (-not $NoAI) {
+        $jpAddonSrc = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - Japanese Language Addon\AISS\addons\jp_prompt_pack"
+        $jpAddonDst = Join-Path $env:LOCALAPPDATA "ModOrganizer\$($config.mo2InstanceName)\mods\AISS - AI Settled Systems\AISS\addons\jp_prompt_pack"
+        if (Test-Path $jpAddonSrc) {
+            try {
+                if (-not (Test-Path $jpAddonDst)) {
+                    Copy-Item -Path $jpAddonSrc -Destination $jpAddonDst -Recurse -Force | Out-Null
+                    Write-Host "  日本語アドオン (jp_prompt_pack) を AISS 本体に配備しました。" -ForegroundColor Green
+                }
+            } catch {
+                Write-Host "  [警告] 日本語アドオンの同期に失敗しました: $_" -ForegroundColor Yellow
             }
-        } catch {
-            Write-Host "  [警告] 日本語アドオンの同期に失敗しました: $_" -ForegroundColor Yellow
         }
     }
 
@@ -253,6 +263,16 @@ try {
         Exit-Launcher 0
     }
 
+    if ($NoAI) {
+        $currentStep = "ステップ 4/5: AISS Backend スキップ (-NoAI)"
+        Write-Host "[$currentStep] AIなしモードのため、AISS Backend の起動をスキップします。" -ForegroundColor Yellow
+        $runningAiss = Get-Process -Name "AISS_Backend" -ErrorAction SilentlyContinue
+        if ($runningAiss) {
+            Write-Host "  [情報] バックグラウンドで稼働中の AISS Backend を停止します..." -ForegroundColor DarkGray
+            $runningAiss | Stop-Process -Force -ErrorAction SilentlyContinue
+        }
+        Write-Host ""
+    } else {
     $currentStep = "ステップ 4/5: AISS Backend 起動"
     $runningAiss = Get-Process -Name "AISS_Backend" -ErrorAction SilentlyContinue
 
@@ -291,6 +311,7 @@ try {
         }
     }
     Write-Host ""
+    }
 
     $currentStep = "ステップ 5/5: SFSE（Starfield）起動"
     $sfseShortcut = "moshortcut://$($config.mo2InstanceName):$($config.sfseExecutableTitle)"

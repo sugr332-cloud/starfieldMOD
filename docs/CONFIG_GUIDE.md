@@ -18,12 +18,28 @@
 - **保存先パス**: `<MO2>\Starfield\`（`%LOCALAPPDATA%\ModOrganizer\Starfield\`）
 - **ゲームパス**: `<Starfield>\`（`D:\SteamLibrary\steamapps\common\Starfield\`）
 
-### 1.2 プロファイル
-- **プロファイル名**: `Stable`
-- **プロファイル別セーブ（Use profile-specific Save Games）**: 有効（`true`）
-  - ※既存セーブデータ（Steam Cloud 復元分）をテストする場合は、既存セーブを1件 `<MO2>\Starfield\profiles\Stable\saves\` へ手動コピーして使用します（移動はせずコピー）。
-- **プロファイル別 INI（Use profile-specific Game INI Files）**: 有効（`true`）
-- **Archive Invalidation**: 有効（`profile_archive_invalidation=true`）
+### 1.2 プロファイル構成とセーブデータ管理
+
+MO2 上に以下の 2 つのプロファイルを構築・運用します。両プロファイルとも `local_saves=true`（プロファイル別セーブ）が有効となっており、セーブデータは完全に分離されます。
+
+1. **`Stable`（AIあり構成）**:
+   - **用途**: AISS（AI NPC 会話）および全 MOD をフル稼働させる標準環境。
+   - **セーブデータ保存先**: `<MO2>\Starfield\profiles\Stable\saves\`
+   - **AISS 関連 MOD**: 有効（`AISS - AI Settled Systems`, `AISS - Japanese Language Addon`, `*x2357aiss.esm`）
+
+2. **`Stable-NoAI`（AIなし構成）**:
+   - **用途**: バニラ本来の会話システム＋非AI系MOD（操作・宇宙生活・装飾等）でプレイする軽量・安定環境。
+   - **セーブデータ保存先**: `<MO2>\Starfield\profiles\Stable-NoAI\saves\`
+   - **AISS 関連 MOD**: 無効化（`-AISS - AI Settled Systems`, `-AISS - Japanese Language Addon`, plugins.txt から `x2357aiss.esm` を除外）
+
+> [!IMPORTANT]
+> **セーブデータの引き継ぎ・移行手順**
+> - **AIなし → AIありへ移行する場合**:
+>   `profiles/Stable-NoAI/saves/SaveXXXX_*.sfs` を `profiles/Stable/saves/` にコピーするだけで、安全にそのままプレイを継続できます。
+> - **AIあり → AIなしへ移行する場合**:
+>   `profiles/Stable/saves/SaveXXXX_*.sfs` を `profiles/Stable-NoAI/saves/` にコピーすることでロード自体は可能ですが、AISS 側のスクリプト状態がセーブデータ内に記録されているため、バニラ会話へ復帰した直後は不要なリクエストが送出されないか挙動を確認してください（最初から AIなしで進める場合は新規セーブまたは AI導入前のセーブを推奨）。
+> - **MOD追加時のルール**:
+>   今後 MOD を追加・更新する際は、原則として **Stable と Stable-NoAI の両プロファイル** に同一構成で導入します（AISS関連を除く）。
 
 ### 1.3 NXM リンク（Nexus Mods）関連付け
 - **設定ファイル**: `<MO2>\nxmhandler.ini`
@@ -204,7 +220,12 @@ GPU メモリ使用量調査（実測上位プロセス）:
 
 ### 6.2 推奨手順: ワンクリック統合ランチャー（デスクトップショートカット）
 
-デスクトップに配置されたショートカット **「Starfield（MOD）」** をダブルクリックするだけで、全プロセスが正しい順序で自動起動します。
+デスクトップに **「Starfield（AIあり）」** と **「Starfield（AIなし）」** の 2 つの専用ショートカットが用意されており、ダブルクリックするだけで目的のプロファイル・プロセスが自動構成されます。
+
+1. **「Starfield（AIあり）」**:
+   - AISS / LM Studio サーバー / SFSE を自動起動し、プロファイル `Stable` でゲームを開始します。
+2. **「Starfield（AIなし）」**:
+   - LM Studio モデルや AISS Backend を起動せず（稼働中なら自動停止）、プロファイル `Stable-NoAI` で SFSE を直接起動します。
 
 ```
 [デスクトップの「Starfield（MOD）」をダブルクリック]

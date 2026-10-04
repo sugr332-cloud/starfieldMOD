@@ -207,3 +207,69 @@
 - **Swallow (東工大等)** / **ELYZA**: 12B級の密な現行モデルは提供されていない（8Bまたは70Bクラスが中心）。
 - **結論**: 標準モデルとして決定されている **Gemma 4 12B (QAT版)** を第1選択とし、比較テスト対象としては指示調整済みの **LLM-jp-3-13B-instruct** を第一候補とする。Sarashina2系は指示調整版が見つかった場合のみ比較する。
 - **注意**: Gemma 4 12B はローカル未ダウンロードのため、Phase 1 で入手が必要。
+
+---
+
+## 6. 追加MOD監査（Phase 1 Extras: 光る・実績解除・家具）
+
+- 調査日: 2026-10-04
+- 調査対象: `docs/agy/phase1-extras.md` 作業B に基づく追加候補MOD
+
+### 6.1 Shades Glowy Stuff (光るMOD)
+- **最新版**: Nexus ID: 11818 (作者: ShadeComplete / TheShade)
+- **URL**: `https://www.nexusmods.com/starfield/mods/11818`
+- **ゲームバージョン互換性**: 1.16.244 対応済 (Stable)
+- **必須依存**: なし (SFSE 不要、バニラ・Creations 対応)
+- **特徴・仕組み**:
+  - 未読スキルブック、マガジン、弾薬、回復アイテム、収集素材、コンテナ等に一時的なシェーダーハイライト（パルス発光）を付与するQoL MOD。
+  - ハンドスキャナーを開かなくてもアイテムの視認性が向上。
+  - ゲーム内アセットやフォームレコードを直接改変せず、近接オブジェクトに動的シェーダー効果を付与する非破壊設計のため、他MODとの競合が極めて起きにくい。
+- **Terran Armada DLC 関連**:
+  - 指示書にあった「Shades Glowy Stuff Terran Armada Fix」（Nexus 17615）は、Terran Armada DLC (ESM) が必須前提。
+  - ローカルの Starfield Data フォルダを点検した結果、Terran Armada の ESM は未所持であることを確認済み。
+  - したがって、通常版 `Shades Glowy Stuff` のみを導入対象とし、Fix版は除外する。
+- **日本語化**: 設定メニューや説明文にテキストがある場合、xTranslator で翻訳対応。
+
+### 6.2 Baka Achievement Enabler (SFSE) (実績解除MOD)
+- **最新版**: Nexus ID: 658 (作者: shademe)
+- **URL**: `https://www.nexusmods.com/starfield/mods/658`
+- **ゲームバージョン互換性**: 1.16.244 対応済 (Stable)
+- **必須依存**: SFSE (0.2.21), Address Library for SFSE Plugins (v16, All in one)
+- **特徴・仕組み**:
+  - MODやコンソールコマンド使用時でも、Steam 実績（Achievements）の解除を有効に保つ SFSE DLL プラグイン。
+  - 初回コンソール起動時の実績無効化警告メッセージを非表示化し、セーブデータへの「Modded」フラグ付与をブロックする。
+  - 古い ASI Loader 版（Nexus 252「Achievement Enabler」、2023年）とは異なり、最新の SFSE / Address Library ネイティブで動作し、安定性が高い。
+- **注意点**:
+  - 導入以降のセーブデータを保護するものであり、既に「Modded」フラグが付与されてしまった既存セーブデータを遡及してクリーンに戻す機能はない。
+- **日本語化**: 不要（DLL によるバイナリフックのため、ゲーム内文字列なし）。
+
+### 6.3 Furnish Your Fleet (家具MOD - 船内特化)
+- **最新版**: Nexus ID: 12202 (作者: Gothik17)
+- **URL**: `https://www.nexusmods.com/starfield/mods/12202`
+- **ゲームバージョン互換性**: 1.16.244 対応済 (Creation Kit 製)
+- **必須依存**: なし
+- **特徴・仕組み**:
+  - 船内居住区（Hab）の内装カスタマイズに特化した家具拡張MOD。
+  - 各造船メーカー（Nova Galactic, Deimos, Stroud-Eklund, HopeTech, Taiyo）の意匠に合わせた二段ベッド、ベッド、バスルーム/シャワー、ギャレー（調理場）、カーブ壁対応家具、間接照明付き家具などを多数追加。
+  - クルーが実際にベッドで就寝したり、ギャレーで料理を行える実用的なアニメーションマーカーを内包。
+- **日本語化**: 要（家具名・装飾名・ビルドメニュー名の翻訳）。
+
+### 6.4 Better Living - Outpost Decor (家具MOD - 拠点/生活装飾)
+- **最新版**: Nexus ID: 10290 (作者: StackGX)
+- **URL**: `https://www.nexusmods.com/starfield/mods/10290`
+- **ゲームバージョン互換性**: 1.16.244 対応済 (Creation Kit 製)
+- **必須依存**: なし
+- **特徴・仕組み**:
+  - アウトポストおよびプレイヤーホーム向けの内装・家具・生活装飾を大幅に追加する総合パック。
+  - キッチンユニット、観葉植物、医療器具、ポスター、機能性調理ストーブ、貿易公社キオスク、ミッションボード、音楽再生可能なラジカセ、大容量コンテナ等を追加。
+- **日本語化**: 要（家具名・装飾名・アイテム名・ビルドメニュー名の翻訳）。
+
+### 6.5 Betamax's Functional Decor (家具MOD - 機能性装飾)
+- **最新版**: Nexus ID: 10789 (作者: Betamax76)
+- **URL**: `https://www.nexusmods.com/starfield/mods/10789`
+- **ゲームバージョン互換性**: 1.16.244 対応済 (Creation Kit 製)
+- **必須依存**: なし
+- **特徴・仕組み**:
+  - 船内およびアウトポストに配置可能な機能的装飾アイテム（洗面台、TerraBrew自動販売機、オートドック、照明、生活家具等、300点以上）を追加。
+  - メニューの重複を避け、整理されたカテゴリ構成で軽量・安全に動作する。
+- **日本語化**: 要（自販機・家具名・メニュー名の翻訳）。
