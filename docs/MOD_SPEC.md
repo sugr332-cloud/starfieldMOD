@@ -2,8 +2,8 @@
 
 **Status:** Phase 0 完了 / Phase 1 準備  
 **Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  
-**Version:** 0.8  
-**Date:** 2026-10-04
+**Version:** 0.9  
+**Date:** 2026-10-07
 
 ## 1. 目的
 
@@ -121,6 +121,27 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 - 高画質化MODを追加する場合は、まずテクスチャ・ライティング・HDR・LUTを分離して監査する。
 - RX 9070 16GB / FHDを基準とし、VRAM使用量とフレームレートを実機確認する。
 - **Luma等のHDR/ポストプロセス系を追加する場合は、Neutral LUTsとの機能重複を確認してから導入する。**
+
+
+
+### Weapons / Armor — Vanilla Enhancement
+
+| MOD | 役割 | 方針 |
+|---|---|---|
+| **Weapon Quality Diversity** | バニラ武器の品質Tierをレベル固定から分散型へ変更し、敵・コンテナ・ショップの戦利品に幅を持たせる | **採用候補。Stable候補だが実機検証後に確定** |
+| **Weapon Mod Fixes - WMF** | バニラ武器MODの不具合・誤記・一部機能不良を修正 | **採用候補。Stable候補** |
+| Weapon Quality Tier Fix | Free Lanesで追加されたTier 5/6を全武器へ追加 | **Weapon Quality Diversityとは併用しない。比較対象** |
+| Starfield Revised - Weapon Balance | 全バニラ武器・武器MODの性能を再調整 | **Experimental候補。初期Stableには入れない** |
+| Better Enemy Weapons and Armor | 敵に高品質武器・防具を装備させる | **除外。古い（最終更新2023-12）うえ、追加装備MODへの依存があり、今回の方針には過剰** |
+
+運用方針:
+- 新武器を大量追加するのではなく、**バニラ武器を使い続けられること**と**敵の装備・戦利品の自然な多様性**を優先する。
+- **Weapon Quality Diversity**を採用する場合、**Weapon Quality Tier Fixは導入しない**。両者は互換性がなく、Diversity側がTier配分そのものを管理する。
+- Weapon Quality Diversityは武器の品質Tierを変更するため、武器の性能/Tierを直接変更する他MODとは原則併用しない。
+- Weapon Mod Fixes - WMFは主にバニラ武器MODの不具合修正を担当し、品質Tierの分配とは担当範囲が異なるため、Diversityとの併用候補とする。ただしSF1Editで競合確認を行う。
+- 敵装備を直接置き換える古い大型MODはStableに入れず、必要なら別プロファイルで比較する。
+- 防具は現時点では性能変更MODを追加せず、まずバニラ防具のドロップ・装備状況を実機確認する。
+- 日本語化はプレイヤーが頻繁に見る武器名・MOD名・説明を優先する。
 
 ### Experimental
 
