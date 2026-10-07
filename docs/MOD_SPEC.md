@@ -107,6 +107,21 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 - FHD・PC操作環境で、カテゴリ分け、ソート、Quick Loot、列表示、文字サイズ、コントローラー対応等を実機確認する。
 - AISSその他のUI/SWF変更との競合をPhase 0で確認し、CRITICAL/HIGHが解消できない候補はStableに入れない。
 
+### Graphics / Visual Quality
+
+| MOD | 役割 | 方針 |
+|---|---|---|
+| **StarUI HUD** | HUD表示・情報整理 | **採用候補。AstralUIとはUI担当範囲を確認し、HUD側として導入** |
+| **Decal Fix** | デカール表示不具合修正 | **採用候補。表示修正系として導入** |
+| **Neutral LUTs** | カラーフィルタ/LUTの改善 | **採用候補。ただし他のLUT系MODとは同時導入しない** |
+| **Easy Digipick** | デジピック操作のQoL改善 | **採用候補。ゲームプレイQoLとして導入** |
+
+運用ルール:
+- LUT/カラーグレーディング系は1系統だけ有効化する。
+- 高画質化MODを追加する場合は、まずテクスチャ・ライティング・HDR・LUTを分離して監査する。
+- RX 9070 16GB / FHDを基準とし、VRAM使用量とフレームレートを実機確認する。
+- **Luma等のHDR/ポストプロセス系を追加する場合は、Neutral LUTsとの機能重複を確認してから導入する。**
+
 ### Experimental
 
 | MOD | 理由 |
