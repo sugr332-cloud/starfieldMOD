@@ -143,6 +143,19 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 - 防具は現時点では性能変更MODを追加せず、まずバニラ防具のドロップ・装備状況を実機確認する。
 - 日本語化はプレイヤーが頻繁に見る武器名・MOD名・説明を優先する。
 
+### Stability / Bug Fixes
+
+| MOD | 役割 | 方針 |
+|---|---|---|
+| **Starfield Engine Fixes - SFSE** | エンジン側のバグ修正・軽量化・Free Lanes対応 | **採用。Stable候補** |
+| **Orbit Traffic Fix** | 軌道上の船舶トラフィック管理スクリプトの永続エラーを修正 | **採用。Stable候補** |
+
+運用方針:
+- Starfield Engine Fixes - SFSEはSFSE依存のため、ゲーム本体1.16.244対応版のみ使用する。本体更新時はSFSEと同時に対応状況を再確認する。
+- Orbit Traffic Fixは既存構成に同一の軌道交通管理スクリプトを変更するMODがないことを前提に採用する。
+- 大型の総合バグ修正パッチ（USFP等）は、個別修正MODとの重複・上書きを避けるため初期Stableには追加しない。
+- 追加後は起動、セーブ/ロード、星系到着時の船舶トラフィック、Free Lanes遷移を最低限確認する。
+
 ### Experimental
 
 | MOD | 理由 |
