@@ -29,8 +29,8 @@
 |---|---|---|---|---|---|
 | - | **SFSE (Starfield Script Extender)** | 0.2.21 | `sfse_0_02_21.7z` | ゲームフォルダ直下配置 | スクリプト拡張・プラグインローダー |
 | 1 | **Address Library for SFSE Plugins** | v22 | `Address Library-3278-22-1773539745.7z` | MO2 経由導入 | 1.16.244.0 適合（`version-1-16-244-0.bin`） |
-| 2 | **Cassiopeia Papyrus Extender** | v10.0 | `Cassiopeia-14227-10-0-1768413158.7z` | MO2 経由導入 | AISS 必須前提。`Stable-NoAI` では無効化予定 |
-| 3 | **Longer Names v2** | v2.0.2 | `Longer Names v2-10651-2-0-2-1748281145.7z` | MO2 経由導入 | AISS 必須前提（NPC名長拡張）。`Stable-NoAI` では無効化予定 |
+| 2 | **Cassiopeia Papyrus Extender** | v10.0 | `Cassiopeia-14227-10-0-1768413158.7z` | MO2 経由導入 | AISS・Real Fuel（Phase 2）の必須前提 |
+| 3 | **Longer Names v2** | v2.0.2 | `Longer Names v2-10651-2-0-2-1748281145.7z` | MO2 経由導入 | 船・拠点・アイテム名の文字数上限拡張（AISS の前提でもある） |
 | 4 | **AISS - AI Settled Systems** | v3.75 | `AISS - AI Settled Systems-15636-3-75-1772401777.zip` | MO2 経由導入 | AI会話基盤（ESM+DLL+Backend）。**取りやめ・`Stable-NoAI` では無効** |
 | 5 | **AISS - Japanese Language Addon** | v1.0.0 | （新規構築） | MO2 経由導入（別MOD） | AISS 公式アドオン構造による日本語プロンプト。**`Stable-NoAI` では無効** |
 | 6 | **Absolute HOTAS** | V5.1.0 | `Absolute HOTAS - Flight and System Control-11756-V5-1-0-1740925232.zip` | MO2 経由導入 | 操縦・HOTAS入力基盤（DLL+ルーズスクリプト） |
@@ -129,8 +129,8 @@ SFSE は作者の仕様に基づき、ゲームフォルダ直下（`<Starfield>
 ### 5.1 MO2 左ペイン（MOD優先度順。上が低優先度・下が高優先度）
 1. Address Library for SFSE Plugins
 2. Baka Achievement Enabler
-3. Cassiopeia Papyrus Extender（無効化予定）
-4. Longer Names v2（無効化予定）
+3. Cassiopeia Papyrus Extender
+4. Longer Names v2
 5. ~~AISS - AI Settled Systems~~（無効）
 6. ~~AISS - Japanese Language Addon~~（無効）
 7. Absolute HOTAS

@@ -59,8 +59,8 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 |---|---|---|
 | SFSE | スクリプト/プラグイン基盤 | 必須 |
 | Address Library for SFSE Plugins | SFSE依存 | 必須 |
-| Cassiopeia Papyrus Extender | AISS依存 | `Stable`（AISS）専用。`Stable-NoAI` では無効化する（2026-10-09 決定。AISS以外に依存MODなし） |
-| Longer Names v2 | AISS依存 | `Stable`（AISS）専用。`Stable-NoAI` では無効化する（2026-10-09 決定。AISS以外に依存MODなし） |
+| Cassiopeia Papyrus Extender | スクリプト拡張（AISS・Real Fuel が依存） | 必須（`Stable-NoAI` でも有効のまま。Phase 2 の Real Fuel が前提とする） |
+| Longer Names v2 | 船・拠点・アイテム名の文字数上限を拡張（AISSも依存） | 有効のまま（単体でも船名付け等のQoLとして有用。SFSE DLLのみでセーブ・プラグイン順に影響なし） |
 | AISS - AI Settled Systems | AI NPC | 取りやめ（2026-10-05。ファイルは保持、再開可能） |
 | LM Studio | ローカルLLM（標準モデル: Gemma 4 12B QAT） | 取りやめ（2026-10-05。ファイルは保持、再開可能） |
 | AivisSpeech Engine（他TTS候補は5.1） | 無料ローカルTTS | 取りやめ（2026-10-05） |
@@ -485,8 +485,8 @@ Stableはフェーズの検証合格ごとに段階的に増やす。各MODを�
 |---|---|---|
 | SFSE | Phase 1 | 導入済み |
 | Address Library for SFSE Plugins | Phase 1 | 有効 |
-| Cassiopeia Papyrus Extender | Phase 1 | 無効化予定（AISS専用） |
-| Longer Names v2 | Phase 1 | 無効化予定（AISS専用） |
+| Cassiopeia Papyrus Extender | Phase 1 | 有効（Real Fuel の前提） |
+| Longer Names v2 | Phase 1 | 有効（名前文字数拡張のQoL） |
 | AISS（+ Japanese Language Addon） | Phase 1 | 無効（取りやめ） |
 | Absolute HOTAS | Phase 1 | 有効 |
 | Roleplayers' Alternate Start | Phase 1 | 有効 |
@@ -632,8 +632,8 @@ Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで�
 導入:
 - SFSE
 - Address Library for SFSE Plugins
-- Cassiopeia Papyrus Extender（AISS依存。`Stable-NoAI` では無効化予定）
-- Longer Names v2（AISS依存。`Stable-NoAI` では無効化予定）
+- Cassiopeia Papyrus Extender（Phase 2 の Real Fuel も依存）
+- Longer Names v2
 - ~~AISS~~（取りやめ）
 - Absolute HOTAS
 - Roleplayers' Alternate Start
