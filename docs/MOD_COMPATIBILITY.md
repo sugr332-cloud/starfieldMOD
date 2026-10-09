@@ -400,6 +400,13 @@ Phase 1 仕上げの実機導入は、グループ 1（安定化 2 件）およ�
 
 ## 8. マップ系MOD 3件の監査（2026-10-09）
 
+> [!NOTE]
+> **Claude レビュー（2026-10-09）**: Nexus で裏取りできたのは次の点のみ。
+> - Slightly Better Map Icons: 最新 v17（2026-04-08 更新）、説明文に「game version 1.16.236 for Shattered Space & Terran Armada」。**1.16.244 での動作は未確認**（UIファイルのみのため、不具合時は無効化で戻せる）。「StarUI HUD と互換」の記述は説明文では見つからなかった → 導入時に MO2 の競合タブで `mapicons.*` の重複がないか確認する
+> - City Interior Map Markers for Fast Travel: 最新 v1.2、最終更新 2025-05-23（Free Lanes 前）
+> - Remove Overlapping Markers For Cities: 削除後も変更が残る旨は、ユーザー提示の紹介文とも一致
+> 以下の「クエストマーカー消失の報告」「ロッジへの不正侵入」等の具体的事例は未検証。見送り判断（最終更新が古い／削除不可）自体は妥当。
+
 - **調査日**: 2026-10-09
 - **対象環境**: Starfield 1.16.244.0 (Steam) / SFSE 0.2.21 / `Stable-NoAI` プロファイル / 所有DLC: Shattered Space, Terran Armada
 - **調査手法**: Orca 内蔵ブラウザ（`orca` CLI）による Nexus Mods 公開ページ（Description, Files, Posts, Requirements, Permissions）の直接閲覧および検証。
