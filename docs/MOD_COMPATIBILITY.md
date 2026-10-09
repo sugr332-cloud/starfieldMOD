@@ -396,4 +396,121 @@ SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
 **推奨実施手順**:
 Phase 1 仕上げの実機導入は、グループ 1（安定化 2 件）およびグループ 2（表示/QoL 4 件）の計 6 件に絞って進め、グループ 3（武器）はスキップすることを提案する。
 
+---
+
+## 8. マップ系MOD 3件の監査（2026-10-09）
+
+- **調査日**: 2026-10-09
+- **対象環境**: Starfield 1.16.244.0 (Steam) / SFSE 0.2.21 / `Stable-NoAI` プロファイル / 所有DLC: Shattered Space, Terran Armada
+- **調査手法**: Orca 内蔵ブラウザ（`orca` CLI）による Nexus Mods 公開ページ（Description, Files, Posts, Requirements, Permissions）の直接閲覧および検証。
+
+### 8.1 3件の個別監査詳細
+
+#### 1. Slightly Better Map Icons
+- **MOD ID / URL**: [Nexus 4813](https://www.nexusmods.com/starfield/mods/4813)
+- **正式名**: Slightly Better Map Icons
+- **作者**: MindDoser
+- **最新版 / 更新日**: Version XVII (17) (2026-04-08)
+- **1.16.244 対応の根拠**:
+  - 本 MOD はプラグイン（ESM）やスクリプト（PEX）、DLL ではなく、純粋な Scaleform ベクター UI アセット（`Data\Interface\mapicons.gfx` および `mapicons.swf`）の差し替え。
+  - v17 は 1.16.236（Free Lanes / Terran Armada）で追加された新アイコン（REV-8、新ロケーション等）に合わせて作成された最新ビルド。
+  - 1.16.244（2026-06-11）はマイナーパッチであり、マップアイコンのベクター仕様に変更はないため、1.16.244 でも完全動作する。
+  - 作者 Posts にて「StarUI HUD、StarUI Inventory、BetterHUD など mapicons.swf/gfx を触らないすべての UI MOD と互換」と明記。
+- **種別**: ルーズ UI ファイル（`mapicons.gfx`, `mapicons.swf`）。プラグインなし、SFSE DLL なし。
+- **前提MOD**: なし（Archive Invalidation 有効化のみ）。
+- **非互換・推奨ロード順**:
+  - 非互換: 同じ `mapicons.gfx` / `mapicons.swf` を変更する他アイコン MOD。
+  - ロード順: プラグインスロット不要。MO2 左ペインの優先度のみ。
+- **競合の可能性**:
+  - `Starfield Engine Fixes - SFSE`: Engine Fixes は DLL 側のマップマーカー処理（カスタムマーカー消失、スターマップ DB クラッシュ）を修正するものであり、UI ベクターとは非干渉。競合なし。
+  - `StarUI HUD`: StarUI HUD（v1.4）の収録ファイルに `mapicons.gfx`/`swf` は含まれず、作者も互換性を保証。競合なし。
+  - Phase 3（Seamless Neon, Grav Lanes 等）: ワールドスペースや遷移の MOD であり、アイコンアセットとは競合なし。
+  - 他 2 件（12719, 15633）との競合: 他 2 件はマーカー配置の ESM であり、アイコン画像自体は触らないため競合なし。
+- **セーブへの影響**: なし。純粋な UI 表示アセットのため、セーブデータへの書き込み・残留は皆無。途中導入・途中削除が完全に安全。
+- **英語テキスト**: なし（0語）。純粋なベクター図形・シンボルアイコンであり、テキスト文字列を一切含まない。
+- **Permissions**: 個人利用・改善に支障なし。
+- **Creations版との関係**: MO2 管理のため Nexus 版を使用。
+- **判定**: **【採用】**。安全・軽量で競合リスクのない優れた QoL 表示 MOD。
+
+#### 2. City Interior Map Markers for Fast Travel
+- **MOD ID / URL**: [Nexus 12719](https://www.nexusmods.com/starfield/mods/12719)
+- **正式名**: City Interior Map Markers for Fast Travel
+- **作者**: xtcrefugee and AssyMcGee
+- **最新版 / 更新日**: v1.2 (2025-05-23)
+- **1.16.244 対応の根拠**: **【未対応・リスクあり】**
+  - 最新版 v1.2 は 2025-05-23（本体 1.15.216 時代）で更新停止。
+  - 本 MOD は外部ワールドスペース（Mars, Titan, Jemison, Porrima III）と内部セル（Cydonia, New Homestead, Red Mile, The Well, The Lodge）のレコードを直接複製・変更（Override）している（ESM サイズが 934 kB に及ぶ）。
+  - 1.16.236 / 1.16.244（Free Lanes、REV-8 追加、惑星・都市サーフェスマップ改変等）より前の古いセル・ワールドスペースレコードを上書きするため、1.16.244 のバニラ修正やワールドスペース変更を巻き戻す（逆行）リスクが高い。
+- **種別**: ESM プラグイン（`CityInteriorMapMarkers.esm` [Medium/Full Master, 934 kB]、オプション `AdditionalMapMarkers_AkilaCity.esm` [Small Master, 1.1 kB]）。
+- **前提MOD**: バニラ本体。
+- **非互換・推奨ロード順**:
+  - 作者明記: セルレコードおよびワールドスペースレコードを複製しているため、該当ロケーションを変更する全 MOD と競合する。
+- **競合の可能性**:
+  - `Roleplayers' Alternate Start`（Phase 1 導入済み）: ロッジ内部マーカー（The Lodge）を使用した場合、初期クエスト未完了状態でロッジへ不正に侵入できてしまい、メインクエスト進行フラグを破壊する恐れがある（作者も「is not advisable to use before completing the main quest」と警告）。
+  - Phase 3 `Grav Lanes` / `True Seamless Grav Jumps`: 宇宙から直接インテリアへファストトラベルすると、星系間航行や軌道アプローチのゲームプレイが完全にバイパスされる。
+  - プロジェクト基本方針との矛盾: Space Life JP の基本方針（ロード画面スキップのワープではなく、宇宙船航行や都市生活のシームレスな移動を楽しむ方針）と設計思想が対立する。
+  - `Remove Overlapping Markers For Cities`（15633）との競合: 15633 はマーカー重複を排除して宇宙港着陸に統一する MOD であり、重複する内部マーカーを増やす 12719 とは設計思想が真逆で両立しない。
+- **セーブへの影響**:
+  - 配置された MapMarker および内部セルの XMarker linked reference は、一度プレイヤーが「発見（Discovered）」するとセーブデータ内に永続的に記録される。削除時に参照欠落・不整合のリスクあり。
+- **英語テキスト**: あり。追加されるマーカー名がすべて英語（`Cydonia Central Hub`, `New Homestead Interior`, `Red Mile Interior`, `The Well Interior`, `The Lodge` 等）。日本語版環境では地名が英語で表示されるため日本語化が必要。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: Nexus 版。
+- **判定**: **【採用見送り（保留・非推奨）】**。1.15.216 の古いセル・ワールドスペース上書きによる先祖返りリスク、英語地名、Alternate Start とのクエスト順序破壊リスク、没入感向上コンセプトとの不一致のため。
+
+#### 3. Remove Overlapping Markers For Cities
+- **MOD ID / URL**: [Nexus 15633](https://www.nexusmods.com/starfield/mods/15633)
+- **正式名**: Remove Overlapping Markers For Cities
+- **作者**: CompactPrism (CompactPrism2)
+- **最新版 / 更新日**: v1.3 (2026-04-17)
+- **1.16.244 対応の根拠**: 2026-04-17 更新（Free Lanes 1.16.236 向け）。
+- **種別**: ESM + BA2（`DisableMarkers.esm` [832 kB] + `DisableMarkers - Main.ba2` [1.1 kB]）。Full/Medium Master。
+- **前提MOD**: バニラ本体。
+- **非互換・推奨ロード順**:
+  - 主要都市の `WRLD`（Worldspace）Form を直接改変（NewAtlantis, NeonCity, LC167World）。
+  - 都市ワールドスペースを変更する MOD と排他・競合。
+- **競合の可能性**:
+  - Phase 3 **`Seamless Neon` との CRITICAL 競合**:
+    - Seamless Neon は `NeonCity` のワールドスペースを統合・改変する大型 MOD。
+    - 本 MOD は `NeonCity` の WRLD レコードを直接改変し、さらに `Neon Core` マーカーを無効化（Disabled）する。Seamless Neon とのワールドスペース競合および着陸ポイント喪失の重大な危険がある。
+  - クエスト重要地点の喪失:
+    - ユーザー報告にある通り、紅の艦隊や UC ヴァンガードのクエストで必須となる `Red Devils HQ`（火星）の着陸マーカーまで軌道上から非表示・無効化してしまい、クエスト進行時に直接着陸できなくなる。
+  - `City Interior Map Markers`（12719）との競合: 設計思想が真逆であり両立不可。
+- **セーブへの影響**: **【致命的・不可逆（CRITICAL BLOCKER）】**
+  - 作者自身が明記:
+    > 「however after removing this mod, the changes will still be there so ensure that this is the right mod for you by using a backup before enabling it.」
+  - マーカーの非表示・無効化フラグがセーブデータに直接書き込まれ、**MOD をアンインストールしても消えたマーカー（ニューアトランティス各地区、ネオンコア、レッドデビルズHQ等）が復活しない**（セーブデータ不可逆破壊）。
+  - コンソールで 1 つずつ FormID を調べて enable しない限り復旧不能。
+- **英語テキスト**: 地名・マーカー無効化処理が中心だが、WRLD レコードの上書きにより一部地名が英語化される懸念あり。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: Nexus 版。
+- **判定**: **【不採用・完全除外（CRITICAL RISKS）】**。不可逆なセーブデータ改変（アンインストール後もマーカーが永久消失）、Seamless Neon との WRLD 衝突、クエスト重要マーカー消失の致命的欠陥があるため導入不可。
+
+---
+
+### 8.2 重点監査項目のまとめ
+
+1. **Starfield Engine Fixes - SFSE との相互作用**:
+   - Engine Fixes（v21.2）のカスタムマーカー消失修正（#40）はエンジンコードレベルの処理であり、Slightly Better Map Icons（ベクターアイコン）と完全に独立して共存可能。
+2. **StarUI HUD との共存**:
+   - Slightly Better Map Icons（`mapicons.gfx`/`swf`）と StarUI HUD（`hudmenu.gfx` 等）は変更対象ファイルが重複せず、作者 MindDoser もグリーンライト（互換）を明記。
+3. **Phase 3 Seamless Neon / 宇宙旅行系 MOD との関係**:
+   - `Remove Overlapping Markers For Cities` は `NeonCity` の WRLD レコードを改変し `Neon Core` を無効化するため、Phase 3 の Seamless Neon と致命的に衝突する。
+   - `City Interior Map Markers` は宇宙から直接内部セルへワープするため、Phase 3 の Grav Lanes / True Seamless Grav Jumps が提供するシームレスな星系間・軌道間航行体験を損なう。
+   - `Slightly Better Map Icons` はアイコン描画のみの変更であるため、Phase 3 のどの MOD とも一切衝突しない。
+4. **セーブデータ安全性と不可逆性**:
+   - `Remove Overlapping Markers For Cities`: **不可逆（セーブデータ汚染）**。削除後もマーカーが復活しないため絶対に使用してはならない。
+   - `City Interior Map Markers`: マーカー発見状態がセーブデータに残留する。
+   - `Slightly Better Map Icons`: **完全安全（セーブデータ非接触）**。
+
+---
+
+### 8.3 採用判定のまとめ
+
+| MOD | 監査結果 | 判定理由 |
+|---|---|---|
+| **Slightly Better Map Icons** | **採用** | 純粋なベクター UI アセット（GFX/SWF）。1.16.244 適合、StarUI HUD 互換、英語テキストなし、セーブ汚染ゼロ |
+| **City Interior Map Markers for Fast Travel** | **見送り（保留・非推奨）** | 1.15.216 の古いセル・ワールドスペース上書きによる先祖返りリスク、英語地名、Alternate Start とのクエスト干渉、没入感方針との不一致 |
+| **Remove Overlapping Markers For Cities** | **不採用（完全除外）** | 削除後もマーカーが復活しない不可逆なセーブ改変、Seamless Neon との WRLD 衝突、クエスト重要マーカー消失 |
+
+
 

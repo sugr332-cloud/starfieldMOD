@@ -24,6 +24,7 @@ Phase 1 のMODは `D:\StarfieldMODs\Phase1` に配置済み。ここでは、そ
 | 2. 表示/QoL | **Shades Glowy Stuff Terran Armada Fix** | [Nexus 17615](https://www.nexusmods.com/starfield/mods/17615) | Main 版（v1.0.2。Legendary/Exotic のみ光る Optional 版とは片方のみ） | Main | 導入済み Shades Glowy Stuff 1.5.2 用の修正。Anchorpoint（Terran Armada）で光らない問題、Astra・X-Tech・宇宙服等の発光を修正。ESM 追加と `_sgb_objectgloweffectscript.pex` の上書きあり。日本語化MODとの上書き関係は導入時に確認 |
 | 3. 武器 | ~~Weapon Mod Fixes - WMF~~ | [Nexus 9091](https://www.nexusmods.com/starfield/mods/9091) | （ダウンロード保留） | - | **採用見送り**: Nexus 最新版が pre-Free Lanes（v1.10）。1.16.244 未対応のため保留 |
 | 3. 武器 | **Weapon Quality Diversity** | [Nexus 17044](https://www.nexusmods.com/starfield/mods/17044) | `Weapon Quality Diversity` (v1.0) | Main | **採用**: `Shattered Space` と `Terran Armada` の両DLCが必須前提。ユーザーは両方所持（2026-10-09 確認） |
+| 2. 表示/QoL（マップ） | **Slightly Better Map Icons** | [Nexus 4813](https://www.nexusmods.com/starfield/mods/4813) | `XVII` (v17) | Main | **採用**: ルーズ UI ファイル（`mapicons.gfx`/`swf`）。StarUI HUD 併用可、テキストなし、セーブ汚染なし。※City Interior Map Markers（12719）は先祖返り・クエスト破壊リスクで見送り、Remove Overlapping Markers（15633）は不可逆なセーブ改変のため不採用 |
 
 ## Phase 2 — Ship Life
 
