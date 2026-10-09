@@ -656,7 +656,7 @@ Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで�
 
 1. 安定化: Starfield Engine Fixes - SFSE、Orbit Traffic Fix
 2. 表示/QoL: StarUI HUD、Decal Fix、Neutral LUTs、Easy Digipick
-3. 武器: Weapon Mod Fixes - WMF、Weapon Quality Diversity
+3. 武器: Weapon Mod Fixes - WMF、Weapon Quality Diversity — **保留**（2026-10-09 監査、`docs/MOD_COMPATIBILITY.md` 7章）。WMF は最新版 v1.10（2025-06）が Free Lanes 前のため 1.16.244 対応版の公開待ち。Weapon Quality Diversity は Shattered Space と Terran Armada の両DLCが必須で、Terran Armada の所持を確認中
 
 前提: 各MODのゲーム本体 1.16.244 対応版を使う。SFSE依存のもの（Engine Fixes）は SFSE 0.2.21 対応を確認する。
 

@@ -22,7 +22,7 @@ Phase 1 のMODは `D:\StarfieldMODs\Phase1` に配置済み。ここでは、そ
 | 2. 表示/QoL | **Neutral LUTs - No Color Filters** | [Nexus 323](https://www.nexusmods.com/starfield/mods/323) | `Neutral LUTs - No Color Filters v1-5` (v1.5) | Main | ルーズ DDS テクスチャ。他 LUT MOD とは併用不可 |
 | 2. 表示/QoL | **Easy Digipick (Lockpick)** | [Nexus 451](https://www.nexusmods.com/starfield/mods/451) | `Easy Digipick` (v1.4) | Main | `Easy Digipick.esm`（または好みに応じて Immersive Digipick） |
 | 3. 武器 | ~~Weapon Mod Fixes - WMF~~ | [Nexus 9091](https://www.nexusmods.com/starfield/mods/9091) | （ダウンロード保留） | - | **採用見送り**: Nexus 最新版が pre-Free Lanes（v1.10）。1.16.244 未対応のため保留 |
-| 3. 武器 | ~~Weapon Quality Diversity~~ | [Nexus 17044](https://www.nexusmods.com/starfield/mods/17044) | （ダウンロード除外） | - | **採用除外**: 未所持の `Terran Armada DLC` が必須前提のため導入不可 |
+| 3. 武器 | ~~Weapon Quality Diversity~~ | [Nexus 17044](https://www.nexusmods.com/starfield/mods/17044) | （ダウンロード保留） | - | **保留**: `Shattered Space` と `Terran Armada` の両DLCが必須前提（2026-10-09 Claude が Nexus で確認）。Terran Armada の所持をユーザーに確認中（Data の `SFBGS050.esm` が Terran Armada の可能性があり、10/04 の「未所持」判定を再確認する） |
 
 ## Phase 2 — Ship Life
 
