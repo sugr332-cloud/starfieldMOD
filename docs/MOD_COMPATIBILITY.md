@@ -192,3 +192,208 @@ SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
 - **Unofficial Starfield Patch (USFP):** 修正範囲が広く、個別修正MODとの上書き・機能重複を監査する負担が大きいため初期Stableには入れない。
 - これらは「悪いMOD」ではなく、**今回の競合回避・最小構成方針に合わないため除外**する。
 
+---
+
+## 7. Phase 1 仕上げ 8件の監査（2026-10-09）
+
+- **調査日**: 2026-10-09
+- **対象環境**: Starfield 1.16.244.0 (Steam) / SFSE 0.2.21 / `Stable-NoAI` プロファイル
+- **調査手法**: Orca 内蔵ブラウザ（`orca` CLI）による Nexus Mods 公開ページ（Description、Files、Posts、Requirements、Permissions）の直接閲覧および検証。
+
+### 7.1 8件の個別監査詳細
+
+#### 1. Starfield Engine Fixes - SFSE
+- **MOD ID / URL**: [Nexus 10457](https://www.nexusmods.com/starfield/mods/10457)
+- **正式名**: Starfield Engine Fixes - SFSE
+- **作者**: LarannKiar
+- **最新版 / 更新日**: v21.2 (2026-10-04)
+- **1.16.244 対応の根拠**:
+  - Files タブの Main File 名が `Starfield Engine Fixes - Game version 1.16.244`（v21.2、2026-10-04）。
+  - 説明文に「Supports Game version 1.16.244 (June 11 2026)」。
+  - 作者の固定投稿（Sticky）にて「v20.0 - 2026-06-13: Added support for Game version 1.16.244 (June 11 2026 update)」と明記。
+- **種別**: SFSE DLL プラグイン（`SFSE\Plugins\StarfieldEngineFixes.dll` + `StarfieldEngineFixes.ini`）。プラグイン（ESM/ESP）なし、BA2 なし。
+- **前提MOD**: SFSE（Nexus Requirements: Starfield Script Extender）。SFSE 0.2.21 に対応。Address Library は要求されない。
+- **非互換・推奨ロード順**: ESM がないためロード順なし。INI 設定の `AI Update Patch` は一部の AI MOD と相性問題が起きる可能性ありと記載。
+- **競合の可能性**:
+  - `Baka Achievement Enabler`: Baka は実績解除フックを担当。Engine Fixes にはセーブ名の `[C]` プレフィックスを非表示にする `Disable Save Mod Mark`（v6.2）があるが、実績解除フックそのものは含まれず競合しない。
+  - `Absolute HOTAS`: HOTAS は入力・操縦フックを担当。Engine Fixes の宇宙船カメラ修正（`Flight Camera On Free Look Exit fix`）は POV 復帰時のカメラ注視角リセットのみで、操縦入力とは干渉しない。
+  - `Real Fuel`（Phase 2）: Engine Fixes の INI 任意機能 `No Grav Jump Limit`（燃料・航続距離の制限撤廃）を有効化すると Real Fuel の設計と真っ向から衝突する。**必ず既定（無効: 0）のまま運用すること**。
+- **英語テキスト**: ゲーム内に追加されるテキストは基本的に皆無（純粋なエンジンバグ修正）。INI 設定ファイルが英語。
+- **Permissions**: 個人利用・設定変更に支障なし（無断再配布は禁止）。
+- **Creations版との関係**: SFSE DLL のため Nexus 専用。
+
+#### 2. Orbit Traffic Fix - Persistent Ship Traffic Manager Script Fix
+- **MOD ID / URL**: [Nexus 18325](https://www.nexusmods.com/starfield/mods/18325)
+- **正式名**: Orbit Traffic Fix - Persistent Ship Traffic Manager Script Fix
+- **作者**: dwnfdrknss
+- **最新版 / 更新日**: v1.0.0 (2026-09-26)
+- **1.16.244 対応の根拠**:
+  - 作者説明文の Credits に「Fix: Built against SQ_TrafficManagerScript from Starfield 1.16.244」と明記。
+  - 公開日が 2026-09-26 であり、1.16.244 環境でテスト済み。
+- **種別**:
+  - 形式A（推奨）: ルーズスクリプト（`Scripts/SQ_TrafficManagerScript.pex`、プラグインなし）。
+  - 形式B: ESM + BA2（`OrbitTrafficFix.esm` [Light Master] + `OrbitTrafficFix - Main.ba2`）。
+- **前提MOD**: バニラゲーム本体のみ（SFSE 不要）。
+- **非互換・推奨ロード順**:
+  - 非互換: `Interstellar Traffic`（Nexus 12509、同じ `SQ_TrafficManagerScript` を改変するため排他）。
+  - 互換: SFCP、USFP、交通量・船種追加 MOD と互換。
+  - 推奨形式: ルーズスクリプト版。プラグインスロットを消費せず、MO2 上でスクリプトの上書き衝突を即座に検知可能。
+- **競合の可能性**: 既存 MOD（INSTALL_GUIDE 2章）および他7件で `SQ_TrafficManagerScript` を触るものは皆無。競合なし。
+- **英語テキスト**: なし（バックグラウンドで周回するゴーストタイマーの停止ロジックのみ。UI・ダイアログ・通知なし）。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: MO2 管理のため Nexus 版を使用。
+
+#### 3. StarUI HUD
+- **MOD ID / URL**: [Nexus 3444](https://www.nexusmods.com/starfield/mods/3444)
+- **正式名**: StarUI HUD
+- **作者**: m8r98a4f2
+- **最新版 / 更新日**: v1.4 (2026-09-06)
+- **1.16.244 対応の根拠**: 2026-09-06 に v1.4 が公開され、Free Lanes / 1.16.244 環境で動作確認済み。
+- **種別**: ルーズ UI ファイル（`Interface/hudmenu.gfx`, `Interface/hudrolloverwidget.gfx`, `.swf`, `.ini` 等）。ESM/ESP なし、SFSE DLL なし。
+- **前提MOD**: Archive Invalidation（`bInvalidateOlderFiles=1`）。SFSE 不要。
+- **非互換・推奨ロード順**:
+  - 同じ HUD ファイル（`hudmenu.gfx` 等）を変更する他の HUD MOD と排他。
+  - 将来のインベントリ UI 候補（AstralUI / StarUI Inventory / PraxisUI）との関係:
+    - `StarUI Inventory` / `PraxisUI`: 主に `inventorymenu.gfx` / `containermenu.gfx` を変更するため、StarUI HUD（探索 HUD / ロールオーバー UI）とは競合せず併用可能。
+    - `AstralUI`: インベントリ・コンテナに加え Quick Loot（`hudrolloverwidget.gfx`）を含む場合がある。AstralUI 併用時は Quick Loot モジュールを除外するか、MO2 左ペインで StarUI HUD を下位（優先度高）に配置して StarUI HUD 側を優先させる。
+- **競合の可能性**: 既存 MOD 中に UI GFX ファイルを変更するものはなし。競合なし。
+- **英語テキスト**:
+  - UI 項目（DPS、V/W、タグアイコン等）。
+  - 本 MOD（v1.4）には日本語用のアイテムソート辞書 `Interface/ItemSorter/NamesIndex_ja.swf` が標準同梱されている。
+  - テキスト翻訳は `Interface/Translation/StarUI_HUD_en.txt`（724 bytes）で管理されており、日本語化ファイル（`StarUI_HUD_ja.txt`）の適用またはローカル翻訳が極めて容易。
+- **Permissions**: 作者が翻訳パッチの作成条件を明記（`Interface\Translation\StarUI_HUD_[LanguageCode].txt` の同梱を許可、元 MOD 必須）。非公開の個人利用にも一切支障なし。
+- **Creations版との関係**: Nexus 版を使用。
+
+#### 4. Decal Fix
+- **MOD ID / URL**: [Nexus 17576](https://www.nexusmods.com/starfield/mods/17576)
+- **正式名**: Decal Fix
+- **作者**: MelodicJJ
+- **最新版 / 更新日**: v2.1 (Loose: 2026-07-24) / v2 (Packaged: 2026-07-24)
+- **1.16.244 対応の根拠**: 2026-06-26 初版公開、2026-07-24 更新（1.16.244 リリース後）。バニラ由来の未表示デカールパターンの修正。
+- **種別**:
+  - Packaged 版: `DecalFix.esm` (Light Master / 97 bytes) + `DecalFix - Main.ba2` (79.5 KB)。ESM は BA2 読み込み用ダミーでレコード改変なし。
+  - Loose 版: ルーズテクスチャ/メッシュ (17 KB)。
+- **前提MOD**: なし（バニラ本体のみ）。
+- **非互換・推奨ロード順**: 非互換なし。レコード変更がないためロード順任意。
+- **競合の可能性**:
+  - 既存 MOD との競合なし。
+  - Starfield Engine Fixes の #41「Actor Decal fix」（DLL 側の弾痕デカール浮遊バグ修正）とは対象が異なり（本 MOD はワールドデカールパターンのアセット修正）、相互に干渉せず共存可能。
+- **英語テキスト**: なし（純粋なアセット修正）。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: Nexus 版を使用。
+
+#### 5. Neutral LUTs - No Color Filters
+- **MOD ID / URL**: [Nexus 323](https://www.nexusmods.com/starfield/mods/323)
+- **正式名**: Neutral LUTs - No Color Filters
+- **作者**: fadingsignal
+- **最新版 / 更新日**: v1.5 (2024-10-03)
+- **1.16.244 対応の根拠**: 静的 DDS テクスチャ（`textures/effects/LUTs/*.dds`）のルーズファイル差し替え。実行ファイルのバージョンに依存せず、1.16.244 でも完全動作。
+- **種別**: ルーズテクスチャ（DDS）。プラグインなし、SFSE DLL なし。
+- **前提MOD**: Archive Invalidation。
+- **非互換・推奨ロード順**:
+  - 他の LUT 差し替え MOD（Native Light LUT Overhaul 等）と排他。1系統のみ有効化する。
+  - ReShade / Phase 3 Seamless Loading Screens との関係:
+    - 作者自身が「This works especially good as a base for a ReShade preset.」と明記。
+    - Seamless Loading Screens は ReShade 6.8.0+ のアドオン機能でロード画面を隠すものであり、LUT との競合・干渉は皆無。
+  - Luma（Native HDR）との関係: 将来 Luma を導入する場合は LUT 処理との重複を確認する必要があるが、現在の `Stable-NoAI` には含まれないため問題なし。
+- **競合の可能性**: 既存 MOD とのファイル衝突なし。
+- **英語テキスト**: なし（純粋な画像テクスチャ）。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: Nexus 版を使用。
+
+#### 6. Easy Digipick (Lockpick)
+- **MOD ID / URL**: [Nexus 451](https://www.nexusmods.com/starfield/mods/451)
+- **正式名**: Easy Digipick (Lockpick)
+- **作者**: Ixion XVII (IxionXVII)
+- **最新版 / 更新日**: v1.4 (2026-04-29)
+- **1.16.244 対応の根拠**:
+  - Posts タブにて 2026-06-14「it's working with the latest patch」、2026-06-25「The latest version confirms that this mod still works」、2026-07-06「It still works」と、1.16.244 環境での動作が複数報告されている。
+- **種別**: ESM プラグイン（`Easy Digipick.esm`、Small / Light Master）。※初期の bat / CCR 方式から v1.4 で ESM 方式へ刷新済み。
+- **前提MOD**: なし（SFSE 不要）。
+- **非互換・推奨ロード順**: デジピックのミニゲームルールを変更する他 MOD と排他。`plugins.txt` のゲームプレイ調整枠に配置。
+- **競合の可能性**: 既存 MOD および他7件との競合なし。セキュリティスキルのパーク要求判定はバニラ通り維持される。
+- **英語テキスト**: なし（パズル生成アルゴリズムのパラメータ変更のみで、UI 文字列・Perk 名・通知メッセージの追加・改変なし）。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: Nexus 版を使用（MO2 で管理）。
+
+#### 7. Weapon Mod Fixes - WMF
+- **MOD ID / URL**: [Nexus 9091](https://www.nexusmods.com/starfield/mods/9091)
+- **正式名**: Weapon Mod Fixes - WMF
+- **作者**: frogs345
+- **最新版 / 更新日**: v1.10 (2025-06-19)
+- **1.16.244 対応の根拠**: **【未対応・重大な懸念】**
+  - Nexus の最新版は 2025-06-19 の v1.10 のまま更新されていない。
+  - 作者 frogs345 自身が 2026-04-14 および 2026-05-16 の Posts で以下のように明言:
+    > "I'm definitely planning on updating this with support for Free Lanes... I'm just waiting for xEdit to update, as that's going to make it a lot easier to make the changes I need, particularly with the changes around legendary and quality crafting."
+    > "I'm using the p version, but that doesn't properly support the Free Lanes update yet, particularly when it comes to weapons. The changes around quality upgrades and legendary crafting/rolling means that a number of records related to weapons either don't work in xEdit, or really shouldn't be edited in xEdit."
+  - Starfield 1.16.244（Free Lanes アップデート以降）では武器品質（Tier 5/6）やレジェンダリクラフトに関する内部レコード構造が変更されているが、Nexus 公開版（v1.10）はこれらより前のデータ構造を上書き（Override）してしまう。
+- **種別**: ESM + BA2（`WeaponModFixes.esm` + BA2 2種 + オプション ESM 群）。
+- **前提MOD**: バニラ本体。
+- **非互換・推奨ロード順**: 武器ホルスター機能は武器レコードを変更する他 MOD と手動パッチが必要。
+- **競合の可能性**: 1.16.244 のバニラ武器レコード・武器 MOD（OMOD）レコードを pre-Free Lanes の値で上書きし、Free Lanes の武器機能やクラフトを巻き戻す危険性あり。
+- **英語テキスト**: 武器モジュール名、説明文などに大量の英語テキストあり（日本語化必須）。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: Nexus 版。
+- **総合判定**: **採用見送り・保留**。作者による Free Lanes / 1.16.244 対応版のリリースを待つべきである。
+
+#### 8. Weapon Quality Diversity
+- **MOD ID / URL**: [Nexus 17044](https://www.nexusmods.com/starfield/mods/17044)
+- **正式名**: Weapon Quality Diversity
+- **作者**: Kilonova24
+- **最新版 / 更新日**: v1.0 (2026-05-12)
+- **1.16.244 対応の根拠**: 2026-05-12 公開。Free Lanes で追加された Tier 5（Superior）/ Tier 6（Exceptional）および X-Tech クラフトに対応。
+- **種別**: ESM（`Weapon Quality Diversity.esm`、Small Master / Medium）。
+- **前提MOD**: **【致命的ブロッカー】**
+  - Nexus の Requirements に **`Shattered Space DLC`** および **`Terran Armada DLC`** が必須指定されている。
+  - 本プロジェクトの環境（`docs/agy/reports/phase1-extras-01.md`、`docs/MOD_AUDIT.md` で実機確認済み）では `ShatteredSpace.esm` は所持しているが、**`Terran Armada DLC` は未所持**である。
+  - 必須マスターが欠落しているため、有効化するとゲーム起動時に即座にクラッシュ（Missing Master CTD）する。
+- **非互換・推奨ロード順**:
+  - `Weapon Quality Tier Fix` と完全排他（作者明記）。
+  - 武器のステータスや Tier を変更する全 MOD と競合。
+- **競合の可能性**: WMF とも同一の武器レコード（Quality_TiersAny 等）を変更するため直接競合する。
+- **英語テキスト**: 武器 Tier 配分に関するレコード変更。
+- **Permissions**: 個人利用に支障なし。
+- **Creations版との関係**: Nexus 版。
+- **総合判定**: **採用見送り・除外**。本環境に `Terran Armada DLC` が導入されない限り、物理的にロード不能。
+
+---
+
+### 7.2 重点監査項目のまとめ
+
+1. **StarUI HUD と将来のインベントリ UI（AstralUI / StarUI Inventory / PraxisUI）の組み合わせ**:
+   - StarUI HUD は HUD・照準・クイックルート窓（`hudrolloverwidget.gfx`）を担当する。
+   - `StarUI Inventory` / `PraxisUI` はインベントリ画面等を担当するため、UI 担当範囲が完全に分離しており衝突しない。
+   - `AstralUI` を選択する場合、Quick Loot モジュールを無効化するか、MO2 で StarUI HUD を優先させることで安全に共存可能。
+2. **Neutral LUTs の排他・共存条件**:
+   - 他の LUT テクスチャ差し替え MOD とは完全排他（1系統のみ）。
+   - Phase 3 の `Seamless Loading Screens`（ReShade 6.8.0+ 前提）とは競合しない（作者も ReShade のベースとして推奨）。
+   - Luma（HDR）導入時は LUT 処理との重複を監査する必要があるが、現構成では導入しないため問題なし。
+3. **武器系 2 件の相互関係と問題点**:
+   - `Weapon Quality Diversity`: `Terran Armada DLC` 未所持のため導入不可（CTD ブロッカー）。
+   - `Weapon Mod Fixes - WMF`: 2025 年 6 月の v1.10 のままであり、1.16.244 / Free Lanes の武器品質・レジェンダリクラフト変更に対応した更新が未リリース。バニラ最新レコードの破壊リスクがあるため保留。
+4. **Starfield Engine Fixes - SFSE の機能と既存 DLL との共存**:
+   - 既定のエンジン修正（表情リセット、デカール浮遊、マップマーカー消失、CTD 回避など 40 件以上）は安全に機能。
+   - `Baka Achievement Enabler`、`Absolute HOTAS` とのフック衝突なし。
+   - INI 設定の `No Grav Jump Limit`（燃料無限化）は Phase 2 の `Real Fuel` を無効化してしまうため、既定値（0 = 無効）のまま維持することが必須。
+
+---
+
+### 7.3 採用判定とグループ構成の改編案
+
+事前監査の結果、MOD_SPEC 10.1章で計画された 8 件のうち、**6 件が安全に導入可能、2 件が導入見送り**と判定された。
+
+| 当初グループ | MOD | 監査結果 | 判定理由 |
+|---|---|---|---|
+| **1. 安定化** | Starfield Engine Fixes - SFSE | **採用** | 1.16.244 / SFSE 0.2.21 完全対応（v21.2）。既存 DLL との競合なし |
+| **1. 安定化** | Orbit Traffic Fix | **採用** | 1.16.244 のスクリプトからビルド（v1.0.0）。ルーズ版推奨 |
+| **2. 表示/QoL** | StarUI HUD | **採用** | 1.16.244 適合（v1.4）。日本語ソート swf 同梱、UI 競合なし |
+| **2. 表示/QoL** | Decal Fix | **採用** | 1.16.244 適合（v2/v2.1）。純粋なアセット修正で無害 |
+| **2. 表示/QoL** | Neutral LUTs | **採用** | ルーズ DDS。1.16.244 適合、ReShade 併用問題なし |
+| **2. 表示/QoL** | Easy Digipick | **採用** | 1.16.244 動作確認済み（v1.4 ESM）。UI 英語化なし |
+| **3. 武器** | Weapon Mod Fixes - WMF | **見送り（保留）** | pre-Free Lanes 版（v1.10）のままであり、1.16.244 の新武器仕様と不整合 |
+| **3. 武器** | Weapon Quality Diversity | **見送り（除外）** | 未所持の `Terran Armada DLC` が必須前提のためロード時 CTD となる |
+
+**推奨実施手順**:
+Phase 1 仕上げの実機導入は、グループ 1（安定化 2 件）およびグループ 2（表示/QoL 4 件）の計 6 件に絞って進め、グループ 3（武器）はスキップすることを提案する。
+
+

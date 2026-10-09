@@ -9,6 +9,21 @@ Phase 1 のMODは `D:\StarfieldMODs\Phase1` に配置済み。ここでは、そ
 - Nexus のダウンロードはユーザー本人のログインが必要。agy・Claude は代行しない
 - バージョンは、ダウンロード時点の最新版でよい。導入時に agy が対応状況を確認する
 
+## Phase 1 仕上げ
+
+2026-10-09 の事前監査（`docs/MOD_COMPATIBILITY.md` 7章）に基づくダウンロード一覧。ゲーム本体 1.16.244.0 / SFSE 0.2.21 環境を対象とする。
+
+| グループ | MOD | 入手先 | ダウンロード対象ファイル | 区分 | 備考 |
+|---|---|---|---|---|---|
+| 1. 安定化 | **Starfield Engine Fixes - SFSE** | [Nexus 10457](https://www.nexusmods.com/starfield/mods/10457) | `Starfield Engine Fixes - Game version 1.16.244` (v21.2) | Main | SFSE 0.2.21 必須。INI 調整で任意機能は必要最小限に運用 |
+| 1. 安定化 | **Orbit Traffic Fix** | [Nexus 18325](https://www.nexusmods.com/starfield/mods/18325) | `OrbitTrafficFix 1.0.0` または `OrbitTrafficFix 1.0.0 ESM` | Main | MO2 での競合検知が容易なルーズ版（`OrbitTrafficFix 1.0.0`）を推奨（どちらか片方のみ） |
+| 2. 表示/QoL | **StarUI HUD** | [Nexus 3444](https://www.nexusmods.com/starfield/mods/3444) | `StarUI HUD` (v1.4) | Main | ルーズ UI ファイル。日本語ソート用 swf 同梱 |
+| 2. 表示/QoL | **Decal Fix** | [Nexus 17576](https://www.nexusmods.com/starfield/mods/17576) | `DecalFix-PackagedVersion-esm` (v2) または `DecalFix-LooseFiles` (v2.1) | Main / Optional | BA2 パッケージ版（Main）またはルーズ版（Optional）のどちらか片方 |
+| 2. 表示/QoL | **Neutral LUTs - No Color Filters** | [Nexus 323](https://www.nexusmods.com/starfield/mods/323) | `Neutral LUTs - No Color Filters v1-5` (v1.5) | Main | ルーズ DDS テクスチャ。他 LUT MOD とは併用不可 |
+| 2. 表示/QoL | **Easy Digipick (Lockpick)** | [Nexus 451](https://www.nexusmods.com/starfield/mods/451) | `Easy Digipick` (v1.4) | Main | `Easy Digipick.esm`（または好みに応じて Immersive Digipick） |
+| 3. 武器 | ~~Weapon Mod Fixes - WMF~~ | [Nexus 9091](https://www.nexusmods.com/starfield/mods/9091) | （ダウンロード保留） | - | **採用見送り**: Nexus 最新版が pre-Free Lanes（v1.10）。1.16.244 未対応のため保留 |
+| 3. 武器 | ~~Weapon Quality Diversity~~ | [Nexus 17044](https://www.nexusmods.com/starfield/mods/17044) | （ダウンロード除外） | - | **採用除外**: 未所持の `Terran Armada DLC` が必須前提のため導入不可 |
+
 ## Phase 2 — Ship Life
 
 | MOD | 入手先 | 備考 |
