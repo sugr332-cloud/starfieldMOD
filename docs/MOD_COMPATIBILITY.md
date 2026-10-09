@@ -19,7 +19,7 @@
 | **全SFSEプラグイン × ゲーム本体バージョン** | **HIGH** | ゲーム本体（`Starfield.exe`）の更新によりメモリアドレスが変化し、未対応DLLが起動時CTDを引き起こす。 | [SFSE公式](https://sfse.silverlock.org/) | ゲームバージョン `1.16.244` に対応したSFSE 0.2.21および各プラグインのみを使用。本体更新時は起動停止。 |
 | **Seamless Neon（ワールドスペース改変）** | **HIGH** | ネオン内部セルを外部ワールドスペースへ統合。作者は途中導入で一部のクエストが壊れると警告。 | [Nexus ID: 17340 (作者説明)](https://www.nexusmods.com/starfield/mods/17340) | **New Game または NG+ (Unity jump) が前提**。作者が非互換と明記する大型Neon改変MOD（Seamless City Interiors、Neon Core Disguised Seamless Project、Neon Core Apartment、Kansha - Neon Apartment、The Dark Side of Neon 等）と排他。SFBGS00D.esm（2026年4月以降のゲームバージョン）必須。 |
 | **Grav Lanes の非互換MOD** | **HIGH** | Grav Lanes は Immersive Grav Jumps と非互換（競合）。 | [Nexus ID: 16438 (作者説明)](https://www.nexusmods.com/starfield/mods/16438) | Immersive Grav Jumps は導入しない。 |
-| **Civil NPCs × AISS** | **LOW** | Civil NPCs は GMST（ゲーム設定値8項目）の調整のみでスクリプトなし。AISS の会話開始に干渉せず共存。 | [Nexus ID: 17292](https://www.nexusmods.com/starfield/mods/17292), [Nexus ID: 17392](https://www.nexusmods.com/starfield/mods/17392) | 競合なし。共存可能。 |
+| **Civil NPCs × AISS**（※AISS取りやめ・参考） | **LOW** | Civil NPCs は GMST（ゲーム設定値8項目）の調整のみでスクリプトなし。AISS の会話開始に干渉せず共存。 | [Nexus ID: 17292](https://www.nexusmods.com/starfield/mods/17292), [Nexus ID: 17392](https://www.nexusmods.com/starfield/mods/17392) | 競合なし。共存可能。 |
 | **Roleplayers' Alternate Start × 他の Alternate Start 系** | **CRITICAL** | 同一のニューゲーム開始処理・Unity 開始処理をフックするため完全排他。 | [Nexus ID: 15094 (作者説明)](https://www.nexusmods.com/starfield/mods/15094) | 他の Alternate Start 系 MOD（有料/無料問わず）は一切導入しない。IgnusT 作「Starborn Trait」とも非互換のため除外。 |
 
 ---
@@ -66,13 +66,19 @@
 - **検証計画**: Phase 4 で Seamless Planet Takeoffs を追加する際、離陸遷移を重点的に検証する。必要なら Seamless Loading Screens 側で離陸遷移を無効化できる設定があるかを確認する。
 - 〔2026-10-03 Claudeレビューで追加〕
 
-### 3.5 AISS UI の日本語表示・IME入力
+### 3.5 AISS UI の日本語表示・IME入力（※取りやめ・参考）
+> [!NOTE]
+> **2026-10-05 に AI 会話（AISS）を取りやめ**。この節は再開時の参考として残しており、現在は検証しない。
+
 - **推測される懸念**:
   - AISS のカスタムSWFが日本語フォントグリフを正しく描画できるか、DirectX 12排他フルスクリーン下で日本語IMEが直接入力できるかについて。
   - 公開ドキュメントに確証がなく、**未確認の推測**である。
 - **検証計画**: Phase 1 の実機テストで検証し、表示不良時はフォント設定、入力不能時はボーダーレスウィンドウや貼り付け等の代替手段を検証する。
 
-### 3.6 Roleplayers' Alternate Start × AISS（AI 会話）の相互作用
+### 3.6 Roleplayers' Alternate Start × AISS（AI 会話）の相互作用（※取りやめ・参考）
+> [!NOTE]
+> **2026-10-05 に AI 会話（AISS）を取りやめ**。この節は再開時の参考として残しており、現在は検証しない。
+
 - **推測される懸念**:
   - Roleplayers' Alternate Start はバニラの初期クエスト「One Small Step」をスキップし、アーティファクト取得やロッジ導入クエストを独自のフックに置き換える。
   - AISS の NPC 会話フックや会話要求（`latest_request.ini`）が、代替スタート後の NPC（バレット、サラ等）で正常に機能するかについて。

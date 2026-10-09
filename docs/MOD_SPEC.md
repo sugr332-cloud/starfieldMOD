@@ -1,9 +1,9 @@
 # Starfield Space Life JP — MODパッケージ実装仕様書
 
-**Status:** Phase 0 完了 / Phase 1 準備  
-**Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS / LM Studio local LLM（密な12B級）  
-**Version:** 0.9  
-**Date:** 2026-10-07
+**Status:** Phase 1 完了（`Stable-NoAI` で運用中）/ Phase 1 仕上げ準備  
+**Target:** Windows / Starfield（FHD）/ RX 9070 16GB / X52 HOTAS（AI会話・ローカルLLMは2026-10-05に取りやめ）  
+**Version:** 0.10  
+**Date:** 2026-10-09
 
 ## 1. 目的
 
@@ -20,9 +20,9 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 8. MOD本体を無断再配布せず、構成・設定・日本語化・検証情報を管理する。
 9. AI会話に無料（ローカル優先）の日本語AI音声（TTS）を付ける。（※2026-10-05 にユーザーの判断で取りやめ）
 
-## 1.1 確認済みの実行環境（Phase 0監査、2026-10-03）
+## 1.1 確認済みの実行環境（Phase 0監査 2026-10-03、実機再確認 2026-10-09）
 
-詳細は `docs/MOD_AUDIT.md` 1章。
+詳細は `docs/MOD_AUDIT.md` 1章、2026-10-09 の実機確認は `docs/agy/reports/phase1-cleanup-01.md`。
 
 | 項目 | 値 |
 |---|---|
@@ -30,11 +30,11 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 | CPU | Ryzen 7 7800X3D |
 | RAM | 32GB |
 | GPU | Radeon RX 9070 16GB |
-| Starfield | Steam版。**1.16.244.0（ダウンロード中の一時ファイルから取得した暫定値。インストール完了後に再確認）** |
-| SFSE | 未導入 |
-| Mod Organizer 2 | 2.5.2 導入済み。Starfield用インスタンスは未作成 |
-| LM Studio | 0.4.25 導入済み。**Gemma 4 12Bは未ダウンロード** |
-| AISS | 未入手 |
+| Starfield | Steam版 1.16.244.0（2026-10-09 実機で確定） |
+| SFSE | 0.2.21（sfse_1_16_244.dll）導入済み |
+| Mod Organizer 2 | 2.5.2。Starfield用インスタンス作成済み。プロファイル: `Stable-NoAI`（標準）/ `Stable`（AISS有効・休止中）/ `Test-NoAltStart`（フリーズ切り分け用） |
+| LM Studio | 0.4.25 導入済み。2026-10-05 取りやめ（停止・自動起動なし。アンインストールはしていない） |
+| AISS | v3.75 導入済み。`Stable-NoAI` では無効（`Stable` のみ有効） |
 
 ## 2. 基本原則
 
@@ -45,10 +45,10 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 - 実験的MODはStableから分離する。
 - MOD、Starfield、依存MODのバージョンを記録する。
 - 日本語化はプレイヤーが頻繁に見るテキストを優先する。
-- LLM生成会話は日本語出力を要件とする。
-- AISS + LM StudioをAI基盤候補とする。
-- 各フェーズで起動・セーブ・ロード・会話・移動を検証する。
-- Starfield本体のバージョンを固定する（基準: インストール完了後に確認したバージョン。暫定1.16.244）。SFSEプラグイン（DLL）は本体更新で動かなくなるため、本体更新はSFSE・Address Library・各SFSEプラグインの対応を確認してから行う。
+- LLM生成会話は日本語出力を要件とする。（※AI会話は2026-10-05に取りやめ。再開する場合の要件として保持）
+- AISS + LM StudioをAI基盤候補とする。（※2026-10-05に取りやめ）
+- 各フェーズで起動・セーブ・ロード・会話（バニラ会話）・移動を検証する。
+- Starfield本体のバージョンを固定する（基準: 1.16.244。2026-10-09 実機で確認）。SFSEプラグイン（DLL）は本体更新で動かなくなるため、本体更新はSFSE・Address Library・各SFSEプラグインの対応を確認してから行う。
 - 各フェーズの開始前にセーブデータをバックアップする。スクリプト系MOD（AISS等）は途中で外すとセーブが壊れる可能性があるため、検証は専用のテスト用セーブで行う。
 
 ## 3. 採用候補
@@ -59,8 +59,8 @@ Starfieldを「宇宙船で移動し、船内で生活し、NPCと会話し、�
 |---|---|---|
 | SFSE | スクリプト/プラグイン基盤 | 必須 |
 | Address Library for SFSE Plugins | SFSE依存 | 必須 |
-| Cassiopeia Papyrus Extender | AISS依存 | 必須候補 |
-| Longer Names v2 | AISS依存 | 必須候補 |
+| Cassiopeia Papyrus Extender | AISS依存 | `Stable`（AISS）専用。`Stable-NoAI` では無効化する（2026-10-09 決定。AISS以外に依存MODなし） |
+| Longer Names v2 | AISS依存 | `Stable`（AISS）専用。`Stable-NoAI` では無効化する（2026-10-09 決定。AISS以外に依存MODなし） |
 | AISS - AI Settled Systems | AI NPC | 取りやめ（2026-10-05。ファイルは保持、再開可能） |
 | LM Studio | ローカルLLM（標準モデル: Gemma 4 12B QAT） | 取りやめ（2026-10-05。ファイルは保持、再開可能） |
 | AivisSpeech Engine（他TTS候補は5.1） | 無料ローカルTTS | 取りやめ（2026-10-05） |
@@ -193,12 +193,12 @@ Seamless Neonは、作者が非互換と明記する大型のNeon改変MOD（Sea
 
 Seamless Loading Screensは離陸時の遷移にも作用し、Seamless Planet Takeoffsと同じ遷移に作用する可能性がある。Phase 4で重点的に検証する。
 
-### AISS
+### AISS（※2026-10-05 取りやめ。再開時のルールとして保持）
 
 AISSの旧版、旧backend、旧config、旧パッチを混在させない。
 同時に複数backend/configを有効化しない。
 
-### TTS
+### TTS（※2026-10-05 取りやめ。再開時のルールとして保持）
 
 TTSエンジン/ブリッジは同時に1系統のみ有効化する。
 AISSのTTS設定（ElevenLabs / Fish Audio / ローカルブリッジ）は1つだけを有効にする。
@@ -469,26 +469,43 @@ SFSE/Address Library等の基盤MODや、新規プレイヤー向けテキスト
 
 ## 7. MO2プロファイル
 
+### プロファイルの使い分け（2026-10-09 時点）
+
+| プロファイル | 用途 |
+|---|---|
+| `Stable-NoAI` | **標準**。AIなしで遊ぶ構成。以下の「Stable」はこのプロファイルを指す |
+| `Stable` | AISS有効の構成。2026-10-05 から休止中（再開用に保持） |
+| `Test-NoAltStart` | ニューゲーム直後フリーズの切り分け用（`docs/TEST_CRASH.md`）。10/04 以降フリーズは再発していない |
+
 ### Stable
 
 Stableはフェーズの検証合格ごとに段階的に増やす。各MODを導入するフェーズは次のとおり。
 
-| MOD | 導入フェーズ |
-|---|---|
-| SFSE | Phase 1 |
-| Address Library for SFSE Plugins | Phase 1 |
-| Cassiopeia Papyrus Extender | Phase 1 |
-| Longer Names v2 | Phase 1 |
-| AISS | Phase 1 |
-| Absolute HOTAS | Phase 1 |
-| Roleplayers' Alternate Start | Phase 1 |
-| Civil NPCs | Phase 2 |
-| Ship Crew Assignments | Phase 2 |
-| Real Fuel | Phase 2 |
+| MOD | 導入フェーズ | `Stable-NoAI` |
+|---|---|---|
+| SFSE | Phase 1 | 導入済み |
+| Address Library for SFSE Plugins | Phase 1 | 有効 |
+| Cassiopeia Papyrus Extender | Phase 1 | 無効化予定（AISS専用） |
+| Longer Names v2 | Phase 1 | 無効化予定（AISS専用） |
+| AISS（+ Japanese Language Addon） | Phase 1 | 無効（取りやめ） |
+| Absolute HOTAS | Phase 1 | 有効 |
+| Roleplayers' Alternate Start | Phase 1 | 有効 |
+| Shades Glowy Stuff（+日本語化） | Phase 1 追加 | 有効 |
+| Baka Achievement Enabler | Phase 1 追加 | 有効 |
+| Furnish Your Fleet（+日本語化） | Phase 1 追加 | 有効 |
+| Better Living - Outpost Decor（+日本語化） | Phase 1 追加 | 有効 |
+| Betamax's Functional Decor（+日本語化） | Phase 1 追加 | 有効 |
+| Starfield Engine Fixes - SFSE | Phase 1 仕上げ | 未導入 |
+| Orbit Traffic Fix | Phase 1 仕上げ | 未導入 |
+| StarUI HUD / Decal Fix / Neutral LUTs / Easy Digipick | Phase 1 仕上げ | 未導入 |
+| Weapon Mod Fixes - WMF / Weapon Quality Diversity | Phase 1 仕上げ | 未導入 |
+| Civil NPCs | Phase 2 | 未導入 |
+| Ship Crew Assignments | Phase 2 | 未導入 |
+| Real Fuel | Phase 2 | 未導入 |
 
-TTS（Phase 1.5）はStableに含めず、Phase 1.5の検証合格後にStableへ追加するかをユーザーが判断する。検証中はStableプロファイル + TTS有効設定で試験する。
+TTS（Phase 1.5）は取りやめ（2026-10-05）。
 
-### 外部プロセス（MO2のMODではない）
+### 外部プロセス（MO2のMODではない）（※2026-10-05 取りやめ。`Stable-NoAI` では外部プロセスを使わない）
 
 以下はMO2のプロファイルに入れるMODではなく、ゲームと並行して起動する外部プログラムとして管理する。起動順と設定は `docs/CONFIG_GUIDE.md` に記録する。
 
@@ -610,29 +627,38 @@ Phase 1の前に、ユーザーが以下を行う（agyはダウンロード・�
 
 Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで構築する（7章の表）。
 
+状態: **完了**（`Stable-NoAI` で運用中）。AI関連の項目は 2026-10-05 の取りやめにより実施しない（`docs/TEST_PHASE1.md` ではスキップ扱い）。
+
 導入:
 - SFSE
 - Address Library for SFSE Plugins
-- Cassiopeia Papyrus Extender
-- Longer Names v2
-- AISS
+- Cassiopeia Papyrus Extender（AISS依存。`Stable-NoAI` では無効化予定）
+- Longer Names v2（AISS依存。`Stable-NoAI` では無効化予定）
+- ~~AISS~~（取りやめ）
 - Absolute HOTAS
-- 外部プロセス: LM Studio、AISS_Backend.exe
+- Roleplayers' Alternate Start
+- ~~外部プロセス: LM Studio、AISS_Backend.exe~~（取りやめ）
 
 テスト:
 - Starfield起動
 - SFSE起動
 - 新規ゲーム
 - 既存セーブロード
-- NPC会話
-- AISS起動
-- LM Studio接続
-- 日本語AI会話（5章のテスト条件。日本語IME入力・日本語表示を含む）
+- NPC会話（バニラ）
 - HOTAS入力
-- VRAM・性能の計測（5.2）
-- LLMモデル比較（5章の評価項目）
+- ~~AISS起動 / LM Studio接続 / 日本語AI会話 / VRAM・性能の計測（5.2）/ LLMモデル比較~~（取りやめ）
 
 成果物: `docs/TEST_PHASE1.md`
+
+## 10.1 Phase 1 仕上げ — Stability / QoL / Weapons
+
+3章で採用候補とした未導入MODを、次の順に1グループずつ `Stable-NoAI` へ追加する。各グループの後に、起動・既存セーブのロード・セーブ・惑星着陸/離陸・Grav Jumpを確認する。
+
+1. 安定化: Starfield Engine Fixes - SFSE、Orbit Traffic Fix
+2. 表示/QoL: StarUI HUD、Decal Fix、Neutral LUTs、Easy Digipick
+3. 武器: Weapon Mod Fixes - WMF、Weapon Quality Diversity
+
+前提: 各MODのゲーム本体 1.16.244 対応版を使う。SFSE依存のもの（Engine Fixes）は SFSE 0.2.21 対応を確認する。
 
 ## 10.5 Phase 1.5 — AI Voice（無料TTS）（※取りやめ）
 
@@ -662,7 +688,7 @@ Stableプロファイルのうち、導入フェーズがPhase 1のMODだけで�
 - Real Fuel
 
 テスト:
-- NPCの挙動（Civil NPCs）とAISS会話が両立するか
+- NPCの挙動（Civil NPCs）と既存MOD（Roleplayers' Alternate Start、家具系）の干渉がないか
 - クルー配置
 - クルー行動
 - 船内移動

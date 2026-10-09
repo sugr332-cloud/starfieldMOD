@@ -36,7 +36,11 @@
 
 ---
 
-## 2. AISS（AI Settled Systems）の日本語化とUI対応
+## 2. AISS（AI Settled Systems）の日本語化とUI対応（※取りやめ・参考）
+
+> [!NOTE]
+> **2026-10-05 に AI 会話（AISS）を取りやめ**。この節は再開時の参考として残しており、現在は検証しない。
+
 
 ### 2.1 会話テキストの日本語化（LLMプロンプト制御）
 - AISS は NPC の発言生成を LM Studio（ローカルLLM）に委譲している。
@@ -84,10 +88,10 @@ Phase 1 で導入した MOD のうち、プレイヤーがゲーム内で目に�
 
 | 優先度 | MOD名 | 該当箇所 / 画面 | プレイヤーが目にする英語テキスト例 | 規模 |
 |---|---|---|---|---|
-| **S** | **AISS - AI Settled Systems** | ダイアログ選択肢 | `Chat with AISS - [NPC名]` | 約50項目 |
-| **S** | **AISS - AI Settled Systems** | HUD通知（画面右上） | `AISS REQUEST SENT TO [NPC名].`<br>`AISS: [NPC名] response ready; TTS playing.`<br>`AISS NPC set: [NPC名]` | 約20〜30文 |
-| **S** | **AISS - AI Settled Systems** | ポップアップ / エラー | `AISS is waiting for the backend response.`<br>`AISS Backend unreachable.` | 約10〜15文 |
-| **S** | **AISS - AI Settled Systems** | インベントリアイテム | AISS Setup アイテム名・説明文・初期化完了メッセージ | 約5〜10文 |
+| ~~S~~（取りやめ） | **AISS - AI Settled Systems** | ダイアログ選択肢 | `Chat with AISS - [NPC名]` | 約50項目 |
+| ~~S~~（取りやめ） | **AISS - AI Settled Systems** | HUD通知（画面右上） | `AISS REQUEST SENT TO [NPC名].`<br>`AISS: [NPC名] response ready; TTS playing.`<br>`AISS NPC set: [NPC名]` | 約20〜30文 |
+| ~~S~~（取りやめ） | **AISS - AI Settled Systems** | ポップアップ / エラー | `AISS is waiting for the backend response.`<br>`AISS Backend unreachable.` | 約10〜15文 |
+| ~~S~~（取りやめ） | **AISS - AI Settled Systems** | インベントリアイテム | AISS Setup アイテム名・説明文・初期化完了メッセージ | 約5〜10文 |
 | **A** | **Roleplayers' Alternate Start** | NEW ゲーム直後の選択メニュー | スタート地点・ナラティブ選択肢（46 MESG）<br>（例: `Choose your starting scenario`, `Freestar Ranger Trainee`, `Mining Colony Guard` 等） | 46 MESG |
 | **A** | **Roleplayers' Alternate Start** | 装備・設定ターミナル | スタート直後の装備支給・所持品選択ターミナル画面（39 TERM） | 39 TERM |
 | **A** | **Roleplayers' Alternate Start** | ロッジ等の改変会話テキスト | コンステレーションメンバー等の初期会話改変部分（バニラ部音声は日本語だが字幕が一部英語化） | 400+ DIAL/INFO |
@@ -110,7 +114,7 @@ Phase 1 で導入した MOD のうち、プレイヤーがゲーム内で目に�
      - DLL 埋め込み UI のため、設定ファイル（TOML/INI）によるローカライズ可否を確認の上、必要に応じて設定画面ガイドを作成。
 
 2. **作業量見積もり**:
-   - **AISS UI・通知文字列**: 極小（約 1〜2 時間）
+   - ~~**AISS UI・通知文字列**: 極小（約 1〜2 時間）~~（取りやめ）
    - **Roleplayers' Alternate Start (MESG / TERM)**: 小規模（約半日〜1日）
    - **Roleplayers' Alternate Start (DIAL / INFO 改変部)**: 中規模（約 1〜2 日）
    - **Absolute HOTAS 設定ガイド/ローカライズ**: 極小（約 2〜3 時間）

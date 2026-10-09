@@ -2,6 +2,9 @@
 
 本書は、Starfield Space Life JP プロジェクトにおける Phase 1（Core）基盤MODの導入手順および構成記録です。
 
+> [!NOTE]
+> **2026-10-05 に AI 会話（AISS + LM Studio）を取りやめ**、標準プロファイルは `Stable-NoAI` になりました。AISS 関連の記述は再開時の参考として残しています。実機の構成は 2026-10-09 に再確認済み（`docs/agy/reports/phase1-cleanup-01.md`）。
+
 > [!IMPORTANT]
 > **ゲーム起動に関する最重要事項**
 > **ゲームは必ず Mod Organizer 2（MO2）の GUI から「SFSE」を実行して起動してください。**
@@ -14,9 +17,9 @@
 - **ゲーム本体**: Starfield 1.16.244.0 (Steam版)
 - **Mod Manager**: Mod Organizer 2 (MO2) v2.5.2
   - インスタンス種別: グローバルインスタンス `Starfield`
-  - プロファイル名: `Stable`
+  - プロファイル名: `Stable-NoAI`（標準）。`Stable`（AISS有効）は休止中、`Test-NoAltStart` はフリーズ切り分け用
 - **GPU**: AMD Radeon RX 9070 16GB
-- **LLM環境**: LM Studio 0.4.25 (ローカル稼働、ポート 1234)
+- **LLM環境**: LM Studio 0.4.25（2026-10-05 取りやめ。停止・自動起動なし）
 
 ---
 
@@ -26,12 +29,19 @@
 |---|---|---|---|---|---|
 | - | **SFSE (Starfield Script Extender)** | 0.2.21 | `sfse_0_02_21.7z` | ゲームフォルダ直下配置 | スクリプト拡張・プラグインローダー |
 | 1 | **Address Library for SFSE Plugins** | v22 | `Address Library-3278-22-1773539745.7z` | MO2 経由導入 | 1.16.244.0 適合（`version-1-16-244-0.bin`） |
-| 2 | **Cassiopeia Papyrus Extender** | v10.0 | `Cassiopeia-14227-10-0-1768413158.7z` | MO2 経由導入 | AISS 必須前提 |
-| 3 | **Longer Names v2** | v2.0.2 | `Longer Names v2-10651-2-0-2-1748281145.7z` | MO2 経由導入 | AISS 必須前提（NPC名長拡張） |
-| 4 | **AISS - AI Settled Systems** | v3.75 | `AISS - AI Settled Systems-15636-3-75-1772401777.zip` | MO2 経由導入 | AI会話基盤（ESM+DLL+Backend） |
-| 5 | **AISS - Japanese Language Addon** | v1.0.0 | （新規構築） | MO2 経由導入（別MOD） | AISS 公式アドオン構造による日本語プロンプト |
+| 2 | **Cassiopeia Papyrus Extender** | v10.0 | `Cassiopeia-14227-10-0-1768413158.7z` | MO2 経由導入 | AISS 必須前提。`Stable-NoAI` では無効化予定 |
+| 3 | **Longer Names v2** | v2.0.2 | `Longer Names v2-10651-2-0-2-1748281145.7z` | MO2 経由導入 | AISS 必須前提（NPC名長拡張）。`Stable-NoAI` では無効化予定 |
+| 4 | **AISS - AI Settled Systems** | v3.75 | `AISS - AI Settled Systems-15636-3-75-1772401777.zip` | MO2 経由導入 | AI会話基盤（ESM+DLL+Backend）。**取りやめ・`Stable-NoAI` では無効** |
+| 5 | **AISS - Japanese Language Addon** | v1.0.0 | （新規構築） | MO2 経由導入（別MOD） | AISS 公式アドオン構造による日本語プロンプト。**`Stable-NoAI` では無効** |
 | 6 | **Absolute HOTAS** | V5.1.0 | `Absolute HOTAS - Flight and System Control-11756-V5-1-0-1740925232.zip` | MO2 経由導入 | 操縦・HOTAS入力基盤（DLL+ルーズスクリプト） |
 | 7 | **Roleplayers' Alternate Start** | 1.2.4 | `Roleplayers' Alternate Start 15094 1.2.4 2026-09-24T14-20Z qd5Tg9F6T.zip` | MO2 経由導入 | ニューゲーム導入スキップ（ESM+BA2） |
+| 8 | **Shades Glowy Stuff** + 日本語化 | 1.5.2 | `Shades Glowy Stuff-11818-1-5-2-1728211050.7z` | MO2 経由導入 | 発光QoL（ESM+BA2）。Phase 1 追加 |
+| 9 | **Baka Achievement Enabler** | 7.0.0 | `Baka Achievement Enabler-658-7-0-0-1775656347.7z` | MO2 経由導入 | MOD使用時の実績有効化（SFSE DLL）。Phase 1 追加 |
+| 10 | **Furnish Your Fleet** + 日本語化 | 1.71 | `vivs_FurnishYourFleet.zip-12202-1-71-1738287664.zip` | MO2 経由導入 | 船内家具（ESM+BA2）。Phase 1 追加 |
+| 11 | **Better Living - Outpost Decor** + 日本語化 | 2.2 | `Better_Living-10290-2-2-1730286640.7z` | MO2 経由導入 | 拠点・生活装飾（ESM）。Phase 1 追加 |
+| 12 | **Betamax's Functional Decor** + 日本語化 | 2.14 | `Functional Decor-10789-2-14-1776955329.zip` | MO2 経由導入 | 機能付き家具（ESM+BA2）。Phase 1 追加 |
+
+日本語化MOD（「〇〇 - 日本語化」）は元MODの直上（優先度が高い側）に置く別MODで、翻訳済みESMはリポジトリに含めない（`docs/agy/reports/phase1-extras-02.md`）。
 
 ※競合確認結果: 全ファイルで上書き衝突 0 件（完全独立）。
 ※日本語アドオンは MO2 別 MOD「AISS - Japanese Language Addon」の1か所のみで独立管理し、AISS 本体のフォルダは一切改変しません。
@@ -114,24 +124,38 @@ SFSE は作者の仕様に基づき、ゲームフォルダ直下（`<Starfield>
 
 ## 5. ロード順（Load Order）
 
-### 5.1 MO2 左ペイン（MOD優先度順）
+`Stable-NoAI` の実機構成（2026-10-09 確認）。
+
+### 5.1 MO2 左ペイン（MOD優先度順。上が低優先度・下が高優先度）
 1. Address Library for SFSE Plugins
-2. Cassiopeia Papyrus Extender
-3. Longer Names v2
-4. AISS - AI Settled Systems
-5. **AISS - Japanese Language Addon**（AISS の直下、優先度高）
-6. Absolute HOTAS
-7. **Roleplayers' Alternate Start**
+2. Baka Achievement Enabler
+3. Cassiopeia Papyrus Extender（無効化予定）
+4. Longer Names v2（無効化予定）
+5. ~~AISS - AI Settled Systems~~（無効）
+6. ~~AISS - Japanese Language Addon~~（無効）
+7. Absolute HOTAS
+8. Roleplayers' Alternate Start
+9. Shades Glowy Stuff
+10. Shades Glowy Stuff - 日本語化
+11. Furnish Your Fleet
+12. Furnish Your Fleet - 日本語化
+13. Better Living - Outpost Decor
+14. Better Living - Outpost Decor - 日本語化
+15. Betamax's Functional Decor
+16. Betamax's Functional Decor - 日本語化
 
-### 5.2 MO2 右ペイン / plugins.txt（プラグイン読み込み順）
-Starfield の公式マスターに続き、以下のロード順で有効化しています。
+（`modlist.txt` は逆順＝先頭が最高優先度で書かれる）
+
+### 5.2 plugins.txt（`Stable-NoAI`）
+
+公式マスター（Starfield.esm、Constellation.esm、OldMars.esm、BlueprintShips-Starfield.esm、sfxfirefly.esm、SFBGS 系、ShatteredSpace.esm）はゲーム側が自動で先に読み込むため、plugins.txt には書かれない。
 
 ```
-*Starfield.esm
-*Constellation.esm
-*OldMars.esm
-*BlueprintShips-Starfield.esm
-*sfxfirefly.esm
-*x2357aiss.esm
 *RoleplayersAlternateStart.esm
+*Shades_Glowy_Stuff.esm
+*vivs_furnishyourfleet.esm
+*Better_Living.esm
+*FunctionalDecor.esm
 ```
+
+`Stable`（AISS有効・休止中）は、上記に加えて `*x2357aiss.esm` を `RoleplayersAlternateStart.esm` の前に読み込む。

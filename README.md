@@ -14,11 +14,13 @@ Windows版Starfield向けMOD環境の仕様・監査・設定・検証を管理�
 
 ## 現在のフェーズ
 
-**Phase 0 — READ-ONLY監査**
+**Phase 1 仕上げ（2026-10-09 時点）**
 
-AGYはまず `docs/MOD_AUDIT.md` を作成し、候補MODの最新版、依存関係、競合、Windows対応、日本語化、権利条件、既知の問題を調査してください。
+- Phase 0（READ-ONLY監査）: 2026-10-03 完了（`docs/MOD_AUDIT.md`）
+- Phase 1（Core + 追加MOD・全MOD日本語化）: 完了。MO2 の `Stable-NoAI` プロファイルで運用中
+- 次: 仕様に追加した安定化・表示/QoL・武器MODの導入（Phase 1 仕上げ）→ Phase 2（Ship Life）
 
-**監査が完了するまでMODの追加・削除・置換・本体改変を行ってはいけません。**
+MODの追加・削除・置換・本体改変は、`docs/agy/` の指示書で指示された範囲でのみ行う（`docs/MOD_SPEC.md` 14章）。
 
 ## ドキュメント
 
@@ -29,8 +31,11 @@ AGYはまず `docs/MOD_AUDIT.md` を作成し、候補MODの最新版、依存�
 - `docs/TTS_AUDIT.md` — 無料AI音声（TTS）の監査結果
 - `docs/INSTALL_GUIDE.md` — インストール手順
 - `docs/CONFIG_GUIDE.md` — 設定手順
-- `docs/TEST_PLAN.md` — テスト計画
-- `docs/TEST_RESULTS.md` — テスト結果
+- `docs/TEST_PHASE1.md` — Phase 1 テスト手順・結果
+- `docs/TEST_CRASH.md` — ニューゲーム直後フリーズの切り分け手順
+- `docs/DOWNLOAD_LIST.md` — ダウンロード一覧
+- `docs/GLOSSARY_JA.md` — 日本語化用語集
+- `docs/agy/` — agy への指示書と報告
 
 ## 対象環境
 
