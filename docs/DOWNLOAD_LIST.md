@@ -21,8 +21,9 @@ Phase 1 のMODは `D:\StarfieldMODs\Phase1` に配置済み。ここでは、そ
 | 2. 表示/QoL | **Decal Fix** | [Nexus 17576](https://www.nexusmods.com/starfield/mods/17576) | `DecalFix-PackagedVersion-esm` (v2) または `DecalFix-LooseFiles` (v2.1) | Main / Optional | BA2 パッケージ版（Main）またはルーズ版（Optional）のどちらか片方 |
 | 2. 表示/QoL | **Neutral LUTs - No Color Filters** | [Nexus 323](https://www.nexusmods.com/starfield/mods/323) | `Neutral LUTs - No Color Filters v1-5` (v1.5) | Main | ルーズ DDS テクスチャ。他 LUT MOD とは併用不可 |
 | 2. 表示/QoL | **Easy Digipick (Lockpick)** | [Nexus 451](https://www.nexusmods.com/starfield/mods/451) | `Easy Digipick` (v1.4) | Main | `Easy Digipick.esm`（または好みに応じて Immersive Digipick） |
+| 2. 表示/QoL | **Shades Glowy Stuff Terran Armada Fix** | [Nexus 17615](https://www.nexusmods.com/starfield/mods/17615) | Main 版（v1.0.2。Legendary/Exotic のみ光る Optional 版とは片方のみ） | Main | 導入済み Shades Glowy Stuff 1.5.2 用の修正。Anchorpoint（Terran Armada）で光らない問題、Astra・X-Tech・宇宙服等の発光を修正。ESM 追加と `_sgb_objectgloweffectscript.pex` の上書きあり。日本語化MODとの上書き関係は導入時に確認 |
 | 3. 武器 | ~~Weapon Mod Fixes - WMF~~ | [Nexus 9091](https://www.nexusmods.com/starfield/mods/9091) | （ダウンロード保留） | - | **採用見送り**: Nexus 最新版が pre-Free Lanes（v1.10）。1.16.244 未対応のため保留 |
-| 3. 武器 | ~~Weapon Quality Diversity~~ | [Nexus 17044](https://www.nexusmods.com/starfield/mods/17044) | （ダウンロード保留） | - | **保留**: `Shattered Space` と `Terran Armada` の両DLCが必須前提（2026-10-09 Claude が Nexus で確認）。Terran Armada の所持をユーザーに確認中（Data の `SFBGS050.esm` が Terran Armada の可能性があり、10/04 の「未所持」判定を再確認する） |
+| 3. 武器 | **Weapon Quality Diversity** | [Nexus 17044](https://www.nexusmods.com/starfield/mods/17044) | `Weapon Quality Diversity` (v1.0) | Main | **採用**: `Shattered Space` と `Terran Armada` の両DLCが必須前提。ユーザーは両方所持（2026-10-09 確認） |
 
 ## Phase 2 — Ship Life
 

@@ -228,6 +228,7 @@
   - 指示書にあった「Shades Glowy Stuff Terran Armada Fix」（Nexus 17615）は、Terran Armada DLC (ESM) が必須前提。
   - ローカルの Starfield Data フォルダを点検した結果、Terran Armada の ESM は未所持であることを確認済み。
   - したがって、通常版 `Shades Glowy Stuff` のみを導入対象とし、Fix版は除外する。
+  - **〔2026-10-09 訂正〕ユーザーは Terran Armada を所持している**（ユーザー確認）。Data の `SFBGS050.esm` / `BlueprintShips-SFBGS050.esm` が該当すると見られる。上記の「未所持」判定は誤り。Fix版（v1.0.2）は Phase 1 仕上げで導入を検討する（`docs/DOWNLOAD_LIST.md`）
 - **日本語化**: 設定メニューや説明文にテキストがある場合、xTranslator で翻訳対応。
 
 ### 6.2 Baka Achievement Enabler (SFSE) (実績解除MOD)

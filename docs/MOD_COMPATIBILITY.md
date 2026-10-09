@@ -369,7 +369,7 @@ SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
    - Phase 3 の `Seamless Loading Screens`（ReShade 6.8.0+ 前提）とは競合しない（作者も ReShade のベースとして推奨）。
    - Luma（HDR）導入時は LUT 処理との重複を監査する必要があるが、現構成では導入しないため問題なし。
 3. **武器系 2 件の相互関係と問題点**:
-   - `Weapon Quality Diversity`: `Terran Armada DLC` 未所持のため導入不可（CTD ブロッカー）。
+   - `Weapon Quality Diversity`: `Terran Armada DLC` 未所持のため導入不可（CTD ブロッカー）。**〔2026-10-09 Claude 訂正〕ユーザーは Terran Armada を所持（Shattered Space も所持）。前提は満たすため導入可能**
    - `Weapon Mod Fixes - WMF`: 2025 年 6 月の v1.10 のままであり、1.16.244 / Free Lanes の武器品質・レジェンダリクラフト変更に対応した更新が未リリース。バニラ最新レコードの破壊リスクがあるため保留。
 4. **Starfield Engine Fixes - SFSE の機能と既存 DLL との共存**:
    - 既定のエンジン修正（表情リセット、デカール浮遊、マップマーカー消失、CTD 回避など 40 件以上）は安全に機能。
@@ -391,7 +391,7 @@ SF1Edit (Starfield xEdit v4.1.5以上) を用いた競合監査の標準手順:
 | **2. 表示/QoL** | Neutral LUTs | **採用** | ルーズ DDS。1.16.244 適合、ReShade 併用問題なし |
 | **2. 表示/QoL** | Easy Digipick | **採用** | 1.16.244 動作確認済み（v1.4 ESM）。UI 英語化なし |
 | **3. 武器** | Weapon Mod Fixes - WMF | **見送り（保留）** | pre-Free Lanes 版（v1.10）のままであり、1.16.244 の新武器仕様と不整合 |
-| **3. 武器** | Weapon Quality Diversity | **見送り（除外）** | 未所持の `Terran Armada DLC` が必須前提のためロード時 CTD となる |
+| **3. 武器** | Weapon Quality Diversity | **採用**（2026-10-09 訂正） | 前提の Shattered Space / Terran Armada をユーザーが所持。武器の性能・Tierを変える他MODは導入しない（WMF も保留中） |
 
 **推奨実施手順**:
 Phase 1 仕上げの実機導入は、グループ 1（安定化 2 件）およびグループ 2（表示/QoL 4 件）の計 6 件に絞って進め、グループ 3（武器）はスキップすることを提案する。
