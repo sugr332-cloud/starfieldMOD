@@ -133,9 +133,14 @@ try {
     }
 
     # 2. VRAM 節約チェック（常駐プロセスの確認）
+    # AIなし (-NoAI) では LLM が VRAM を使わないため、常駐アプリ (Discord 等) の確認・終了は行わない
     $currentStep = "ステップ 1/5: VRAM 常駐アプリのチェック"
-    Write-Host "[$currentStep] 実行中..." -ForegroundColor Green
-    $heavyProcesses = $config.vramHeavyProcesses
+    $heavyProcesses = if ($NoAI) { @() } else { $config.vramHeavyProcesses }
+    if ($NoAI) {
+        Write-Host "[$currentStep] AIなしモードのためスキップします。" -ForegroundColor DarkGray
+    } else {
+        Write-Host "[$currentStep] 実行中..." -ForegroundColor Green
+    }
     $foundProcesses = @()
 
     foreach ($procName in $heavyProcesses) {
@@ -178,7 +183,7 @@ try {
         } else {
             Write-Host "  アプリの終了をスキップしました。" -ForegroundColor DarkGray
         }
-    } else {
+    } elseif (-not $NoAI) {
         Write-Host "  VRAM 消費の大きな常駐アプリは検出されませんでした。" -ForegroundColor Green
     }
     Write-Host ""
